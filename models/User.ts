@@ -7,6 +7,7 @@ export interface IUser extends Document {
   password?: string; // Nullable for Google OAuth users
   profilePicture?: string;
 
+  
   // Authentication
   authProvider: "google" | "credentials";
   emailVerified: boolean;
