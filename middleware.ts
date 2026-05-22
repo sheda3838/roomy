@@ -16,7 +16,7 @@ export default auth((req) => {
   const isOnboardingRoute = nextUrl.pathname === "/onboarding";
 
   // Publicly accessible pages that do not require active user session
-  const publicRoutes = ["/", "/login", "/register"];
+  const publicRoutes = ["/", "/login", "/register", "/rooms"];
   const isPublicRoute = publicRoutes.includes(nextUrl.pathname);
 
   // 1. Allow auth callbacks & token refresh routes

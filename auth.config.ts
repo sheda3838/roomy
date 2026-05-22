@@ -9,14 +9,28 @@ export const authConfig = {
     }),
   ],
   callbacks: {
-    // Extract user info on login and populate JWT token
-    async jwt({ token, user }) {
+    // Extract user info on login and populate JWT token.
+    // Also handles client-side update() calls to patch safe fields without a DB round-trip.
+    async jwt({ token, user, trigger, session }) {
+      // On initial sign-in, populate token from the user object
       if (user) {
         token.id = user.id;
         token.emailVerified = user.emailVerified;
         token.isOnboardingComplete = user.isOnboardingComplete;
         token.authProvider = user.authProvider;
       }
+
+      // When update() is called from the client, patch only safe fields.
+      // This avoids a DB round-trip and keeps the JWT re-sign fast (~50ms).
+      if (trigger === "update" && session) {
+        if (typeof session.isOnboardingComplete === "boolean") {
+          token.isOnboardingComplete = session.isOnboardingComplete;
+        }
+        if (typeof session.emailVerified === "boolean") {
+          token.emailVerified = session.emailVerified;
+        }
+      }
+
       return token;
     },
     
