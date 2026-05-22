@@ -10,6 +10,7 @@ export default function RequestToJoinButton({ roomId, isOwner }: { roomId: strin
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
+  const [message, setMessage] = useState("");
 
   if (isOwner) {
     return (
@@ -25,7 +26,7 @@ export default function RequestToJoinButton({ roomId, isOwner }: { roomId: strin
     setErrorMsg("");
 
     try {
-      const res = await sendJoinRequest(roomId);
+      const res = await sendJoinRequest(roomId, message);
       if (res.error) {
         setStatus("error");
         setErrorMsg(res.error);
@@ -49,7 +50,14 @@ export default function RequestToJoinButton({ roomId, isOwner }: { roomId: strin
   }
 
   return (
-    <div>
+    <div className="w-full space-y-4">
+      <textarea
+        placeholder="Add a short message introducing yourself (optional)"
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
+        maxLength={500}
+        className="w-full p-4 rounded-xl bg-zinc-900 border border-zinc-800 text-white placeholder:text-zinc-500 focus:outline-none focus:border-indigo-500 transition-colors resize-none h-24"
+      />
       <button
         onClick={handleRequest}
         disabled={isSubmitting}

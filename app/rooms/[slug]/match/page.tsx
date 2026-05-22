@@ -40,7 +40,12 @@ export default async function MatchExperiencePage({ params }: { params: Promise<
 
   // Connection State Checks
   await dbConnect();
-  const isOwner = room.ownerId?._id?.toString() === session.user.id || room.ownerId === session.user.id;
+  let ownerIdStr = "";
+  if (typeof room.ownerId === "string") ownerIdStr = room.ownerId;
+  else if (room.ownerId?._id) ownerIdStr = room.ownerId._id.toString();
+  else if (room.ownerId?.toString) ownerIdStr = room.ownerId.toString();
+
+  const isOwner = ownerIdStr === session.user.id;
   
   // Check if joined
   const occupantIds = room.occupantIds || [];

@@ -36,7 +36,12 @@ export default async function RoomDetailsPage({ params }: { params: Promise<{ sl
   const room = data.room;
   const session = await auth();
   const isLoggedIn = !!session?.user;
-  const isOwner = session?.user?.id === room.ownerId?._id;
+  let ownerIdStr = "";
+  if (typeof room.ownerId === "string") ownerIdStr = room.ownerId;
+  else if (room.ownerId?._id) ownerIdStr = room.ownerId._id.toString();
+  else if (room.ownerId?.toString) ownerIdStr = room.ownerId.toString();
+
+  const isOwner = ownerIdStr === session.user.id;
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100">
@@ -176,19 +181,31 @@ export default async function RoomDetailsPage({ params }: { params: Promise<{ sl
               )}
             </div>
 
+            {isOwner && (
+              <Link
+                href={`/rooms/${room.slug}/requests`}
+                className="w-full flex items-center justify-center gap-2 py-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition-all shadow-lg shadow-indigo-900/20"
+              >
+                <Users className="w-5 h-5" />
+                View Join Requests
+              </Link>
+            )}
+
             {/* Signature Compatibility Feature CTA */}
-            <Link
-              href={`/rooms/${room.slug}/match`}
-              className="group w-full p-4 rounded-xl bg-gradient-to-br from-indigo-600/20 to-purple-600/10 border border-indigo-500/30 hover:border-indigo-400 flex flex-col gap-3 transition-all"
-            >
-              <div className="flex items-center justify-between text-indigo-300 group-hover:text-indigo-200">
-                <span className="font-bold flex items-center gap-2"><Zap className="w-5 h-5 fill-indigo-400 text-indigo-400" /> Check Compatibility</span>
-                <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </div>
-              <p className="text-sm text-zinc-400">
-                See how well your lifestyle and budget aligns with this room and owner. You can request to join after checking your compatibility match.
-              </p>
-            </Link>
+            {!isOwner && (
+              <Link
+                href={`/rooms/${room.slug}/match`}
+                className="group w-full p-4 rounded-xl bg-gradient-to-br from-indigo-600/20 to-purple-600/10 border border-indigo-500/30 hover:border-indigo-400 flex flex-col gap-3 transition-all"
+              >
+                <div className="flex items-center justify-between text-indigo-300 group-hover:text-indigo-200">
+                  <span className="font-bold flex items-center gap-2"><Zap className="w-5 h-5 fill-indigo-400 text-indigo-400" /> Check Compatibility</span>
+                  <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </div>
+                <p className="text-sm text-zinc-400">
+                  See how well your lifestyle and budget aligns with this room and owner. You can request to join after checking your compatibility match.
+                </p>
+              </Link>
+            )}
 
             <div className="h-px w-full bg-zinc-800" />
 

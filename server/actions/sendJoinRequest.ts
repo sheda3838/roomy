@@ -6,7 +6,7 @@ import dbConnect from "@/lib/db";
 import Room from "@/models/Room";
 import RoomRequest from "@/models/RoomRequest";
 
-export async function sendJoinRequest(roomId: string) {
+export async function sendJoinRequest(roomId: string, message?: string) {
   if (!roomId || !mongoose.Types.ObjectId.isValid(roomId)) {
     return { error: "A valid Room ID is required." };
   }
@@ -52,23 +52,25 @@ export async function sendJoinRequest(roomId: string) {
       return { error: "You are already an occupant of this room." };
     }
 
-    // Check for any existing pending requests
+    // Check for any existing pending or accepted requests
     const existingRequest = await RoomRequest.findOne({
       fromUserId: userId,
       roomId,
-      status: "pending",
+      status: { $in: ["pending", "accepted"] },
     });
 
     if (existingRequest) {
-      return { error: "You have already sent a pending request to join this room." };
+      return { error: "You already have an active request or connection for this room." };
     }
 
     // 5. Create RoomRequest document
     const newRequest = await RoomRequest.create({
       fromUserId: userId,
+      ownerId: room.ownerId,
       roomId,
       type: "join_room",
       status: "pending",
+      message: message || undefined,
     });
 
     return { 
