@@ -2,240 +2,346 @@
 
 import { motion, Variants } from "framer-motion";
 import Link from "next/link";
-import { ArrowLeft, CheckCircle2, XCircle, Zap, Home, DollarSign, Heart, Bed, Wine, Ban, ShieldCheck, MapPin } from "lucide-react";
+import { ArrowLeft, CheckCircle2, XCircle, Zap, Home, DollarSign, Heart, Bed, Wine, Ban, ShieldCheck, MapPin, Clock, Users } from "lucide-react";
+import RequestToJoinButton from "@/components/rooms/RequestToJoinButton";
 
-export default function MatchExperienceClient({ data }: { data: any }) {
-  const { room, match } = data;
-  const { score, label, lifestyle, budget, location, positiveSignals, possibleConflicts } = match;
-
-  const containerVariants: Variants = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1 }
-    }
+interface MatchExperienceClientProps {
+  room: any;
+  match: {
+    score: number;
+    label: string;
+    lifestyle: any;
+    budget: any;
+    location: any;
+    positiveSignals: string[];
+    possibleConflicts: string[];
   };
-
-  const itemVariants: Variants = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
+  connectionState: {
+    isOwner: boolean;
+    isJoined: boolean;
+    hasPendingRequest: boolean;
   };
+}
 
-  const scoreColor = score >= 80 ? "text-emerald-400" : score >= 50 ? "text-amber-400" : "text-red-400";
-  const scoreBg = score >= 80 ? "from-emerald-500/20 to-emerald-900/5" : score >= 50 ? "from-amber-500/20 to-amber-900/5" : "from-red-500/20 to-red-900/5";
-  const scoreBorder = score >= 80 ? "border-emerald-500/30" : score >= 50 ? "border-amber-500/30" : "border-red-500/30";
+const containerVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.15 },
+  },
+};
+
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
+};
+
+export default function MatchExperienceClient({ room, match, connectionState }: MatchExperienceClientProps) {
+  // Determine gradient based on score
+  let scoreColor = "text-indigo-400";
+  let scoreBg = "bg-indigo-400/20";
+  let scoreBorder = "border-indigo-500/30";
+  
+  if (match.score >= 90) {
+    scoreColor = "text-emerald-400";
+    scoreBg = "bg-emerald-400/20";
+    scoreBorder = "border-emerald-500/30";
+  } else if (match.score < 60) {
+    scoreColor = "text-amber-400";
+    scoreBg = "bg-amber-400/20";
+    scoreBorder = "border-amber-500/30";
+  }
+
+  const { isOwner, isJoined, hasPendingRequest } = connectionState;
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 py-10 px-4 relative overflow-hidden">
-      {/* Background Glows */}
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-900/20 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-purple-900/20 rounded-full blur-[120px] pointer-events-none" />
-
+      {/* Background decorations */}
+      <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-indigo-900/20 to-transparent pointer-events-none" />
+      
       <div className="max-w-4xl mx-auto relative z-10">
-        <Link href={`/rooms/${room.slug}`} className="inline-flex items-center gap-2 text-zinc-400 hover:text-white mb-8 transition-colors">
-          <ArrowLeft className="w-4 h-4" /> Back to room
-        </Link>
+        
+        {/* Header Nav */}
+        <div className="mb-8 flex items-center gap-4">
+          <Link href={`/rooms/${room.slug}`} className="p-2 rounded-full hover:bg-zinc-800 transition-colors">
+            <ArrowLeft className="w-6 h-6 text-zinc-400" />
+          </Link>
+          <span className="text-zinc-500 font-semibold tracking-wide uppercase text-sm">
+            Compatibility Engine
+          </span>
+        </div>
 
-        <motion.div variants={containerVariants} initial="hidden" animate="show" className="space-y-8">
-          
-          {/* 1. Score Hero */}
-          <motion.div variants={itemVariants} className={`p-8 md:p-12 rounded-3xl bg-gradient-to-br ${scoreBg} border ${scoreBorder} backdrop-blur-xl text-center relative overflow-hidden`}>
-            <div className="absolute top-0 right-0 p-6 opacity-10">
-              <Zap className="w-32 h-32" />
-            </div>
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="space-y-8"
+        >
+          {/* 🎯 HERO SECTION */}
+          <motion.div variants={itemVariants} className="bg-zinc-900/60 backdrop-blur-xl border border-zinc-800 rounded-3xl p-8 md:p-12 relative overflow-hidden flex flex-col items-center text-center shadow-2xl">
+            {/* Radial glow behind score */}
+            <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full ${scoreBg} blur-3xl opacity-50`} />
             
-            <h1 className="text-xl md:text-2xl font-semibold text-zinc-300 mb-2">Compatibility Match</h1>
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-8">{room.title}</h2>
-            
-            <div className="flex flex-col items-center justify-center">
-              <div className="relative flex items-center justify-center">
-                <svg className="w-48 h-48 transform -rotate-90">
-                  <circle cx="96" cy="96" r="88" stroke="currentColor" strokeWidth="12" fill="transparent" className="text-zinc-800" />
-                  <motion.circle 
-                    cx="96" cy="96" r="88" 
-                    stroke="currentColor" 
-                    strokeWidth="12" 
-                    fill="transparent" 
-                    strokeDasharray="552.9" 
-                    initial={{ strokeDashoffset: 552.9 }}
-                    animate={{ strokeDashoffset: 552.9 - (552.9 * score) / 100 }}
-                    transition={{ duration: 1.5, ease: "easeOut", delay: 0.2 }}
-                    className={`${scoreColor} drop-shadow-[0_0_15px_currentColor]`} 
-                    strokeLinecap="round"
-                  />
-                </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <motion.span 
-                    initial={{ opacity: 0, scale: 0.5 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.5, duration: 0.5 }}
-                    className={`text-5xl font-black ${scoreColor}`}
-                  >
-                    {score}%
-                  </motion.span>
+            <div className="relative z-10 flex flex-col items-center">
+              <div className={`w-40 h-40 md:w-48 md:h-48 rounded-full border-[6px] ${scoreBorder} flex items-center justify-center bg-zinc-900/80 shadow-inner mb-6`}>
+                <div className="text-center">
+                  <span className={`text-5xl md:text-6xl font-black ${scoreColor} tabular-nums tracking-tighter`}>
+                    {match.score}%
+                  </span>
                 </div>
               </div>
-              <motion.div 
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1 }}
-                className={`mt-6 px-6 py-2 rounded-full border ${scoreBorder} bg-black/40 backdrop-blur-md font-bold uppercase tracking-wider text-sm ${scoreColor}`}
-              >
-                {label}
-              </motion.div>
+
+              <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
+                {match.label}
+              </h1>
+              
+              <div className="text-zinc-400 mb-8 max-w-lg">
+                For <span className="font-semibold text-zinc-200">{room.title}</span> in {room.locationText}
+              </div>
+
+              {/* Compatibility Badges */}
+              <div className="flex flex-wrap items-center justify-center gap-3">
+                {match.budget.isPerfect && (
+                  <span className="px-4 py-1.5 rounded-full bg-emerald-950/40 border border-emerald-800/50 text-emerald-400 text-sm font-semibold flex items-center gap-1.5">
+                    <div className="w-2 h-2 rounded-full bg-emerald-400" /> Budget Friendly
+                  </span>
+                )}
+                {match.location.isMatched && (
+                  <span className="px-4 py-1.5 rounded-full bg-emerald-950/40 border border-emerald-800/50 text-emerald-400 text-sm font-semibold flex items-center gap-1.5">
+                    <div className="w-2 h-2 rounded-full bg-emerald-400" /> Preferred Area
+                  </span>
+                )}
+                {match.lifestyle.cleanliness.match === "perfect" && (
+                  <span className="px-4 py-1.5 rounded-full bg-emerald-950/40 border border-emerald-800/50 text-emerald-400 text-sm font-semibold flex items-center gap-1.5">
+                    <div className="w-2 h-2 rounded-full bg-emerald-400" /> Lifestyle Match
+                  </span>
+                )}
+                {(match.lifestyle.guestPolicy.match === "conflict" || match.lifestyle.guestPolicy.match === "partial") && (
+                  <span className="px-4 py-1.5 rounded-full bg-amber-950/40 border border-amber-800/50 text-amber-400 text-sm font-semibold flex items-center gap-1.5">
+                    <div className="w-2 h-2 rounded-full bg-amber-400" /> Guest Rules Differ
+                  </span>
+                )}
+              </div>
             </div>
           </motion.div>
 
-          {/* 2. Signals Summary */}
-          {(positiveSignals.length > 0 || possibleConflicts.length > 0) && (
-            <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="p-6 rounded-2xl bg-zinc-900/60 border border-zinc-800 backdrop-blur-sm">
-                <h3 className="text-lg font-bold text-white flex items-center gap-2 mb-4">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-400" /> Positive Signals
-                </h3>
-                <ul className="space-y-3">
-                  {positiveSignals.length > 0 ? positiveSignals.map((sig: string, i: number) => (
-                    <li key={i} className="flex items-start gap-2 text-zinc-300">
-                      <span className="mt-1 w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
-                      {sig}
-                    </li>
-                  )) : (
-                    <li className="text-zinc-500 italic">No strong positive signals found.</li>
-                  )}
-                </ul>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* 🟢 POSITIVE SIGNALS */}
+            <motion.div variants={itemVariants} className="bg-emerald-950/10 border border-emerald-900/30 rounded-2xl p-6 md:p-8 space-y-4">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-2 bg-emerald-500/20 rounded-lg text-emerald-400">
+                  <Heart className="w-6 h-6" />
+                </div>
+                <h2 className="text-xl font-bold text-white">Why this matches you</h2>
               </div>
-
-              <div className="p-6 rounded-2xl bg-zinc-900/60 border border-zinc-800 backdrop-blur-sm">
-                <h3 className="text-lg font-bold text-white flex items-center gap-2 mb-4">
-                  <XCircle className="w-5 h-5 text-red-400" /> Possible Conflicts
-                </h3>
-                <ul className="space-y-3">
-                  {possibleConflicts.length > 0 ? possibleConflicts.map((sig: string, i: number) => (
-                    <li key={i} className="flex items-start gap-2 text-zinc-300">
-                      <span className="mt-1 w-1.5 h-1.5 rounded-full bg-red-500 shrink-0" />
-                      {sig}
-                    </li>
-                  )) : (
-                    <li className="text-emerald-500 italic flex items-center gap-2">
-                      <ShieldCheck className="w-4 h-4" /> No major conflicts detected!
-                    </li>
-                  )}
-                </ul>
-              </div>
-            </motion.div>
-          )}
-
-          {/* 3. Detailed Breakdowns */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            
-            {/* Lifestyle */}
-            <motion.div variants={itemVariants} className="lg:col-span-2 p-6 md:p-8 rounded-2xl bg-zinc-900/40 border border-zinc-800/80 backdrop-blur-sm">
-              <h3 className="text-xl font-bold text-white flex items-center gap-2 mb-6 border-b border-zinc-800 pb-4">
-                <Heart className="w-5 h-5 text-purple-400" /> Lifestyle Compatibility
-              </h3>
               
-              <div className="space-y-6">
-                {/* Cleanliness */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className={`p-2 rounded-lg ${lifestyle.cleanliness.match === 'perfect' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-zinc-800 text-zinc-400'}`}>
-                      <Home className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <p className="text-white font-semibold">Cleanliness</p>
-                      <p className="text-sm text-zinc-400 capitalize">Room expects: {room.cleanlinessExpectation}</p>
-                    </div>
-                  </div>
-                  <span className={`text-sm font-bold capitalize ${lifestyle.cleanliness.match === 'perfect' ? 'text-emerald-400' : 'text-amber-400'}`}>
-                    {lifestyle.cleanliness.match} Match
-                  </span>
-                </div>
-
-                {/* Smoker/Drinker */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className={`p-2 rounded-lg ${lifestyle.smoker.match === 'conflict' || lifestyle.drinker.match === 'conflict' ? 'bg-red-500/20 text-red-400' : 'bg-emerald-500/20 text-emerald-400'}`}>
-                      <Wine className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <p className="text-white font-semibold">Habits (Smoking / Drinking)</p>
-                      <p className="text-sm text-zinc-400">
-                        Room allows: {room.smokerAllowed ? "Smoking" : "No Smoking"}, {room.drinkerAllowed ? "Drinking" : "No Drinking"}
-                      </p>
-                    </div>
-                  </div>
-                  <span className={`text-sm font-bold capitalize ${lifestyle.smoker.match === 'conflict' || lifestyle.drinker.match === 'conflict' ? 'text-red-400' : 'text-emerald-400'}`}>
-                    {lifestyle.smoker.match === 'conflict' || lifestyle.drinker.match === 'conflict' ? 'Conflict' : 'Compatible'}
-                  </span>
-                </div>
-
-                {/* Guests */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className={`p-2 rounded-lg ${lifestyle.guestPolicy.match === 'perfect' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-zinc-800 text-zinc-400'}`}>
-                      <Bed className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <p className="text-white font-semibold">Guest Policy</p>
-                      <p className="text-sm text-zinc-400 capitalize">Room allows: {room.guestPolicy}</p>
-                    </div>
-                  </div>
-                  <span className={`text-sm font-bold capitalize ${lifestyle.guestPolicy.match === 'perfect' ? 'text-emerald-400' : 'text-amber-400'}`}>
-                    {lifestyle.guestPolicy.match} Match
-                  </span>
-                </div>
-              </div>
+              {match.positiveSignals.length > 0 ? (
+                <ul className="space-y-4">
+                  {match.positiveSignals.map((signal, idx) => (
+                    <li key={idx} className="flex items-start gap-3">
+                      <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+                      <span className="text-zinc-300 font-medium">{signal}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-zinc-500 italic">No strong positive signals found.</p>
+              )}
             </motion.div>
 
-            {/* Budget & Location */}
-            <motion.div variants={itemVariants} className="space-y-6">
+            {/* 🔴 POTENTIAL CONFLICTS */}
+            <motion.div variants={itemVariants} className="bg-zinc-900/40 border border-zinc-800 rounded-2xl p-6 md:p-8 space-y-4">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-2 bg-zinc-800 rounded-lg text-amber-400">
+                  <ShieldCheck className="w-6 h-6" />
+                </div>
+                <h2 className="text-xl font-bold text-white">Things to consider</h2>
+              </div>
               
-              <div className="p-6 rounded-2xl bg-zinc-900/40 border border-zinc-800/80 backdrop-blur-sm">
-                <h3 className="text-lg font-bold text-white flex items-center gap-2 mb-4 border-b border-zinc-800 pb-3">
-                  <DollarSign className="w-5 h-5 text-green-400" /> Budget Fit
-                </h3>
-                <div className="text-2xl font-bold text-white mb-1">
-                  Rs. {budget.roomRent.toLocaleString()}
+              {match.possibleConflicts.length > 0 ? (
+                <ul className="space-y-4">
+                  {match.possibleConflicts.map((signal, idx) => (
+                    <li key={idx} className="flex items-start gap-3">
+                      <Zap className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                      <span className="text-zinc-300 font-medium">{signal}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-6 text-center">
+                  <CheckCircle2 className="w-10 h-10 text-emerald-500 mb-2 opacity-50" />
+                  <p className="text-zinc-400 font-medium">No major conflicts detected!</p>
                 </div>
-                {budget.userMax > 0 ? (
-                  <p className="text-sm text-zinc-400 mb-4">Your max budget: Rs. {budget.userMax.toLocaleString()}</p>
-                ) : (
-                  <p className="text-sm text-zinc-400 mb-4">You haven't set a budget</p>
-                )}
-                
-                <div className={`p-3 rounded-xl border flex items-center gap-3 ${budget.isPerfect ? 'bg-emerald-950/30 border-emerald-800/50 text-emerald-400' : budget.isConflict ? 'bg-red-950/30 border-red-800/50 text-red-400' : 'bg-amber-950/30 border-amber-800/50 text-amber-400'}`}>
-                  {budget.isPerfect ? <CheckCircle2 className="w-5 h-5 shrink-0" /> : budget.isConflict ? <XCircle className="w-5 h-5 shrink-0" /> : <Zap className="w-5 h-5 shrink-0" />}
-                  <span className="font-semibold text-sm">
-                    {budget.isPerfect ? "Excellent Budget Fit" : budget.isConflict ? "Over Budget" : "Slightly Over Budget"}
-                  </span>
-                </div>
-              </div>
-
-              <div className="p-6 rounded-2xl bg-zinc-900/40 border border-zinc-800/80 backdrop-blur-sm">
-                <h3 className="text-lg font-bold text-white flex items-center gap-2 mb-4 border-b border-zinc-800 pb-3">
-                  <MapPin className="w-5 h-5 text-blue-400" /> Location Fit
-                </h3>
-                <p className="text-white font-medium mb-1">{location.roomLocation}</p>
-                <div className="mt-3">
-                  {location.isMatched ? (
-                    <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-emerald-500/20 border border-emerald-500/30 rounded-full text-xs font-bold text-emerald-400">
-                      <CheckCircle2 className="w-3.5 h-3.5" /> Matches Your Preference
-                    </div>
-                  ) : location.userPreferred.length > 0 ? (
-                    <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-zinc-800 border border-zinc-700 rounded-full text-xs font-semibold text-zinc-400">
-                      <Ban className="w-3.5 h-3.5" /> Outside Preferred Area
-                    </div>
-                  ) : (
-                    <div className="text-xs text-zinc-500">No location preference set</div>
-                  )}
-                </div>
-              </div>
-
+              )}
             </motion.div>
-
           </div>
+
+          {/* 📊 BREAKDOWNS */}
+          <motion.div variants={itemVariants} className="space-y-4">
+            <h2 className="text-xl font-bold text-white px-2">Detailed Breakdown</h2>
+            
+            <div className="bg-zinc-900/40 border border-zinc-800 rounded-2xl divide-y divide-zinc-800/50">
+              
+              {/* Lifestyle */}
+              <div className="p-6">
+                <div className="flex items-center gap-2 text-indigo-400 mb-6">
+                  <Home className="w-5 h-5" /> <span className="font-bold text-white">Lifestyle & Rules</span>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                  <BreakdownItem 
+                    label="Cleanliness" 
+                    value={match.lifestyle.cleanliness.match} 
+                    icon={<Bed className="w-4 h-4" />}
+                  />
+                  <BreakdownItem 
+                    label="Smoking" 
+                    value={match.lifestyle.smoker.match} 
+                    icon={<Ban className="w-4 h-4" />}
+                  />
+                  <BreakdownItem 
+                    label="Drinking" 
+                    value={match.lifestyle.drinker.match} 
+                    icon={<Wine className="w-4 h-4" />}
+                  />
+                  <BreakdownItem 
+                    label="Guests" 
+                    value={match.lifestyle.guestPolicy.match} 
+                    icon={<Users className="w-4 h-4" />}
+                  />
+                </div>
+              </div>
+
+              {/* Budget */}
+              <div className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                  <div className="flex items-center gap-2 text-indigo-400 mb-2">
+                    <DollarSign className="w-5 h-5" /> <span className="font-bold text-white">Budget Alignment</span>
+                  </div>
+                  <p className="text-zinc-400 text-sm">
+                    Room Rent: <span className="font-semibold text-white">Rs. {match.budget.roomRent.toLocaleString()}</span>
+                  </p>
+                </div>
+                <div>
+                  {match.budget.isPerfect ? (
+                    <Badge variant="success">Perfect Fit</Badge>
+                  ) : match.budget.isUnder ? (
+                    <Badge variant="success">Under Budget</Badge>
+                  ) : match.budget.isSlightlyOver ? (
+                    <Badge variant="warning">Slightly Over Budget</Badge>
+                  ) : (
+                    <Badge variant="danger">Over Budget</Badge>
+                  )}
+                </div>
+              </div>
+
+              {/* Location */}
+              <div className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                  <div className="flex items-center gap-2 text-indigo-400 mb-2">
+                    <MapPin className="w-5 h-5" /> <span className="font-bold text-white">Location Alignment</span>
+                  </div>
+                  <p className="text-zinc-400 text-sm">
+                    Area: <span className="font-semibold text-white">{match.location.roomLocation}</span>
+                  </p>
+                </div>
+                <div>
+                  {match.location.isMatched ? (
+                    <Badge variant="success">Matches Preferred Area</Badge>
+                  ) : (
+                    <Badge variant="neutral">Outside Preferred Areas</Badge>
+                  )}
+                </div>
+              </div>
+
+            </div>
+          </motion.div>
+
+          {/* 🤝 REQUEST TO JOIN CTA */}
+          <motion.div variants={itemVariants} className="pt-8 pb-12 flex flex-col items-center text-center">
+            
+            {isOwner ? (
+              <div className="p-6 rounded-2xl bg-indigo-950/30 border border-indigo-900/50 flex flex-col items-center max-w-md w-full">
+                <Home className="w-8 h-8 text-indigo-400 mb-3" />
+                <h3 className="font-bold text-white text-lg">Your Listing</h3>
+                <p className="text-zinc-400 text-sm mt-1">You are the owner of this room.</p>
+              </div>
+            ) : isJoined ? (
+              <div className="p-6 rounded-2xl bg-emerald-950/30 border border-emerald-900/50 flex flex-col items-center max-w-md w-full">
+                <CheckCircle2 className="w-8 h-8 text-emerald-400 mb-3" />
+                <h3 className="font-bold text-white text-lg">Already Connected</h3>
+                <p className="text-zinc-400 text-sm mt-1">You are already an occupant of this room.</p>
+              </div>
+            ) : hasPendingRequest ? (
+              <div className="p-6 rounded-2xl bg-amber-950/30 border border-amber-900/50 flex flex-col items-center max-w-md w-full">
+                <Clock className="w-8 h-8 text-amber-400 mb-3" />
+                <h3 className="font-bold text-white text-lg">Request Pending</h3>
+                <p className="text-zinc-400 text-sm mt-1">You have already requested to join this room. The owner will review your application soon.</p>
+              </div>
+            ) : (
+              <>
+                <h3 className="text-2xl font-bold text-white mb-6">Ready to connect?</h3>
+                <div className="w-full max-w-md">
+                  <RequestToJoinButton roomId={room._id} isOwner={false} />
+                </div>
+                <p className="text-sm text-zinc-500 mt-4 flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4" /> Secure and private application
+                </p>
+              </>
+            )}
+
+          </motion.div>
+
         </motion.div>
       </div>
     </div>
+  );
+}
+
+// Helpers
+function BreakdownItem({ label, value, icon }: { label: string, value: string, icon: React.ReactNode }) {
+  let color = "text-zinc-400";
+  let bg = "bg-zinc-800";
+  let text = "Neutral";
+
+  if (value === "perfect") {
+    color = "text-emerald-400";
+    bg = "bg-emerald-500/10 border-emerald-500/20";
+    text = "Aligned";
+  } else if (value === "partial") {
+    color = "text-amber-400";
+    bg = "bg-amber-500/10 border-amber-500/20";
+    text = "Partial";
+  } else if (value === "conflict") {
+    color = "text-red-400";
+    bg = "bg-red-500/10 border-red-500/20";
+    text = "Differs";
+  }
+
+  return (
+    <div className="flex flex-col gap-2">
+      <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
+        {icon} {label}
+      </span>
+      <div className={`px-3 py-1.5 rounded-md border text-sm font-semibold flex items-center w-fit ${color} ${bg}`}>
+        {value === "perfect" && <CheckCircle2 className="w-4 h-4 mr-1.5" />}
+        {value === "partial" && <Zap className="w-4 h-4 mr-1.5" />}
+        {value === "conflict" && <XCircle className="w-4 h-4 mr-1.5" />}
+        {text}
+      </div>
+    </div>
+  );
+}
+
+function Badge({ children, variant }: { children: React.ReactNode, variant: "success" | "warning" | "danger" | "neutral" }) {
+  let classes = "";
+  if (variant === "success") classes = "bg-emerald-950/50 text-emerald-400 border-emerald-800/50";
+  if (variant === "warning") classes = "bg-amber-950/50 text-amber-400 border-amber-800/50";
+  if (variant === "danger") classes = "bg-red-950/50 text-red-400 border-red-800/50";
+  if (variant === "neutral") classes = "bg-zinc-800 text-zinc-400 border-zinc-700";
+
+  return (
+    <span className={`px-4 py-2 rounded-lg border text-sm font-semibold ${classes}`}>
+      {children}
+    </span>
   );
 }

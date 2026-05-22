@@ -4,7 +4,6 @@ import Link from "next/link";
 import { getRoomBySlug } from "@/server/actions/getRoomBySlug";
 import { auth } from "@/lib/auth";
 import { MapPin, Users, User, Info, Check, Shield, ChevronRight, Zap } from "lucide-react";
-import RequestToJoinButton from "@/components/rooms/RequestToJoinButton";
 import RoomLocationViewerWrapper from "@/components/maps/RoomLocationViewerWrapper";
 import { Map as MapIcon } from "lucide-react";
 
@@ -187,22 +186,11 @@ export default async function RoomDetailsPage({ params }: { params: Promise<{ sl
                 <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </div>
               <p className="text-sm text-zinc-400">
-                See how well your lifestyle and budget aligns with this room and owner.
+                See how well your lifestyle and budget aligns with this room and owner. You can request to join after checking your compatibility match.
               </p>
             </Link>
 
             <div className="h-px w-full bg-zinc-800" />
-
-            {isLoggedIn ? (
-              <RequestToJoinButton roomId={room._id} isOwner={isOwner} />
-            ) : (
-              <Link
-                href="/login"
-                className="w-full flex items-center justify-center gap-2 py-4 rounded-xl bg-white hover:bg-zinc-200 text-zinc-950 font-bold transition-all"
-              >
-                Log in to request join
-              </Link>
-            )}
 
             <p className="text-xs text-center text-zinc-500 flex items-center justify-center gap-1.5">
               <Shield className="w-4 h-4" /> Secure application process
