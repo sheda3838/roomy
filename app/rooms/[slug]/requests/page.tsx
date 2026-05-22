@@ -49,7 +49,7 @@ export default async function RoomRequestsPage({ params }: { params: Promise<{ s
   })
     .populate({
       path: "fromUserId",
-      select: "fullName profilePicture age gender occupation",
+      select: "fullName profilePicture roleType gender",
       model: User,
     })
     .sort({ createdAt: -1 })
@@ -100,9 +100,8 @@ export default async function RoomRequestsPage({ params }: { params: Promise<{ s
                   <div>
                     <h3 className="font-bold text-lg text-white">{req.fromUserId.fullName}</h3>
                     <p className="text-sm text-zinc-400 capitalize">
-                      {req.fromUserId.age ? `${req.fromUserId.age} yrs • ` : ''} 
                       {req.fromUserId.gender || 'Not specified'} • 
-                      {req.fromUserId.occupation || 'No occupation'}
+                      {req.fromUserId.roleType || 'No role specified'}
                     </p>
                     
                     {req.message && (

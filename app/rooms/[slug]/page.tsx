@@ -41,7 +41,7 @@ export default async function RoomDetailsPage({ params }: { params: Promise<{ sl
   else if (room.ownerId?._id) ownerIdStr = room.ownerId._id.toString();
   else if (room.ownerId?.toString) ownerIdStr = room.ownerId.toString();
 
-  const isOwner = ownerIdStr === session.user.id;
+  const isOwner = ownerIdStr === session?.user?.id;
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100">

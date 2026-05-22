@@ -49,6 +49,12 @@ export default function Navbar() {
               >
                 Dashboard
               </Link>
+              <Link
+                href="/messages"
+                className="text-sm font-medium text-gray-600 hover:text-indigo-600 transition-colors"
+              >
+                Messages
+              </Link>
               <button
                 onClick={() => signOut({ callbackUrl: "/" })}
                 className="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors"
@@ -127,6 +133,13 @@ export default function Navbar() {
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Dashboard
+                </Link>
+                <Link
+                  href="/messages"
+                  className="text-base font-medium text-gray-900 hover:text-indigo-600"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Messages
                 </Link>
                 <Link
                   href="/create-room"
