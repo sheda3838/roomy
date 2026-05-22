@@ -1,70 +1,166 @@
 @import "tailwindcss";
 
+/* ─────────────────────────────────────────────
+   ROOMY BRAND TOKEN SYSTEM
+   ───────────────────────────────────────────── */
 :root {
+  /* Background */
   --background: #ffffff;
-  --foreground: #171717;
+  --background-soft: #f7f9ff;  /* Subtle blue-tinted white */
+  --foreground: #0f172a;       /* Slate 900 */
+
+  /* Primary Blues */
+  --brand-cyan:   rgb(46, 219, 244);
+  --brand-blue:   rgb(34, 142, 222);
+  --brand-navy:   rgb(29, 93, 185);
+  --brand-mid:    rgb(40, 132, 211);
+
+  /* Sun / Warm Accent */
+  --brand-sun-light: rgb(250, 192, 140);
+  --brand-sun-dark:  rgb(246, 137, 83);
+
+  /* Warm CTA Accent */
+  --brand-red:    rgb(239, 62, 43);
+  --brand-orange: rgb(248, 150, 60);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-background:      var(--background);
+  --color-foreground:      var(--foreground);
+  --font-sans:             var(--font-inter);
+  --font-serif:            var(--font-instrument-serif);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Leaflet GeoSearch Dark Theme Overrides */
+/* ─────────────────────────────────────────────
+   ROOMY REUSABLE UTILITIES
+   ───────────────────────────────────────────── */
+
+/* Primary gradient — buttons, rings, highlights */
+.roomy-gradient {
+  background: linear-gradient(135deg, var(--brand-cyan), var(--brand-blue), var(--brand-navy));
+}
+
+/* Sun gradient — hero accents, hover glows */
+.roomy-sun {
+  background: linear-gradient(135deg, var(--brand-sun-light), var(--brand-sun-dark));
+}
+
+/* Warm CTA gradient */
+.roomy-warm {
+  background: linear-gradient(135deg, var(--brand-red), var(--brand-orange));
+}
+
+/* Glassmorphism surface */
+.roomy-glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+/* Brand input focus ring */
+.roomy-input {
+  border-radius: 0.75rem;
+  border: 1px solid rgb(226, 232, 240);
+  padding: 0.625rem 0.875rem;
+  width: 100%;
+  font-size: 0.875rem;
+  color: rgb(15, 23, 42);
+  background: white;
+  outline: none;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+.roomy-input:focus {
+  border-color: var(--brand-blue);
+  box-shadow: 0 0 0 3px rgba(34, 142, 222, 0.15);
+}
+
+/* Primary button */
+.roomy-btn-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.875rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: white;
+  background: linear-gradient(135deg, var(--brand-cyan), var(--brand-navy));
+  box-shadow: 0 4px 20px rgba(34, 142, 222, 0.25);
+  transition: all 0.2s;
+  cursor: pointer;
+}
+.roomy-btn-primary:hover {
+  box-shadow: 0 6px 28px rgba(34, 142, 222, 0.35);
+  transform: translateY(-1px) scale(1.01);
+}
+.roomy-btn-primary:active { transform: scale(0.98); }
+.roomy-btn-primary:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+
+/* Secondary / Ghost button */
+.roomy-btn-secondary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.875rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: rgb(15, 23, 42);
+  background: white;
+  border: 1px solid rgb(226, 232, 240);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  transition: all 0.2s;
+  cursor: pointer;
+}
+.roomy-btn-secondary:hover {
+  border-color: var(--brand-blue);
+  box-shadow: 0 0 0 3px rgba(34, 142, 222, 0.12);
+  transform: translateY(-1px);
+}
+
+/* ─────────────────────────────────────────────
+   LEAFLET GEOSEARCH OVERRIDES
+   ───────────────────────────────────────────── */
 .leaflet-control-geosearch form {
-  background: #18181b !important;
-  border: 1px solid #27272a !important;
-  border-radius: 8px !important;
-  color: #f4f4f5 !important;
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3) !important;
+  background: #ffffff !important;
+  border: 1px solid rgb(226, 232, 240) !important;
+  border-radius: 12px !important;
+  color: rgb(15, 23, 42) !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08) !important;
 }
-
 .leaflet-control-geosearch input {
-  color: #f4f4f5 !important;
+  color: rgb(15, 23, 42) !important;
   background: transparent !important;
 }
-
 .leaflet-control-geosearch input::placeholder {
-  color: #71717a !important;
+  color: rgb(148, 163, 184) !important;
 }
-
 .leaflet-control-geosearch .results {
-  background: #18181b !important;
-  border: 1px solid #27272a !important;
-  border-radius: 8px !important;
-  color: #f4f4f5 !important;
+  background: #ffffff !important;
+  border: 1px solid rgb(226, 232, 240) !important;
+  border-radius: 12px !important;
+  color: rgb(15, 23, 42) !important;
 }
-
 .leaflet-control-geosearch .results > * {
-  border-bottom: 1px solid #27272a !important;
+  border-bottom: 1px solid rgb(241, 245, 249) !important;
 }
-
 .leaflet-control-geosearch .results > *:hover {
-  background: #27272a !important;
-  color: #818cf8 !important; /* indigo-400 */
+  background: rgb(239, 246, 255) !important;
+  color: var(--brand-navy) !important;
 }
-
 .leaflet-control-geosearch a.reset {
-  color: #a1a1aa !important;
+  color: rgb(148, 163, 184) !important;
   background: transparent !important;
 }
-
 .leaflet-control-geosearch a.reset:hover {
   background: transparent !important;
-  color: #f87171 !important; /* red-400 */
+  color: var(--brand-red) !important;
 }

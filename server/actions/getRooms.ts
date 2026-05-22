@@ -62,7 +62,7 @@ export async function getRooms(options: GetRoomsOptions = {}) {
     }
 
     if (filters.genderPreference && filters.genderPreference !== "any") {
-      query.genderPreference = { $in: [filters.genderPreference, "any"] };
+      query.genderPreference = filters.genderPreference;
     }
 
     // 2. Fetch lightweight metadata of matched listings

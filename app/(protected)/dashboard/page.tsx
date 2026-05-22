@@ -11,6 +11,7 @@ import {
   Sparkles,
   Home,
   Users,
+  ArrowRight,
 } from "lucide-react";
 import type { Metadata } from "next";
 
@@ -18,7 +19,6 @@ export const metadata: Metadata = {
   title: "Dashboard | Roomy",
 };
 
-// Helper to format enum values nicely
 function fmt(val?: string) {
   if (!val) return "—";
   return val.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
@@ -32,36 +32,36 @@ function boolLabel(val?: boolean) {
 export default async function DashboardPage() {
   const session = await auth();
 
-  if (!session?.user?.id) {
-    redirect("/login");
-  }
+  if (!session?.user?.id) redirect("/login");
 
   await dbConnect();
   const userDoc = await User.findById(session.user.id).lean() as IUser | null;
 
-  if (!userDoc) {
-    redirect("/login");
-  }
+  if (!userDoc) redirect("/login");
 
   const user = userDoc;
   const displayName = user.fullName || session.user.name || "Roomy User";
   const avatarLetter = displayName[0]?.toUpperCase() ?? "R";
 
   return (
-    <div className="min-h-screen w-full bg-zinc-950 text-zinc-100 flex flex-col relative overflow-hidden">
-      {/* Background decorations */}
-      <div className="absolute top-0 -left-4 w-96 h-96 bg-purple-600 rounded-full filter blur-[128px] opacity-10 pointer-events-none" />
-      <div className="absolute bottom-0 -right-4 w-96 h-96 bg-indigo-600 rounded-full filter blur-[128px] opacity-10 pointer-events-none" />
+    <div className="min-h-screen w-full bg-[#f7f9ff] text-slate-900 flex flex-col">
 
-      {/* Main content */}
+      {/* Background glows */}
+      <div className="fixed top-0 left-0 w-full h-full pointer-events-none overflow-hidden">
+        <div className="absolute top-0 -left-32 w-[500px] h-[500px] bg-[rgb(46,219,244)] rounded-full opacity-[0.06] blur-[100px]" />
+        <div className="absolute bottom-0 -right-32 w-[500px] h-[500px] bg-[rgb(248,150,60)] rounded-full opacity-[0.06] blur-[100px]" />
+      </div>
+
       <main className="flex-1 max-w-4xl w-full mx-auto px-4 py-10 relative z-10 space-y-8">
 
-        {/* Success Alert */}
-        <div className="flex items-start gap-4 p-6 bg-indigo-950/20 border border-indigo-500/30 rounded-2xl">
-          <CheckCircle className="h-6 w-6 text-indigo-400 flex-shrink-0 mt-0.5" />
+        {/* Welcome Banner */}
+        <div className="flex items-start gap-4 p-6 bg-gradient-to-r from-[rgb(46,219,244)]/10 to-[rgb(29,93,185)]/10 border border-[rgb(34,142,222)]/20 rounded-2xl">
+          <CheckCircle className="h-6 w-6 text-[rgb(34,142,222)] flex-shrink-0 mt-0.5" />
           <div>
-            <h2 className="text-lg font-bold text-white">Welcome back, {displayName.split(" ")[0]}!</h2>
-            <p className="text-sm text-indigo-200/70 mt-1">
+            <h2 className="text-lg font-bold text-slate-900">
+              Welcome back, {displayName.split(" ")[0]}!
+            </h2>
+            <p className="text-sm text-[rgb(29,93,185)]/70 mt-1">
               Your profile and preferences are loaded. Start exploring rooms matched to your lifestyle.
             </p>
           </div>
@@ -71,39 +71,39 @@ export default async function DashboardPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
           {/* Profile Card */}
-          <div className="bg-zinc-900/40 border border-zinc-800/80 rounded-2xl p-6 flex flex-col items-center text-center">
+          <div className="bg-white border border-slate-100 rounded-2xl p-6 flex flex-col items-center text-center shadow-sm">
             {session.user.image ? (
               <img
                 src={session.user.image}
                 alt={displayName}
-                className="h-20 w-20 rounded-full border-2 border-indigo-500/50 shadow-xl mb-4 object-cover"
+                className="h-20 w-20 rounded-full border-2 border-[rgb(34,142,222)]/30 shadow-xl mb-4 object-cover"
               />
             ) : (
-              <div className="h-20 w-20 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-2xl font-bold text-white shadow-xl mb-4">
+              <div className="h-20 w-20 rounded-full bg-gradient-to-br from-[rgb(46,219,244)] to-[rgb(29,93,185)] flex items-center justify-center text-2xl font-bold text-white shadow-xl mb-4">
                 {avatarLetter}
               </div>
             )}
-            <h3 className="font-bold text-lg text-white">{displayName}</h3>
-            <p className="text-sm text-zinc-500 mt-0.5">{user.email}</p>
+            <h3 className="font-bold text-lg text-slate-900">{displayName}</h3>
+            <p className="text-sm text-slate-400 mt-0.5">{user.email}</p>
 
             <div className="flex flex-wrap gap-2 mt-4 justify-center">
-              <span className="px-3 py-1 text-xs font-semibold bg-emerald-950/40 border border-emerald-800/50 text-emerald-400 rounded-full capitalize">
-                {fmt(user.roleType)} {/* student / worker */}
+              <span className="px-3 py-1 text-xs font-bold bg-[rgb(46,219,244)]/10 border border-[rgb(46,219,244)]/25 text-[rgb(29,93,185)] rounded-full capitalize">
+                {fmt(user.roleType)}
               </span>
-              <span className="px-3 py-1 text-xs font-semibold bg-indigo-950/40 border border-indigo-800/50 text-indigo-400 rounded-full capitalize">
+              <span className="px-3 py-1 text-xs font-bold bg-[rgb(250,192,140)]/20 border border-[rgb(246,137,83)]/30 text-[rgb(239,62,43)] rounded-full capitalize">
                 {fmt(user.gender)}
               </span>
             </div>
 
-            <span className="mt-3 px-3 py-1 text-xs font-semibold bg-zinc-800 border border-zinc-700 text-zinc-400 rounded-full">
+            <span className="mt-3 px-3 py-1 text-xs font-semibold bg-slate-50 border border-slate-200 text-slate-500 rounded-full">
               {user.authProvider === "google" ? "Google Account" : "Email Account"}
             </span>
           </div>
 
           {/* Lifestyle Details Card */}
-          <div className="bg-zinc-900/40 border border-zinc-800/80 rounded-2xl p-6 md:col-span-2 space-y-5">
-            <h3 className="font-bold text-lg text-white flex items-center gap-2">
-              <Activity className="h-5 w-5 text-indigo-400" />
+          <div className="bg-white border border-slate-100 rounded-2xl p-6 md:col-span-2 space-y-5 shadow-sm">
+            <h3 className="font-bold text-lg text-slate-900 flex items-center gap-2">
+              <Activity className="h-5 w-5 text-[rgb(34,142,222)]" />
               Lifestyle Profile
             </h3>
 
@@ -122,11 +122,11 @@ export default async function DashboardPage() {
 
             {/* Budget */}
             {user.isActiveSeeker && (user.budgetMin || user.budgetMax) && (
-              <div className="flex items-center gap-2 p-3 bg-zinc-900/60 border border-zinc-800 rounded-xl">
-                <DollarSign className="h-4 w-4 text-indigo-400 flex-shrink-0" />
+              <div className="flex items-center gap-2 p-3 bg-[rgb(46,219,244)]/5 border border-[rgb(34,142,222)]/15 rounded-xl">
+                <DollarSign className="h-4 w-4 text-[rgb(34,142,222)] flex-shrink-0" />
                 <div>
-                  <span className="text-xs text-zinc-500 block">Monthly Budget</span>
-                  <span className="text-sm font-semibold text-zinc-200">
+                  <span className="text-xs text-slate-400 block">Monthly Budget</span>
+                  <span className="text-sm font-semibold text-slate-800">
                     Rs. {user.budgetMin?.toLocaleString() ?? "0"} — Rs. {user.budgetMax?.toLocaleString() ?? "∞"}
                   </span>
                 </div>
@@ -137,14 +137,14 @@ export default async function DashboardPage() {
             {user.isActiveSeeker && user.preferredLocations?.length > 0 && (
               <div>
                 <div className="flex items-center gap-1.5 mb-2">
-                  <MapPin className="h-4 w-4 text-indigo-400" />
-                  <span className="text-xs font-semibold text-zinc-400">Preferred Locations</span>
+                  <MapPin className="h-4 w-4 text-[rgb(34,142,222)]" />
+                  <span className="text-xs font-semibold text-slate-400">Preferred Locations</span>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {user.preferredLocations.map((loc) => (
                     <span
                       key={loc}
-                      className="text-xs px-2.5 py-1 bg-indigo-950/40 border border-indigo-800/40 text-indigo-300 rounded-full"
+                      className="text-xs px-2.5 py-1 bg-[rgb(29,93,185)]/8 border border-[rgb(34,142,222)]/20 text-[rgb(29,93,185)] rounded-full"
                     >
                       {loc}
                     </span>
@@ -158,23 +158,31 @@ export default async function DashboardPage() {
         {/* CTA Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Link
-            href="/rooms"
-            className="group p-6 bg-gradient-to-br from-indigo-950/20 to-zinc-900/40 border border-indigo-800/30 hover:border-indigo-600/50 rounded-2xl transition-all hover:-translate-y-0.5"
+            href="/discover"
+            className="group p-6 bg-white border border-slate-100 hover:border-[rgb(34,142,222)]/40 rounded-2xl transition-all hover:-translate-y-1 hover:shadow-lg hover:shadow-[rgb(34,142,222)]/10 shadow-sm"
           >
-            <Home className="h-7 w-7 text-indigo-400 mb-3 group-hover:scale-110 transition-transform" />
-            <h3 className="font-bold text-white">Browse Rooms</h3>
-            <p className="text-sm text-zinc-400 mt-1">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[rgb(46,219,244)] to-[rgb(29,93,185)] flex items-center justify-center mb-4 shadow-md group-hover:scale-110 transition-transform">
+              <Home className="h-5 w-5 text-white" />
+            </div>
+            <h3 className="font-bold text-slate-900 group-hover:text-[rgb(29,93,185)] transition-colors flex items-center gap-1.5">
+              Browse Rooms <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </h3>
+            <p className="text-sm text-slate-400 mt-1">
               Discover rooms matched to your lifestyle across Sri Lanka.
             </p>
           </Link>
 
           <Link
             href="/create-room"
-            className="group p-6 bg-gradient-to-br from-purple-950/20 to-zinc-900/40 border border-purple-800/30 hover:border-purple-600/50 rounded-2xl transition-all hover:-translate-y-0.5"
+            className="group p-6 bg-white border border-slate-100 hover:border-[rgb(246,137,83)]/40 rounded-2xl transition-all hover:-translate-y-1 hover:shadow-lg hover:shadow-[rgb(246,137,83)]/10 shadow-sm"
           >
-            <Users className="h-7 w-7 text-purple-400 mb-3 group-hover:scale-110 transition-transform" />
-            <h3 className="font-bold text-white">Post a Room</h3>
-            <p className="text-sm text-zinc-400 mt-1">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[rgb(250,192,140)] to-[rgb(246,137,83)] flex items-center justify-center mb-4 shadow-md group-hover:scale-110 transition-transform">
+              <Users className="h-5 w-5 text-white" />
+            </div>
+            <h3 className="font-bold text-slate-900 group-hover:text-[rgb(239,62,43)] transition-colors flex items-center gap-1.5">
+              Post a Room <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </h3>
+            <p className="text-sm text-slate-400 mt-1">
               List your room and find compatible flatmates fast.
             </p>
           </Link>
@@ -188,9 +196,9 @@ export default async function DashboardPage() {
 // ── Helper Component ──────────────────────────────────────────────────────────
 function StatTile({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
   return (
-    <div className="p-3.5 bg-zinc-900/60 border border-zinc-800 rounded-xl">
-      <span className="text-xs text-zinc-500 block">{label}</span>
-      <span className={`text-sm font-semibold mt-1 capitalize block ${highlight ? "text-indigo-400" : "text-zinc-200"}`}>
+    <div className="p-3.5 bg-slate-50 border border-slate-100 rounded-xl">
+      <span className="text-xs text-slate-400 block font-medium">{label}</span>
+      <span className={`text-sm font-bold mt-1 capitalize block ${highlight ? "text-[rgb(34,142,222)]" : "text-slate-800"}`}>
         {value}
       </span>
     </div>

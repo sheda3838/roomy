@@ -2,68 +2,66 @@
 
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 
 export default function Navbar() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const isAuthenticated = status === "authenticated";
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-gray-200/50 bg-white/80 backdrop-blur-xl">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        {/* Logo */}
-        <div className="flex items-center gap-2">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-bold shadow-lg shadow-indigo-500/30">
-              R
-            </div>
-            <span className="text-xl font-bold tracking-tight text-gray-900">
-              Roomy
-            </span>
-          </Link>
-        </div>
+    <header
+      className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-4xl rounded-full transition-all duration-300 ${
+        scrolled
+          ? "bg-white/85 backdrop-blur-2xl shadow-xl shadow-zinc-200/50 border border-zinc-200/60"
+          : "bg-white/60 backdrop-blur-xl border border-white/60 shadow-lg shadow-black/5"
+      }`}
+    >
+      <div className="flex h-14 items-center justify-between px-5">
 
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-8">
-          <Link href="/rooms" className="text-sm font-medium text-gray-600 hover:text-indigo-600 transition-colors">
-            Find Rooms
+        {/* Logo */}
+        <Link href="/" className="flex items-center gap-2 group shrink-0">
+          <img src="/logo.png" alt="Roomy" className="h-7 w-7 object-contain" />
+          <span className="text-[17px] font-bold tracking-tight text-zinc-900 font-serif">Roomy</span>
+        </Link>
+
+        {/* Desktop Center Links */}
+        <nav className="hidden md:flex items-center gap-7">
+          <Link href="/" className="text-[13px] font-semibold text-zinc-500 hover:text-zinc-900 transition-colors">
+            Home
           </Link>
-          <Link href="/#how-it-works" className="text-sm font-medium text-gray-600 hover:text-indigo-600 transition-colors">
-            How it works
+          <Link href="/discover" className="text-[13px] font-semibold text-zinc-500 hover:text-zinc-900 transition-colors">
+            Discover
           </Link>
-          <Link href="/#about" className="text-sm font-medium text-gray-600 hover:text-indigo-600 transition-colors">
-            About
-          </Link>
+          {isAuthenticated && (
+            <Link href="/dashboard" className="text-[13px] font-semibold text-zinc-500 hover:text-zinc-900 transition-colors">
+              My Profile
+            </Link>
+          )}
         </nav>
 
-        {/* Desktop Actions */}
-        <div className="hidden md:flex items-center gap-4">
+        {/* Desktop Right CTAs */}
+        <div className="hidden md:flex items-center gap-3">
           {isAuthenticated ? (
             <>
-              <Link
-                href="/dashboard"
-                className="text-sm font-medium text-gray-600 hover:text-indigo-600 transition-colors"
-              >
-                Dashboard
-              </Link>
-              <Link
-                href="/messages"
-                className="text-sm font-medium text-gray-600 hover:text-indigo-600 transition-colors"
-              >
-                Messages
-              </Link>
               <button
                 onClick={() => signOut({ callbackUrl: "/" })}
-                className="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors"
+                className="text-[13px] font-semibold text-zinc-500 hover:text-zinc-900 transition-colors"
               >
                 Log out
               </button>
               <Link
                 href="/create-room"
-                className="rounded-full bg-gray-900 px-5 py-2 text-sm font-medium text-white shadow-md hover:bg-gray-800 transition-all hover:scale-105 active:scale-95"
+                className="rounded-full bg-zinc-900 hover:bg-zinc-700 px-5 py-2 text-[13px] font-bold text-white transition-all hover:scale-105 active:scale-95 shadow-md"
               >
                 Post a Room
               </Link>
@@ -72,113 +70,81 @@ export default function Navbar() {
             <>
               <Link
                 href="/login"
-                className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+                className="text-[13px] font-semibold text-zinc-500 hover:text-zinc-900 transition-colors"
               >
                 Log in
               </Link>
               <Link
                 href="/register"
-                className="rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 px-5 py-2 text-sm font-medium text-white shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 transition-all hover:-translate-y-0.5 active:translate-y-0"
+                className="rounded-full bg-zinc-900 hover:bg-zinc-700 px-5 py-2 text-[13px] font-bold text-white transition-all hover:scale-105 active:scale-95 shadow-md"
               >
-                Sign up
+                Get Started
               </Link>
             </>
           )}
         </div>
 
-        {/* Mobile Menu Button */}
-        <div className="flex items-center md:hidden">
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="text-gray-500 hover:text-gray-900 focus:outline-none"
-          >
-            {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </button>
-        </div>
+        {/* Mobile hamburger */}
+        <button
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          className="md:hidden text-zinc-800 focus:outline-none"
+        >
+          {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        </button>
       </div>
 
-      {/* Mobile Navigation */}
-      {isMobileMenuOpen && (
-        <div className="md:hidden border-t border-gray-100 bg-white px-4 py-6 shadow-xl">
-          <div className="flex flex-col space-y-4">
-            <Link
-              href="/rooms"
-              className="text-base font-medium text-gray-900 hover:text-indigo-600"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Find Rooms
-            </Link>
-            <Link
-              href="/#how-it-works"
-              className="text-base font-medium text-gray-900 hover:text-indigo-600"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              How it works
-            </Link>
-            <Link
-              href="/#about"
-              className="text-base font-medium text-gray-900 hover:text-indigo-600"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              About
-            </Link>
+      {/* Mobile Dropdown */}
+      <div
+        className={`md:hidden absolute top-16 left-0 right-0 rounded-3xl bg-white/95 backdrop-blur-3xl border border-zinc-200/60 shadow-2xl transition-all duration-300 ${
+          isMobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-3 pointer-events-none"
+        }`}
+      >
+        <div className="flex flex-col p-5 gap-4">
+          <Link href="/" className="text-[15px] font-semibold text-zinc-900" onClick={() => setIsMobileMenuOpen(false)}>Home</Link>
+          <Link href="/discover" className="text-[15px] font-semibold text-zinc-900" onClick={() => setIsMobileMenuOpen(false)}>Discover</Link>
+          {isAuthenticated && (
+            <Link href="/dashboard" className="text-[15px] font-semibold text-zinc-900" onClick={() => setIsMobileMenuOpen(false)}>My Profile</Link>
+          )}
 
-            <div className="my-4 h-px w-full bg-gray-100" />
+          <div className="h-px bg-zinc-200/60" />
 
-            {isAuthenticated ? (
-              <>
-                <Link
-                  href="/dashboard"
-                  className="text-base font-medium text-gray-900 hover:text-indigo-600"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Dashboard
-                </Link>
-                <Link
-                  href="/messages"
-                  className="text-base font-medium text-gray-900 hover:text-indigo-600"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Messages
-                </Link>
-                <Link
-                  href="/create-room"
-                  className="flex w-full items-center justify-center rounded-xl bg-gray-900 py-3 text-base font-medium text-white shadow-md hover:bg-gray-800"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Post a Room
-                </Link>
-                <button
-                  onClick={() => {
-                    setIsMobileMenuOpen(false);
-                    signOut({ callbackUrl: "/" });
-                  }}
-                  className="text-left text-base font-medium text-red-500 hover:text-red-600"
-                >
-                  Log out
-                </button>
-              </>
-            ) : (
-              <div className="grid grid-cols-2 gap-4">
-                <Link
-                  href="/login"
-                  className="flex items-center justify-center rounded-xl border border-gray-200 bg-white py-3 text-base font-medium text-gray-900 hover:bg-gray-50"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Log in
-                </Link>
-                <Link
-                  href="/register"
-                  className="flex items-center justify-center rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 py-3 text-base font-medium text-white shadow-md"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Sign up
-                </Link>
-              </div>
-            )}
-          </div>
+          {isAuthenticated ? (
+            <>
+              <Link
+                href="/create-room"
+                className="flex items-center justify-center rounded-2xl bg-zinc-900 py-3 text-sm font-bold text-white"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Post a Room
+              </Link>
+              <button
+                onClick={() => { setIsMobileMenuOpen(false); signOut({ callbackUrl: "/" }); }}
+                className="text-sm font-semibold text-red-500 text-left"
+              >
+                Log out
+              </button>
+            </>
+          ) : (
+            <div className="grid grid-cols-2 gap-3">
+              <Link
+                href="/login"
+                className="flex items-center justify-center rounded-2xl border border-zinc-200 py-3 text-sm font-semibold text-zinc-900"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Log in
+              </Link>
+              <Link
+                href="/register"
+                className="flex items-center justify-center rounded-2xl bg-zinc-900 py-3 text-sm font-bold text-white"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Get Started
+              </Link>
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </header>
   );
 }
+
