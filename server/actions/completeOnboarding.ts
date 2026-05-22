@@ -5,6 +5,7 @@ import dbConnect from "@/lib/db";
 import User from "@/models/User";
 import { onboardingSchema, type OnboardingInput } from "@/server/validations/onboarding";
 
+
 export async function completeOnboarding(data: OnboardingInput) {
   try {
     // 1. Authenticate user
