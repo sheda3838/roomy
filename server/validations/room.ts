@@ -8,16 +8,14 @@ export const createRoomSchema = z.object({
   description: z
     .string({ message: "Description is required." })
     .min(10, "Description must be at least 10 characters."),
-  images: z.array(z.string().url("Invalid image URL format.")).default([]),
+  images: z.array(z.string().url("Invalid image URL format.")).min(1, "Please upload at least one image."),
   locationText: z
     .string({ message: "Location text is required." })
     .min(1, "Location is required."),
-  coordinates: z
-    .object({
-      lat: z.number().optional(),
-      lng: z.number().optional(),
-    })
-    .optional(),
+  coordinates: z.object({
+    lat: z.number({ message: "Please select a location on the map." }),
+    lng: z.number({ message: "Please select a location on the map." }),
+  }, { message: "Please select a location on the map." }),
   rentAmount: z.coerce
     .number({ message: "Rent amount is required." })
     .min(0, "Rent amount cannot be negative."),

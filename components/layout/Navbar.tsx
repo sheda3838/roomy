@@ -56,7 +56,7 @@ export default function Navbar() {
                 Log out
               </button>
               <Link
-                href="/rooms/create"
+                href="/create-room"
                 className="rounded-full bg-gray-900 px-5 py-2 text-sm font-medium text-white shadow-md hover:bg-gray-800 transition-all hover:scale-105 active:scale-95"
               >
                 Post a Room
@@ -129,7 +129,7 @@ export default function Navbar() {
                   Dashboard
                 </Link>
                 <Link
-                  href="/rooms/create"
+                  href="/create-room"
                   className="flex w-full items-center justify-center rounded-xl bg-gray-900 py-3 text-base font-medium text-white shadow-md hover:bg-gray-800"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >

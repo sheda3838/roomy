@@ -68,6 +68,10 @@ export default auth((req) => {
     return NextResponse.redirect(new URL("/dashboard", nextUrl));
   }
 
+  // Ensure /create-room is protected (it falls through to here naturally,
+  // but if we want to restrict it specifically from anything, we do it here.
+  // Actually, unauthenticated users are already blocked at line 30 because it's not a public route.)
+
   return NextResponse.next();
 });
 

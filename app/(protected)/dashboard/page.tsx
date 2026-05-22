@@ -169,7 +169,7 @@ export default async function DashboardPage() {
           </Link>
 
           <Link
-            href="/rooms/create"
+            href="/create-room"
             className="group p-6 bg-gradient-to-br from-purple-950/20 to-zinc-900/40 border border-purple-800/30 hover:border-purple-600/50 rounded-2xl transition-all hover:-translate-y-0.5"
           >
             <Users className="h-7 w-7 text-purple-400 mb-3 group-hover:scale-110 transition-transform" />
