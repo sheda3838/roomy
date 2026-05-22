@@ -34,6 +34,7 @@ export interface IRoom extends Document {
   updatedAt: Date;
 }
 
+
 const RoomSchema = new Schema<IRoom>(
   {
     title: { type: String, required: true, trim: true },

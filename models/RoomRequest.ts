@@ -9,6 +9,7 @@ export interface IRoomRequest extends Document {
   updatedAt: Date;
 }
 
+
 const RoomRequestSchema = new Schema<IRoomRequest>(
   {
     fromUserId: { type: Schema.Types.ObjectId, ref: "User", required: true },
