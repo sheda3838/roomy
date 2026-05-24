@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Bell, BellRing, Check, CheckCheck, MessageCircle, Home, Sparkles, X } from "lucide-react";
+import { Bell, BellRing, Check, CheckCheck, MessageCircle, Home, Heart, X } from "lucide-react";
 import { getNotifications } from "@/server/actions/getNotifications";
 import { markAsRead, markAllAsRead } from "@/server/actions/markAsRead";
 import { getPusherClient } from "@/lib/pusher";
@@ -27,7 +27,7 @@ function NotifIcon({ type }: { type: string }) {
   if (type === "request_received") return <Home className={`${base} text-[rgb(246,137,83)]`} />;
   if (type === "request_accepted") return <Check className={`${base} text-emerald-500`} />;
   if (type === "request_rejected") return <X className={`${base} text-red-400`} />;
-  if (type === "match_found") return <Sparkles className={`${base} text-[rgb(46,219,244)]`} />;
+  if (type === "match_found") return <Heart className={`${base} text-[rgb(29,93,185)]`} />;
   return <Bell className={`${base} text-slate-400`} />;
 }
 

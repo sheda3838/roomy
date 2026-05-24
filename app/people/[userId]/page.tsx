@@ -12,7 +12,7 @@ import {
   Briefcase,
   GraduationCap,
   MapPin,
-  Sparkles,
+  Brush,
   Moon,
   Sun,
   Cigarette,
@@ -24,6 +24,7 @@ import {
   CheckCircle2,
   Clock
 } from "lucide-react";
+import UserAvatar from "@/components/shared/UserAvatar";
 
 // Dynamic metadata based on user
 export async function generateMetadata({ params }: { params: Promise<{ userId: string }> }): Promise<Metadata> {
@@ -124,11 +125,11 @@ export default async function UserDetailsPage({ params }: { params: Promise<{ us
                 {/* Large Avatar container */}
                 <div className="w-28 h-28 rounded-full p-[3px] bg-slate-100 border border-slate-200 shadow-sm overflow-hidden shrink-0">
                   <div className="w-full h-full rounded-full overflow-hidden bg-white relative">
-                    {targetUser.profilePicture ? (
-                      <img src={targetUser.profilePicture} alt={targetUser.fullName} className="w-full h-full object-cover" />
-                    ) : (
-                      <UserIcon className="w-12 h-12 text-slate-400 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
-                    )}
+                    <UserAvatar
+                      src={targetUser.profilePicture}
+                      alt={targetUser.fullName}
+                      className="w-full h-full"
+                    />
                   </div>
                 </div>
 
@@ -155,7 +156,7 @@ export default async function UserDetailsPage({ params }: { params: Promise<{ us
                     )}
 
                     <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 text-xs font-bold">
-                      <Sparkles className="w-3 h-3 text-emerald-500" /> Active Seeker
+                      <CheckCircle2 className="w-3 h-3 text-emerald-500" /> Active Seeker
                     </span>
                   </div>
 
@@ -218,7 +219,7 @@ export default async function UserDetailsPage({ params }: { params: Promise<{ us
                 {/* Cleanliness */}
                 <div className="bg-slate-50/60 border border-slate-100 rounded-2xl p-4 flex gap-4 items-center hover:shadow-md transition-shadow">
                   <div className="w-9 h-9 rounded-xl bg-[rgb(46,219,244)]/10 flex items-center justify-center shrink-0">
-                    <Sparkles className="w-4 h-4 text-[rgb(29,93,185)]" />
+                    <Brush className="w-4 h-4 text-[rgb(29,93,185)]" />
                   </div>
                   <div>
                     <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Cleanliness</span>
@@ -293,14 +294,14 @@ export default async function UserDetailsPage({ params }: { params: Promise<{ us
               Curious about your routine compatibility?
             </h3>
             <p className="text-sm font-semibold text-slate-400 mb-6 max-w-md mx-auto">
-              Our AI scan calculates co-living alignment across cleanliness routines, sleep clock, guest policy, and budgets.
+              Our compatibility scanner calculates co-living alignment across cleanliness routines, sleep clock, guest policy, and budgets.
             </p>
             
             <Link
               href={`/people/${targetUser._id}/match`}
               className="inline-flex items-center gap-2 px-10 py-4 rounded-full bg-gradient-to-r from-[rgb(34,142,222)] to-[rgb(29,93,185)] hover:from-[rgb(29,93,185)] hover:to-[rgb(29,93,185)] text-[15px] font-bold text-white shadow-lg shadow-[rgb(29,93,185)]/20 transition-all hover:scale-[1.03] active:scale-[0.98]"
             >
-              <Sparkles className="w-5 h-5" /> Check Compatibility
+              <Heart className="w-5 h-5" /> Check Compatibility
             </Link>
 
             <div className="flex items-center justify-center gap-1.5 text-xs text-slate-400 font-bold mt-5">

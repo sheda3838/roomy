@@ -8,12 +8,12 @@ import {
   CheckCircle,
   MapPin,
   DollarSign,
-  Sparkles,
   Home,
   Users,
   ArrowRight,
 } from "lucide-react";
 import type { Metadata } from "next";
+import UserAvatar from "@/components/shared/UserAvatar";
 
 export const metadata: Metadata = {
   title: "Dashboard | Roomy",
@@ -72,17 +72,11 @@ export default async function DashboardPage() {
 
           {/* Profile Card */}
           <div className="bg-white border border-slate-100 rounded-2xl p-6 flex flex-col items-center text-center shadow-sm">
-            {session.user.image ? (
-              <img
-                src={session.user.image}
-                alt={displayName}
-                className="h-20 w-20 rounded-full border-2 border-[rgb(34,142,222)]/30 shadow-xl mb-4 object-cover"
-              />
-            ) : (
-              <div className="h-20 w-20 rounded-full bg-gradient-to-br from-[rgb(46,219,244)] to-[rgb(29,93,185)] flex items-center justify-center text-2xl font-bold text-white shadow-xl mb-4">
-                {avatarLetter}
-              </div>
-            )}
+            <UserAvatar
+              src={session.user.image}
+              alt={displayName}
+              className="h-20 w-20 border-2 border-[rgb(34,142,222)]/30 shadow-xl mb-4"
+            />
             <h3 className="font-bold text-lg text-slate-900">{displayName}</h3>
             <p className="text-sm text-slate-400 mt-0.5">{user.email}</p>
 

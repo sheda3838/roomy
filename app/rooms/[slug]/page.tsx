@@ -2,10 +2,11 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getRoomBySlug } from "@/server/actions/getRoomBySlug";
 import { auth } from "@/lib/auth";
-import { MapPin, Users, User, Check, Zap, Sparkles, Map as MapIcon, Bath, Wifi, Droplets, Sun, Moon, Cigarette, Wine, Wind, Flame, Car, Dumbbell, Shirt } from "lucide-react";
+import { MapPin, Users, User, Check, Brush, Map as MapIcon, Bath, Wifi, Droplets, Sun, Moon, Cigarette, Wine, Wind, Flame, Car, Dumbbell, Shirt, CheckCircle } from "lucide-react";
 import RoomLocationViewerWrapper from "@/components/maps/RoomLocationViewerWrapper";
 import RoomImageGallery from "@/components/rooms/RoomImageGallery";
 import RoomActionBottomBar from "@/components/rooms/RoomActionBottomBar";
+import UserAvatar from "@/components/shared/UserAvatar";
 
 // Metadata generation for SEO
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -90,7 +91,7 @@ export default async function RoomDetailsPage({ params }: { params: Promise<{ sl
                   </div>
                 )}
                 <div className="flex items-center gap-1.5 text-sm font-semibold text-[rgb(29,93,185)] bg-[rgb(34,142,222)]/10 border border-[rgb(34,142,222)]/20 px-2.5 py-1 rounded-lg">
-                  <Zap className="w-3.5 h-3.5" /> Available Now
+                  <CheckCircle className="w-3.5 h-3.5" /> Available Now
                 </div>
               </div>
             </div>
@@ -118,7 +119,7 @@ export default async function RoomDetailsPage({ params }: { params: Promise<{ sl
 
             {/* Cleanliness */}
             <div className="group relative flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-sm font-semibold text-slate-700 capitalize shadow-sm cursor-help">
-              <Sparkles className="w-3.5 h-3.5 text-[rgb(46,219,244)]" />
+              <Brush className="w-3.5 h-3.5 text-[rgb(46,219,244)]" />
               {room.cleanlinessExpectation}
               <div className="absolute -top-8 left-1/2 -translate-x-1/2 px-2.5 py-1 bg-slate-800 text-white text-[10px] rounded-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
                 Cleanliness
@@ -162,11 +163,11 @@ export default async function RoomDetailsPage({ params }: { params: Promise<{ sl
           <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex items-center gap-4">
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[rgb(46,219,244)] to-[rgb(29,93,185)] p-[2px]">
               <div className="w-full h-full rounded-[14px] bg-white overflow-hidden flex items-center justify-center">
-                {room.ownerId?.profilePicture ? (
-                  <img src={room.ownerId.profilePicture} alt="Owner" className="w-full h-full object-cover" />
-                ) : (
-                  <User className="w-6 h-6 text-slate-400" />
-                )}
+                <UserAvatar
+                  src={room.ownerId?.profilePicture}
+                  alt="Owner"
+                  className="w-full h-full rounded-[14px]"
+                />
               </div>
             </div>
             <div className="flex-1">

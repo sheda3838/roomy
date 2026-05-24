@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import {
-  Bell, MessageCircle, Home, Check, X, Sparkles, CheckCheck, Filter
+  Bell, MessageCircle, Home, Check, X, Heart, CheckCheck, Filter
 } from "lucide-react";
 import { getNotifications } from "@/server/actions/getNotifications";
 import { markAsRead, markAllAsRead } from "@/server/actions/markAsRead";
@@ -36,7 +36,7 @@ function NotifIcon({ type }: { type: string }) {
   if (type === "request_received") return <Home className="w-5 h-5 text-[rgb(246,137,83)]" />;
   if (type === "request_accepted") return <Check className="w-5 h-5 text-emerald-500" />;
   if (type === "request_rejected") return <X className="w-5 h-5 text-red-400" />;
-  if (type === "match_found") return <Sparkles className="w-5 h-5 text-[rgb(46,219,244)]" />;
+  if (type === "match_found") return <Heart className="w-5 h-5 text-[rgb(29,93,185)]" />;
   return <Bell className="w-5 h-5 text-slate-400" />;
 }
 

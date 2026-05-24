@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Users, Zap, Shield } from "lucide-react";
+import { Users, Heart, Shield } from "lucide-react";
 
 interface RoomActionBottomBarProps {
   roomSlug: string;
@@ -30,7 +30,7 @@ export default function RoomActionBottomBar({ roomSlug, isOwner }: RoomActionBot
                 className="w-full flex items-center justify-center gap-2 py-3 px-5 rounded-2xl text-white text-sm font-bold transition-all hover:scale-[1.02] shadow-md flex-1"
                 style={{ background: "linear-gradient(135deg, rgb(46,219,244), rgb(34,142,222), rgb(29,93,185))" }}
               >
-                <Zap className="w-4 h-4 fill-white" />
+                <Heart className="w-4 h-4 fill-white" />
                 Check Compatibility & Join
               </Link>
             </>

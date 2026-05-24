@@ -7,11 +7,10 @@ import {
   ArrowLeft,
   CheckCircle2,
   XCircle,
-  Zap,
   Home,
   DollarSign,
   Heart,
-  Sparkles,
+  Brush,
   Wine,
   Cigarette,
   Users,
@@ -28,6 +27,7 @@ import {
   Info
 } from "lucide-react";
 import RequestToJoinButton from "@/components/rooms/RequestToJoinButton";
+import Counter from "@/components/ui/Counter";
 
 interface MatchExperienceClientProps {
   room: any;
@@ -66,7 +66,7 @@ export default function MatchExperienceClient({
     { text: "Comparing lifestyle schedules and habits...", duration: 700 },
     { text: "Evaluating budget margins & price points...", duration: 600 },
     { text: "Mapping neighborhood geographical preferences...", duration: 500 },
-    { text: "Synthesizing AI compatibility index...", duration: 400 },
+    { text: "Synthesizing compatibility index...", duration: 400 },
   ];
 
   // Run the analysis scanner simulation
@@ -105,8 +105,8 @@ export default function MatchExperienceClient({
     runStage();
   }, [isAnalyzing]);
 
-  // Dynamic AI Narrative brief generator
-  const aiNarrative = generateAINarrative(match, room);
+  // Dynamic Compatibility Narrative brief generator
+  const compatibilityNarrative = generateCompatibilityNarrative(match, room);
 
   // Score-based theme colors
   let themeColor = "text-[rgb(29,93,185)]";
@@ -184,7 +184,7 @@ export default function MatchExperienceClient({
                   transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
                   className="w-16 h-16 rounded-full bg-gradient-to-tr from-[rgb(46,219,244)] to-[rgb(29,93,185)] flex items-center justify-center shadow-lg"
                 >
-                  <Sparkles className="w-8 h-8 text-white" />
+                  <Heart className="w-8 h-8 text-white" />
                 </motion.div>
               </div>
 
@@ -260,48 +260,29 @@ export default function MatchExperienceClient({
           <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-gradient-to-bl from-[rgb(34,142,222)]/5 to-transparent rounded-full pointer-events-none" />
 
           <div className="flex flex-col lg:flex-row items-center gap-8 md:gap-10">
-            {/* Glowing Compatibility Circle Ring */}
-            <div className="relative shrink-0 flex items-center justify-center">
-              <svg width="150" height="150" viewBox="0 0 120 120" className="-rotate-90">
-                <circle
-                  cx="60"
-                  cy="60"
-                  r="54"
-                  fill="none"
-                  stroke="#f1f5f9"
-                  strokeWidth="8"
-                />
-                <motion.circle
-                  cx="60"
-                  cy="60"
-                  r="54"
-                  fill="none"
-                  stroke={`url(#scoreGrad)`}
-                  strokeWidth="10"
-                  strokeLinecap="round"
-                  strokeDasharray={circumference}
-                  initial={{ strokeDashoffset: circumference }}
-                  animate={{ strokeDashoffset: strokeOffset }}
-                  transition={{ delay: 0.5, duration: 1.5, ease: "easeOut" }}
-                />
-                <defs>
-                  <linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="rgb(46,219,244)" />
-                    <stop offset="100%" stopColor="rgb(29,93,185)" />
-                  </linearGradient>
-                </defs>
-              </svg>
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <motion.span
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ delay: 0.8, duration: 0.5 }}
-                  className="text-4xl font-black text-slate-900 tracking-tighter tabular-nums"
-                >
-                  {match.score}
-                  <span className="text-lg font-bold">%</span>
-                </motion.span>
-                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">MATCH</span>
+            {/* Cinematic Glowing Score Centerpiece */}
+            <div className="relative shrink-0 flex flex-col items-center justify-center p-2">
+              <div className="relative w-48 h-48 sm:w-52 sm:h-52 rounded-full flex items-center justify-center shadow-lg">
+                {/* Glowing Outer Rings */}
+                <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-[rgb(46,219,244)] via-[rgb(34,142,222)] to-[rgb(246,137,83)] animate-spin [animation-duration:12s] blur-[6px] opacity-70" />
+                <div className="absolute inset-1 rounded-full bg-gradient-to-tr from-[rgb(46,219,244)] via-[rgb(34,142,222)] to-[rgb(246,137,83)] animate-spin [animation-duration:8s] opacity-90" />
+                
+                {/* Double Layer Glassmorphic Circle */}
+                <div className="absolute inset-3 rounded-full bg-white/95 backdrop-blur-2xl border border-white shadow-inner flex flex-col items-center justify-center z-10">
+                  <div className="flex items-baseline justify-center">
+                    <Counter
+                      value={match.score}
+                      places={[10, 1]}
+                      fontSize={60}
+                      padding={4}
+                      gap={2}
+                      textColor="rgb(29, 93, 185)"
+                      fontWeight={800}
+                    />
+                    <span className="text-2xl font-black text-[rgb(34,142,222)] ml-0.5 select-none animate-pulse">%</span>
+                  </div>
+                  <span className="text-[9.5px] font-black tracking-widest text-slate-400 uppercase mt-0.5">COMPATIBILITY</span>
+                </div>
               </div>
             </div>
 
@@ -310,7 +291,7 @@ export default function MatchExperienceClient({
               <div
                 className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full ${themeBg} ${themeColor} ${themeBorder} border text-[11px] font-bold uppercase tracking-wider mb-4`}
               >
-                <Sparkles className="w-3.5 h-3.5" /> {match.label}
+                <Heart className="w-3.5 h-3.5" /> {match.label}
               </div>
 
               <h1 className="font-serif text-3xl md:text-4xl tracking-[-0.02em] leading-tight text-slate-900 mb-3">
@@ -333,24 +314,24 @@ export default function MatchExperienceClient({
           </div>
         </section>
 
-        {/* ── STAGE 2: INTELLIGENT AI SYNTHESIS NARRATIVE ── */}
+        {/* ── STAGE 2: COMPATIBILITY SYNTHESIS NARRATIVE ── */}
         <section className="mb-10">
           <div className="roomy-glass rounded-3xl border border-white p-6 md:p-8 shadow-sm flex flex-col md:flex-row gap-5 items-start relative overflow-hidden">
             <div className="absolute top-0 right-0 p-1">
               <div className="bg-[rgb(34,142,222)]/10 text-[rgb(29,93,185)] text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-bl-xl border-l border-b border-[rgb(34,142,222)]/20">
-                AI Synthesis
+                Match Brief
               </div>
             </div>
             
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[rgb(46,219,244)] to-[rgb(29,93,185)] flex items-center justify-center shrink-0 shadow-md">
-              <Sparkles className="w-5 h-5 text-white" />
+              <Heart className="w-5 h-5 text-white" />
             </div>
             <div className="space-y-2">
               <h3 className="font-bold text-slate-900 text-sm tracking-tight flex items-center gap-1.5">
-                AI Compatibility Brief
+                Compatibility Summary
               </h3>
               <p className="text-sm text-slate-600 leading-relaxed font-medium">
-                {aiNarrative}
+                {compatibilityNarrative}
               </p>
             </div>
           </div>
@@ -360,7 +341,7 @@ export default function MatchExperienceClient({
         <section className="mb-10">
           <div className="flex items-center gap-2.5 mb-5">
             <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[rgb(46,219,244)] to-[rgb(29,93,185)] flex items-center justify-center shadow-sm">
-              <Zap className="w-4 h-4 text-white" />
+              <Heart className="w-4 h-4 text-white" />
             </div>
             <h2 className="font-serif text-2xl tracking-tight text-slate-900">
               Interactive Factor Analysis
@@ -688,7 +669,7 @@ export default function MatchExperienceClient({
               <div className="space-y-2.5 flex-1">
                 {match.possibleConflicts.map((conflict, idx) => (
                   <div key={idx} className="flex gap-2.5 items-start text-xs font-semibold text-slate-700 bg-amber-50/50 border border-amber-100/30 rounded-xl p-3">
-                    <Zap className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                    <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
                     <span>{conflict}</span>
                   </div>
                 ))}
@@ -890,7 +871,7 @@ function StatusBadge({
   };
   const icons = {
     perfect: <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />,
-    partial: <Zap className="w-3.5 h-3.5 shrink-0" />,
+    partial: <Info className="w-3.5 h-3.5 shrink-0" />,
     conflict: <XCircle className="w-3.5 h-3.5 shrink-0" />,
   };
 
@@ -937,9 +918,9 @@ function BreakdownMeter({
   );
 }
 
-// ─── AI NARRATIVE BRIEF GENERATOR ───
+// ─── COMPATIBILITY NARRATIVE BRIEF GENERATOR ───
 
-function generateAINarrative(match: any, room: any) {
+function generateCompatibilityNarrative(match: any, room: any) {
   const parts = [];
 
   // Match Label and Score
@@ -1005,7 +986,7 @@ function buildFactors(match: any) {
   // Cleanliness expectation
   factors.push({
     id: "cleanliness",
-    icon: <Sparkles className="w-5 h-5 text-[rgb(46,219,244)]" />,
+    icon: <Brush className="w-5 h-5 text-[rgb(46,219,244)]" />,
     label: "Cleanliness",
     scoreLabel: "Lifestyle Habit",
     roomValue: match.lifestyle.cleanliness.room || "Moderate",

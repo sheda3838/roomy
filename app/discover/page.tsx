@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import DiscoverTabs from "@/components/discover/DiscoverTabs";
 import RoomsTabContent from "@/components/discover/RoomsTabContent";
 import PeopleTabContent from "@/components/discover/PeopleTabContent";
-import { Sparkles } from "lucide-react";
+import { Heart } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Discover | Roomy",
@@ -25,7 +25,7 @@ export default async function DiscoverPage(props: { searchParams?: Promise<{ [ke
         
         <div className="max-w-6xl mx-auto relative z-10 text-center">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[rgb(34,142,222)]/10 border border-[rgb(34,142,222)]/20 text-[rgb(29,93,185)] text-sm font-bold mb-6">
-            <Sparkles className="w-4 h-4" /> Smart Discovery
+            <Heart className="w-4 h-4 text-[rgb(29,93,185)]" /> Compatibility Search
           </div>
           <h1 className="text-4xl md:text-5xl font-serif font-normal tracking-tight text-slate-900 mb-4">
             Find your{" "}

@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { ArrowRight, Sparkles, Users, Zap, MessageCircle, ShieldCheck, Home } from "lucide-react";
-import HeroVisualEcosystem from "@/components/home/HeroVisualEcosystem";
+import { ArrowRight, Heart, Compass, Users, MessageCircle, ShieldCheck, Home } from "lucide-react";
+import HeroVisualCompatibility from "@/components/home/HeroVisualCompatibility";
+import FallingText from "@/components/ui/FallingText";
 
 export default function HomePage() {
   return (
@@ -9,51 +10,51 @@ export default function HomePage() {
       {/* ═══════════════════════════════════════
           HERO
       ═══════════════════════════════════════ */}
-      <section className="relative min-h-[90vh] pt-24 pb-10 px-6 lg:px-16 bg-white overflow-hidden flex flex-col justify-center rounded-b-[40px] shadow-sm">
+      <section className="relative min-h-[80vh] lg:min-h-[calc(100vh-80px)] lg:max-h-[700px] xl:max-h-[760px] pt-20 pb-6 lg:pt-24 lg:pb-6 px-6 lg:px-16 bg-white overflow-hidden flex flex-col justify-center rounded-b-[40px] shadow-sm">
         
         {/* Subtle background glow */}
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
           <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-gradient-to-b from-[rgb(34,142,222)]/10 to-transparent blur-[80px]" />
         </div>
 
-        <div className="relative z-10 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-6 items-center">
+        <div className="relative z-10 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-6 items-center">
           
           {/* ── Left: Cinematic Copy ── */}
-          <div className="flex flex-col justify-center order-2 lg:order-1 text-center lg:text-left pt-6 lg:pt-0">
+          <div className="flex flex-col justify-center order-2 lg:order-1 text-center lg:text-left pt-2 lg:pt-0">
             
-            <div className="inline-flex items-center gap-2 self-center lg:self-start mb-6 px-4 py-2 rounded-full bg-slate-50/80 backdrop-blur-md border border-slate-200/60 shadow-sm text-slate-700 text-[11px] font-bold tracking-wider uppercase transition-all hover:bg-white hover:shadow-md cursor-default">
-              <Sparkles className="w-3 h-3 text-[rgb(46,219,244)]" />
-              AI-Powered Compatibility
+            <div className="inline-flex items-center gap-2 self-center lg:self-start mb-4 px-3.5 py-1.5 rounded-full bg-slate-50/80 backdrop-blur-md border border-slate-200/60 shadow-sm text-slate-700 text-[10px] sm:text-[11px] font-bold tracking-wider uppercase transition-all hover:bg-white hover:shadow-md cursor-default animate-fade-in">
+              <Heart className="w-3 h-3 text-[rgb(29,93,185)]" />
+              Lifestyle Compatibility
             </div>
 
-            <h1 className="font-sans font-bold tracking-tighter text-[48px] md:text-[60px] lg:text-[72px] xl:text-[80px] leading-[0.95] text-slate-900 mb-6">
-              Find the roommate<br />
-              that actually <span className="text-transparent bg-clip-text bg-gradient-to-r from-[rgb(46,219,244)] to-[rgb(29,93,185)]">fits your life.</span>
+            <h1 className="font-sans font-bold tracking-tighter text-[32px] sm:text-[42px] md:text-[50px] lg:text-[56px] xl:text-[64px] leading-[1.02] text-slate-900 mb-4">
+              Find roommates that<br />
+              actually <span className="text-transparent bg-clip-text bg-gradient-to-r from-[rgb(46,219,244)] to-[rgb(29,93,185)] font-bold">match your lifestyle.</span>
             </h1>
 
-            <p className="text-base text-slate-500 font-medium leading-relaxed max-w-[460px] self-center lg:self-start mb-8">
-              Roomy goes beyond square footage and price. Our ecosystem matches you with people and places based on lifestyle, sleep schedules, and shared values.
+            <p className="text-sm md:text-base text-slate-500 font-medium leading-relaxed max-w-[440px] self-center lg:self-start mb-6">
+              Roomy goes beyond square footage and price. Our platform matches you with people and places based on lifestyle preferences, sleeping schedules, and co-living habits for stress-free shared living.
             </p>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
+            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3">
               <Link
                 href="/discover?tab=rooms"
-                className="w-full sm:w-auto text-center rounded-2xl bg-gradient-to-r from-[rgb(34,142,222)] to-[rgb(29,93,185)] hover:from-[rgb(29,93,185)] hover:to-[rgb(29,93,185)] px-7 py-3.5 text-sm font-bold text-white shadow-lg shadow-[rgb(29,93,185)]/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                className="w-full sm:w-auto text-center rounded-full bg-gradient-to-r from-[rgb(34,142,222)] to-[rgb(29,93,185)] hover:from-[rgb(29,93,185)] hover:to-[rgb(29,93,185)] px-7 py-3 text-sm font-bold text-white shadow-lg shadow-[rgb(29,93,185)]/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
               >
-                Explore Rooms
+                Explore Matches
               </Link>
               <Link
                 href="/discover?tab=people"
-                className="w-full sm:w-auto text-center rounded-2xl bg-white hover:bg-slate-50 px-7 py-3.5 text-sm font-bold text-slate-700 shadow-sm border border-slate-200 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                className="w-full sm:w-auto text-center rounded-full border border-slate-200/60 bg-white/70 backdrop-blur-md text-slate-700 font-bold px-7 py-3 hover:bg-white hover:border-[rgb(34,142,222)]/40 shadow-sm transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
               >
-                Find Roommates
+                Browse People
               </Link>
             </div>
           </div>
 
           {/* ── Right: Immersive Floating Ecosystem ── */}
           <div className="order-1 lg:order-2">
-             <HeroVisualEcosystem />
+             <HeroVisualCompatibility />
           </div>
 
         </div>
@@ -72,14 +73,20 @@ export default function HomePage() {
               Not just a room.<br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[rgb(250,192,140)] to-[rgb(246,137,83)]">The right home.</span>
             </h2>
-            <p className="text-lg text-zinc-500 leading-relaxed max-w-[520px]">
-              Roomy goes beyond square footage and price. Our engine analyses sleep schedules, cleanliness habits, social preferences, and over 20 lifestyle dimensions to recommend people and rooms you&apos;ll actually enjoy sharing life with.
-            </p>
+            <div className="w-full text-slate-500 max-w-[520px] min-h-[220px] sm:min-h-[180px] md:min-h-[160px]">
+              <FallingText
+                text="Roomy goes beyond square footage and price. Our engine analyses sleep schedules, cleanliness habits, social preferences, and over 20 lifestyle dimensions to recommend people and rooms you'll actually enjoy sharing life with."
+                highlightWords={["beyond", "price", "schedules", "cleanliness", "habits", "social", "dimensions", "recommend", "enjoy"]}
+                highlightClass="text-[rgb(29,93,185)] font-bold"
+                trigger="hover"
+                fontSize="1.125rem"
+              />
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             {[
               { icon: ShieldCheck, label: "Verified Compatibility", color: "text-[rgb(34,142,222)]", bg: "bg-[rgb(34,142,222)]/8 border-[rgb(34,142,222)]/15" },
-              { icon: Sparkles, label: "Lifestyle Matching", color: "text-[rgb(248,150,60)]", bg: "bg-[rgb(248,150,60)]/10 border-[rgb(248,150,60)]/20" },
+              { icon: Heart, label: "Lifestyle Matching", color: "text-[rgb(248,150,60)]", bg: "bg-[rgb(248,150,60)]/10 border-[rgb(248,150,60)]/20" },
               { icon: MessageCircle, label: "Real-time Chat", color: "text-[rgb(29,93,185)]", bg: "bg-[rgb(29,93,185)]/8 border-[rgb(29,93,185)]/15" },
               { icon: Users, label: "People + Rooms", color: "text-[rgb(239,62,43)]", bg: "bg-[rgb(239,62,43)]/8 border-[rgb(239,62,43)]/15" },
             ].map(({ icon: Icon, label, color, bg }) => (
@@ -99,7 +106,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[rgb(34,142,222)]/10 border border-[rgb(34,142,222)]/20 text-[rgb(29,93,185)] text-xs font-bold mb-4 uppercase tracking-wider">
-              <Zap className="w-3.5 h-3.5" /> The Process
+              <Compass className="w-3.5 h-3.5" /> The Process
             </div>
             <h2 className="font-serif text-4xl md:text-5xl leading-tight tracking-[-0.02em] text-zinc-900">
               How Roomy works
@@ -118,7 +125,7 @@ export default function HomePage() {
               },
               {
                 step: "02",
-                icon: Sparkles,
+                icon: Compass,
                 title: "Discover your matches",
                 desc: "Our algorithm surfaces rooms and roommates ranked by genuine compatibility, not just proximity.",
                 accent: "from-[rgb(250,192,140)] to-[rgb(246,137,83)]",

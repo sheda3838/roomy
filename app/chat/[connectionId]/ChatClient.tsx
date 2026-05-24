@@ -5,6 +5,7 @@ import { Send, User as UserIcon, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { getPusherClient } from "@/lib/pusher";
 import { sendMessage } from "@/server/actions/chat";
+import UserAvatar from "@/components/shared/UserAvatar";
 
 interface MessageType {
   _id: string;
@@ -133,13 +134,11 @@ export default function ChatClient({ connectionId, currentUserId, partner, initi
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-zinc-800 border border-zinc-700 overflow-hidden flex items-center justify-center shrink-0">
-            {partner?.profilePicture ? (
-              <img src={partner.profilePicture} alt={partner.fullName} className="w-full h-full object-cover" />
-            ) : (
-              <UserIcon className="w-5 h-5 text-zinc-500" />
-            )}
-          </div>
+          <UserAvatar
+            src={partner?.profilePicture}
+            alt={partner?.fullName}
+            className="w-10 h-10 rounded-full border border-zinc-700 shadow-sm"
+          />
           <div>
             <h1 className="font-bold text-white text-base leading-tight">
               {partner?.fullName || "Roommate"}

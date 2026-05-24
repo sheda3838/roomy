@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { 
-  MapPin, Sparkles, Moon, ShieldCheck, Sun, Wind, 
+  MapPin, Brush, Moon, ShieldCheck, Sun, Wind, 
   Coffee, Activity, Users, Wifi, Bath, Utensils
 } from "lucide-react";
 
@@ -19,7 +19,7 @@ export default function CompatibilityVisual() {
       {/* ── Background Elements & Glows ── */}
       <div className="absolute top-1/4 right-1/4 w-[400px] h-[400px] bg-[rgb(46,219,244)] rounded-full opacity-[0.08] blur-[100px] pointer-events-none" />
       <div className="absolute bottom-1/4 left-1/4 w-[350px] h-[350px] bg-[rgb(248,150,60)] rounded-full opacity-[0.08] blur-[100px] pointer-events-none" />
-
+ 
       {/* ── Main Dashboard Window ── */}
       <motion.div
         initial={{ opacity: 0, scale: 0.95, rotateX: 5 }}
@@ -39,7 +39,7 @@ export default function CompatibilityVisual() {
             <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Engine Active</span>
           </div>
         </div>
-
+ 
         {/* Dashboard Grid Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
           
@@ -56,7 +56,7 @@ export default function CompatibilityVisual() {
                 </linearGradient>
               </defs>
             </svg>
-
+ 
             {/* User 1 */}
             <motion.div {...fadeUp(0.2)} className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 relative z-10 group hover:shadow-md transition-all">
               <div className="absolute -top-1.5 -right-1.5 bg-emerald-400 text-white text-[9px] font-bold px-2 py-0.5 rounded-full border-2 border-white shadow-sm">
@@ -79,7 +79,7 @@ export default function CompatibilityVisual() {
                   <Moon className="w-2.5 h-2.5" /> Night Owl
                 </span>
                 <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-slate-50 border border-slate-100 text-slate-600 text-[10px] font-bold">
-                  <Sparkles className="w-2.5 h-2.5" /> Clean
+                  <Brush className="w-2.5 h-2.5" /> Clean
                 </span>
                 <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-slate-50 border border-slate-100 text-slate-600 text-[10px] font-bold">
                   <Coffee className="w-2.5 h-2.5" /> Quiet

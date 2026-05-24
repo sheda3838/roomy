@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { User, Briefcase, GraduationCap } from "lucide-react";
 import { SuggestedPerson } from "@/server/actions/getSuggestedPeople";
+import UserAvatar from "@/components/shared/UserAvatar";
 
 interface RoommateCardProps {
   person: SuggestedPerson;
@@ -24,23 +25,17 @@ export default function RoommateCard({ person }: RoommateCardProps) {
         {/* Profile Avatar with double borders and hover scale */}
         <div className="relative w-24 h-24 rounded-full p-[3px] bg-slate-100 border border-slate-200/60 shadow-inner overflow-hidden shrink-0 group-hover:scale-[1.03] transition-transform duration-500">
           <div className="w-full h-full rounded-full overflow-hidden bg-white border border-slate-200/40 relative">
-            {user.profilePicture ? (
-              <img
-                src={user.profilePicture}
-                alt={user.fullName}
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-              />
-            ) : (
-              <div className="absolute inset-0 flex items-center justify-center bg-slate-50">
-                <User className="w-10 h-10 text-[rgb(34,142,222)]/40" />
-              </div>
-            )}
+            <UserAvatar
+              src={user.profilePicture}
+              alt={user.fullName}
+              className="w-full h-full group-hover:scale-110 transition-transform duration-700"
+            />
           </div>
         </div>
 
         {/* User Info with premium typography */}
         <div className="space-y-1.5 w-full">
-          <h3 className="font-serif text-lg font-bold tracking-tight text-slate-900 group-hover:text-[rgb(29,93,185)] transition-colors duration-300">
+          <h3 className="font-sans text-lg font-bold tracking-tight text-slate-900 group-hover:text-[rgb(29,93,185)] transition-colors duration-300">
             {user.fullName}
           </h3>
           

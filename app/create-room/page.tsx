@@ -18,11 +18,11 @@ import {
   Loader2,
   Image as ImageIcon,
   Map,
-  Zap,
+  Compass,
+  Sliders,
   Cigarette,
   Wine,
   User,
-  Sparkles,
   Bath,
   Wifi,
   Wind,
@@ -201,7 +201,7 @@ export default function CreateRoomPage() {
         {/* Page Header */}
         <div className="text-center space-y-3">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[rgb(34,142,222)]/10 border border-[rgb(34,142,222)]/20 text-[rgb(29,93,185)] text-[11px] font-bold uppercase tracking-wider">
-            <Zap className="w-3 h-3 fill-[rgb(29,93,185)]/10" /> Publisher V2
+            <Compass className="w-3 h-3 fill-[rgb(29,93,185)]/10" /> Publisher V2
           </div>
           <h1 className="text-4xl md:text-5xl font-serif font-normal tracking-tight text-slate-900">
             Post your space on{" "}
@@ -339,7 +339,7 @@ export default function CreateRoomPage() {
           {/* Card 3: Amenities Selectors */}
           <div className="bg-white/80 border border-slate-200/50 backdrop-blur-xl rounded-3xl p-6 md:p-8 space-y-6 shadow-xl hover:shadow-2xl transition-shadow duration-300">
             <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2.5 border-b border-slate-100 pb-4">
-              <Zap className="h-5 w-5 text-[rgb(34,142,222)]" /> Features & Amenities
+              <Sliders className="h-5 w-5 text-[rgb(34,142,222)]" /> Features & Amenities
             </h2>
 
             <div className="space-y-4">

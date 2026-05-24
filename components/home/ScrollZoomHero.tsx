@@ -45,7 +45,7 @@ export default function ScrollZoomHero() {
           style={{ y: textY, opacity: textOpacity }}
         >
           <div className="inline-flex items-center gap-2 mb-8 px-5 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white/90 text-[13px] font-bold tracking-wider uppercase">
-            Intelligent Roommate Matching
+            Compatibility Roommate Matching
           </div>
           
           <h1 className="font-sans font-bold tracking-tighter text-[50px] md:text-[70px] lg:text-[90px] leading-[0.95] text-white mb-6 drop-shadow-2xl">
@@ -54,7 +54,7 @@ export default function ScrollZoomHero() {
           </h1>
 
           <p className="text-lg md:text-xl text-white/80 font-medium leading-relaxed max-w-2xl mx-auto drop-shadow-md">
-            Shape scattered lifestyle signals into meaningful connections via AI-driven compatibility workflows.
+            Shape scattered lifestyle signals into meaningful connections via lifestyle-based compatibility workflows.
           </p>
         </motion.div>
 

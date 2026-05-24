@@ -1,9 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { User, Sparkles, MapPin, MessageCircle, ShieldCheck, Search } from "lucide-react";
+import { User, Brush, MapPin, MessageCircle, ShieldCheck, Search } from "lucide-react";
 import TypingEffect from "./TypingEffect";
-
+ 
 export default function DashboardVisual() {
   return (
     // Outer Tablet Frame - Editorial Light Theme
@@ -13,7 +13,7 @@ export default function DashboardVisual() {
       <div className="absolute inset-0 z-0 bg-gradient-to-br from-white/40 to-white/10" />
       <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] bg-gradient-to-br from-[rgb(46,219,244)] to-[rgb(29,93,185)] opacity-10 blur-[120px] rounded-full pointer-events-none" />
       <div className="absolute bottom-[-20%] left-[-10%] w-[500px] h-[500px] bg-gradient-to-tr from-[rgb(250,192,140)] to-[rgb(246,137,83)] opacity-10 blur-[120px] rounded-full pointer-events-none" />
-
+ 
       {/* Mockup Top Nav & Typing Ecosystem */}
       <div className="relative z-10 w-full flex items-center justify-between mb-8 px-4">
         <div className="flex items-center gap-2">
@@ -26,12 +26,12 @@ export default function DashboardVisual() {
           <Search className="w-4 h-4 text-[rgb(34,142,222)] shrink-0" />
           <TypingEffect />
         </div>
-
+ 
         <div className="flex items-center gap-3">
           <div className="h-8 w-8 bg-white/80 rounded-full flex items-center justify-center shadow-sm"><User className="w-4 h-4 text-zinc-600" /></div>
         </div>
       </div>
-
+ 
       {/* Mockup Grid Content */}
       <div className="relative z-10 flex-1 grid grid-cols-12 gap-6">
         
@@ -54,7 +54,7 @@ export default function DashboardVisual() {
              <ShieldCheck className="w-7 h-7 text-[rgb(34,142,222)]" />
           </div>
         </div>
-
+ 
         {/* Right Column: Roommate Match & Chat */}
         <div className="col-span-7 h-full flex flex-col gap-4">
           
@@ -78,7 +78,7 @@ export default function DashboardVisual() {
             <div className="flex gap-2 mt-6">
               <span className="px-3 py-1.5 rounded-full bg-zinc-50 border border-zinc-100 text-zinc-600 text-[11px] font-bold">Early Bird</span>
               <span className="px-3 py-1.5 rounded-full bg-zinc-50 border border-zinc-100 text-zinc-600 text-[11px] font-bold">Non-Smoker</span>
-              <span className="px-3 py-1.5 rounded-full bg-[rgb(250,192,140)]/20 text-[rgb(239,62,43)] text-[11px] font-bold flex items-center gap-1"><Sparkles className="w-3 h-3"/> Clean Freak</span>
+              <span className="px-3 py-1.5 rounded-full bg-[rgb(250,192,140)]/20 text-[rgb(239,62,43)] text-[11px] font-bold flex items-center gap-1"><Brush className="w-3 h-3"/> Clean Freak</span>
             </div>
           </div>
 

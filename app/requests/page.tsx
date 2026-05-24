@@ -10,6 +10,7 @@ import {
   UserPlus, Home, User as UserIcon, ArrowRight,
   Home as HomeIcon, Users,
 } from "lucide-react";
+import UserAvatar from "@/components/shared/UserAvatar";
 
 export const metadata: Metadata = {
   title: "Requests | Roomy",
@@ -124,15 +125,11 @@ export default async function RequestsPage({
                     >
                       <div className="flex items-start gap-4">
                         <Link href={`/people/${requester._id}/match`}>
-                          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[rgb(46,219,244)]/20 to-[rgb(29,93,185)]/20 border border-[rgb(34,142,222)]/20 overflow-hidden flex items-center justify-center shrink-0 hover:scale-105 transition-transform">
-                            {requester.profilePicture ? (
-                              <img src={requester.profilePicture} alt={requester.fullName} className="w-full h-full object-cover" />
-                            ) : (
-                              <span className="text-xl font-bold text-[rgb(29,93,185)]">
-                                {requester.fullName?.charAt(0)}
-                              </span>
-                            )}
-                          </div>
+                          <UserAvatar
+                            src={requester.profilePicture}
+                            alt={requester.fullName}
+                            className="w-14 h-14 rounded-full border border-slate-100 shadow-sm hover:scale-105 transition-transform"
+                          />
                         </Link>
                         <div>
                           <Link href={`/people/${requester._id}/match`} className="font-bold text-lg text-slate-900 hover:text-[rgb(29,93,185)] transition-colors">
@@ -183,15 +180,11 @@ export default async function RequestsPage({
                       className="flex flex-col md:flex-row md:items-center justify-between gap-5 p-5 rounded-2xl bg-white border border-slate-100 shadow-sm hover:shadow-md transition-shadow"
                     >
                       <div className="flex items-start gap-4">
-                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[rgb(250,192,140)]/30 to-[rgb(246,137,83)]/20 border border-[rgb(246,137,83)]/20 overflow-hidden flex items-center justify-center shrink-0">
-                          {applicant.profilePicture ? (
-                            <img src={applicant.profilePicture} alt={applicant.fullName} className="w-full h-full object-cover" />
-                          ) : (
-                            <span className="text-xl font-bold text-[rgb(239,62,43)]">
-                              {applicant.fullName?.charAt(0)}
-                            </span>
-                          )}
-                        </div>
+                        <UserAvatar
+                          src={applicant.profilePicture}
+                          alt={applicant.fullName}
+                          className="w-14 h-14 rounded-full border border-slate-100 shadow-sm"
+                        />
                         <div>
                           <p className="font-bold text-lg text-slate-900">{applicant.fullName}</p>
                           <p className="text-sm text-slate-400 capitalize mt-0.5">

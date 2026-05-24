@@ -6,7 +6,6 @@ import { useSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   User,
-  Sparkles,
   Briefcase,
   GraduationCap,
   Sun,
@@ -161,7 +160,7 @@ export default function OnboardingPage() {
           <div className="flex justify-between items-center mb-4">
             <div>
               <h1 className="text-2xl font-bold tracking-tight text-slate-950 flex items-center gap-2">
-                <Sparkles className="h-6 w-6 text-[rgb(34,142,222)] animate-pulse" />
+                <User className="h-6 w-6 text-[rgb(34,142,222)] animate-pulse" />
                 Customize Roomy
               </h1>
               <p className="text-sm text-slate-500 mt-1">

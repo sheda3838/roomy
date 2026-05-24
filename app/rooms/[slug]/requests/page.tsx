@@ -9,6 +9,7 @@ import Connection from "@/models/Connection";
 import Link from "next/link";
 import { ArrowLeft, CheckCircle, Users } from "lucide-react";
 import HandleRequestButtons from "./HandleRequestButtons"; // Client component
+import UserAvatar from "@/components/shared/UserAvatar";
 
 export const metadata: Metadata = {
   title: "Room Requests | Roomy",
@@ -138,15 +139,11 @@ export default async function RoomRequestsPage({ params }: { params: Promise<{ s
                   )}
 
                   <div className="flex items-start gap-4">
-                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[rgb(46,219,244)]/20 to-[rgb(29,93,185)]/20 border border-[rgb(34,142,222)]/20 overflow-hidden flex items-center justify-center shrink-0">
-                      {requester.profilePicture ? (
-                        <img src={requester.profilePicture} alt={requester.fullName} className="w-full h-full object-cover" />
-                      ) : (
-                        <span className="text-xl font-bold text-[rgb(29,93,185)]">
-                          {requester.fullName?.charAt(0)}
-                        </span>
-                      )}
-                    </div>
+                    <UserAvatar
+                      src={requester.profilePicture}
+                      alt={requester.fullName}
+                      className="w-14 h-14 rounded-full border border-slate-100 shadow-sm"
+                    />
                     
                     <div className="space-y-1">
                       <div className="flex items-center gap-2 flex-wrap">
