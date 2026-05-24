@@ -19,6 +19,7 @@ export default async function PeopleTabContent({ searchParams }: PeopleTabConten
   if (searchParams.drinker === "false") filters.drinker = false;
   if (searchParams.sleepType) filters.sleepType = searchParams.sleepType;
   if (searchParams.cleanliness) filters.cleanlinessLevel = searchParams.cleanliness;
+  if (searchParams.city) filters.locationText = searchParams.city;
 
   const { success, people, error } = await getSuggestedPeople(filters);
 

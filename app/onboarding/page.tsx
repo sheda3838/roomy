@@ -15,16 +15,18 @@ import {
   ChevronLeft,
   Check,
   MapPin,
-  DollarSign,
   X,
   Plus,
   Wine,
   Cigarette,
   Home,
   CheckSquare,
+  Loader2,
 } from "lucide-react";
 import { completeOnboarding } from "@/server/actions/completeOnboarding";
 import { type OnboardingInput } from "@/server/validations/onboarding";
+import LocationSelect from "@/components/shared/LocationSelect";
+import { cn } from "@/lib/utils";
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -33,9 +35,6 @@ export default function OnboardingPage() {
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
-
-  // Location input temporary text
-  const [locInput, setLocInput] = useState("");
 
   const [formData, setFormData] = useState<OnboardingInput>({
     gender: undefined as any,
@@ -58,29 +57,6 @@ export default function OnboardingPage() {
     }));
   };
 
-  // Tag manager functions
-  const addLocation = () => {
-    const trimmed = locInput.trim();
-    if (trimmed && !formData.preferredLocations.includes(trimmed)) {
-      updateField("preferredLocations", [...formData.preferredLocations, trimmed]);
-      setLocInput("");
-    }
-  };
-
-  const removeLocation = (loc: string) => {
-    updateField(
-      "preferredLocations",
-      formData.preferredLocations.filter((l) => l !== loc)
-    );
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      addLocation();
-    }
-  };
-
   // Validations per step
   const isStepValid = () => {
     if (step === 1) {
@@ -97,7 +73,7 @@ export default function OnboardingPage() {
     }
     if (step === 3) {
       if (formData.isActiveSeeker === undefined) return false;
-      
+
       if (formData.isActiveSeeker) {
         return (
           formData.budgetMin !== undefined &&
@@ -134,7 +110,7 @@ export default function OnboardingPage() {
 
     try {
       const payload = { ...formData };
-      
+
       // Clean budget variables if not a seeker
       if (!payload.isActiveSeeker) {
         payload.budgetMin = undefined;
@@ -148,10 +124,7 @@ export default function OnboardingPage() {
         setErrorMsg(result.error);
         setIsSubmitting(false);
       } else {
-        // Pass the new value directly to update() — the JWT callback handles it
-        // without a DB round-trip, so this re-sign takes ~50ms instead of ~2-4s.
         await update({ isOnboardingComplete: true });
-        // Now the JWT has isOnboardingComplete=true — middleware will allow /dashboard
         router.push("/dashboard");
       }
     } catch (err: any) {
@@ -161,50 +134,49 @@ export default function OnboardingPage() {
     }
   };
 
-
-  // Card classes
+  // Premium interactive card classes
   const getCardClass = (active: boolean) =>
-    `relative flex flex-col items-center justify-center p-6 rounded-xl border text-center transition-all cursor-pointer select-none ${
+    `relative flex flex-col items-center justify-center p-6 rounded-3xl border text-center transition-all duration-300 cursor-pointer select-none ${
       active
-        ? "bg-indigo-600/20 border-indigo-500 text-white shadow-[0_0_15px_rgba(99,102,241,0.2)]"
-        : "bg-zinc-900/50 border-zinc-800 text-zinc-400 hover:border-zinc-700 hover:text-zinc-200"
+        ? "bg-[rgb(34,142,222)]/8 border-[rgb(34,142,222)] text-[rgb(29,93,185)] shadow-[0_4px_20px_rgba(34,142,222,0.15)] scale-[1.02]"
+        : "bg-white border-slate-200/80 text-slate-400 hover:border-slate-300 hover:text-slate-600 hover:-translate-y-0.5"
     }`;
 
   const getSelectTileClass = (active: boolean) =>
-    `px-4 py-3 rounded-lg border text-sm font-medium transition-all cursor-pointer text-center select-none ${
+    `px-4 py-3 rounded-2xl border text-sm font-semibold transition-all duration-300 cursor-pointer text-center select-none ${
       active
-        ? "bg-indigo-600 border-indigo-500 text-white shadow-lg"
-        : "bg-zinc-900/50 border-zinc-800 text-zinc-400 hover:border-zinc-700 hover:text-zinc-200"
+        ? "bg-[rgb(34,142,222)]/8 border-[rgb(34,142,222)] text-[rgb(29,93,185)] shadow-md"
+        : "bg-white border-slate-200/80 text-slate-400 hover:border-slate-300 hover:text-slate-600"
     }`;
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-zinc-950 text-zinc-100 p-4 relative overflow-hidden">
-      {/* Premium background decorations */}
-      <div className="absolute top-0 -left-4 w-96 h-96 bg-purple-600 rounded-full filter blur-[128px] opacity-15 animate-pulse"></div>
-      <div className="absolute bottom-0 -right-4 w-96 h-96 bg-indigo-600 rounded-full filter blur-[128px] opacity-15 animate-pulse"></div>
+    <div className="min-h-screen w-full flex items-center justify-center bg-[#f7f9ff] text-slate-900 p-4 relative overflow-hidden">
+      {/* Background decorations */}
+      <div className="absolute top-0 -left-4 w-96 h-96 bg-[rgb(46,219,244)]/10 rounded-full filter blur-[128px] opacity-30 animate-pulse"></div>
+      <div className="absolute bottom-0 -right-4 w-96 h-96 bg-[rgb(248,150,60)]/8 rounded-full filter blur-[128px] opacity-30 animate-pulse"></div>
 
-      <div className="w-full max-w-2xl bg-zinc-900/40 backdrop-blur-xl border border-zinc-800/80 rounded-2xl p-6 md:p-10 shadow-2xl relative z-10 flex flex-col min-h-[550px]">
+      <div className="w-full max-w-2xl bg-white/80 backdrop-blur-xl border border-slate-200/50 rounded-3xl p-6 md:p-10 shadow-2xl relative z-10 flex flex-col min-h-[550px]">
         {/* Header and Progress Indicator */}
         <div className="mb-8">
           <div className="flex justify-between items-center mb-4">
             <div>
-              <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-                <Sparkles className="h-6 w-6 text-indigo-400 animate-spin-slow" />
+              <h1 className="text-2xl font-bold tracking-tight text-slate-950 flex items-center gap-2">
+                <Sparkles className="h-6 w-6 text-[rgb(34,142,222)] animate-pulse" />
                 Customize Roomy
               </h1>
-              <p className="text-sm text-zinc-400 mt-1">
+              <p className="text-sm text-slate-500 mt-1">
                 Help us find roommate and home listings that match your style.
               </p>
             </div>
-            <span className="text-xs font-semibold px-2.5 py-1 bg-zinc-800 border border-zinc-700 rounded-full text-indigo-400">
+            <span className="text-xs font-semibold px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-full text-[rgb(29,93,185)]">
               Step {step} of 3
             </span>
           </div>
 
           {/* Progress Bar */}
-          <div className="h-1.5 w-full bg-zinc-800 rounded-full overflow-hidden">
+          <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
             <motion.div
-              className="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600"
+              className="h-full bg-gradient-to-r from-[rgb(46,219,244)] via-[rgb(34,142,222)] to-[rgb(29,93,185)]"
               animate={{ width: `${(step / 3) * 100}%` }}
               transition={{ duration: 0.3 }}
             />
@@ -215,7 +187,7 @@ export default function OnboardingPage() {
         <form onSubmit={handleSubmit} className="flex-1 flex flex-col justify-between">
           <div className="flex-1">
             {errorMsg && (
-              <div className="mb-6 p-4 bg-red-950/40 border border-red-800/50 rounded-xl text-red-200 text-sm">
+              <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-2xl text-red-700 text-sm">
                 {errorMsg}
               </div>
             )}
@@ -232,7 +204,7 @@ export default function OnboardingPage() {
                   className="space-y-6"
                 >
                   <div>
-                    <label className="block text-sm font-semibold text-zinc-200 mb-3">
+                    <label className="block text-sm font-semibold text-slate-700 mb-3">
                       Identify Your Gender
                     </label>
                     <div className="grid grid-cols-2 gap-4">
@@ -240,25 +212,25 @@ export default function OnboardingPage() {
                         onClick={() => updateField("gender", "male")}
                         className={getCardClass(formData.gender === "male")}
                       >
-                        <div className="p-3 bg-zinc-800/80 rounded-full mb-3 text-indigo-400">
+                        <div className="p-3 bg-slate-50 rounded-2xl mb-3 text-[rgb(29,93,185)]">
                           <User className="h-6 w-6" />
                         </div>
-                        <span className="font-semibold text-sm">Male</span>
+                        <span className="font-bold text-sm text-slate-800">Male</span>
                       </div>
                       <div
                         onClick={() => updateField("gender", "female")}
                         className={getCardClass(formData.gender === "female")}
                       >
-                        <div className="p-3 bg-zinc-800/80 rounded-full mb-3 text-purple-400">
+                        <div className="p-3 bg-slate-50 rounded-2xl mb-3 text-[rgb(248,150,60)]">
                           <User className="h-6 w-6" />
                         </div>
-                        <span className="font-semibold text-sm">Female</span>
+                        <span className="font-bold text-sm text-slate-800">Female</span>
                       </div>
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-zinc-200 mb-3">
+                    <label className="block text-sm font-semibold text-slate-700 mb-3">
                       Current Occupation / Status
                     </label>
                     <div className="grid grid-cols-2 gap-4">
@@ -266,21 +238,21 @@ export default function OnboardingPage() {
                         onClick={() => updateField("roleType", "student")}
                         className={getCardClass(formData.roleType === "student")}
                       >
-                        <div className="p-3 bg-zinc-800/80 rounded-full mb-3 text-yellow-500">
+                        <div className="p-3 bg-slate-50 rounded-2xl mb-3 text-[rgb(248,150,60)]">
                           <GraduationCap className="h-6 w-6" />
                         </div>
-                        <span className="font-semibold text-sm">Student</span>
-                        <p className="text-xs text-zinc-500 mt-1">Pursuing academics</p>
+                        <span className="font-bold text-sm text-slate-800">Student</span>
+                        <p className="text-xs text-slate-400 mt-1">Pursuing academics</p>
                       </div>
                       <div
                         onClick={() => updateField("roleType", "worker")}
                         className={getCardClass(formData.roleType === "worker")}
                       >
-                        <div className="p-3 bg-zinc-800/80 rounded-full mb-3 text-emerald-400">
+                        <div className="p-3 bg-slate-50 rounded-2xl mb-3 text-emerald-500">
                           <Briefcase className="h-6 w-6" />
                         </div>
-                        <span className="font-semibold text-sm">Professional / Worker</span>
-                        <p className="text-xs text-zinc-500 mt-1">Full/part-time employment</p>
+                        <span className="font-bold text-sm text-slate-800">Professional / Worker</span>
+                        <p className="text-xs text-slate-400 mt-1">Full/part-time employment</p>
                       </div>
                     </div>
                   </div>
@@ -298,7 +270,7 @@ export default function OnboardingPage() {
                   className="space-y-6"
                 >
                   <div>
-                    <label className="block text-sm font-semibold text-zinc-200 mb-3">
+                    <label className="block text-sm font-semibold text-slate-700 mb-3">
                       Cleanliness Level
                     </label>
                     <div className="grid grid-cols-3 gap-3">
@@ -315,7 +287,7 @@ export default function OnboardingPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-zinc-200 mb-3">
+                    <label className="block text-sm font-semibold text-slate-700 mb-3">
                       Sleep Pattern
                     </label>
                     <div className="grid grid-cols-2 gap-4">
@@ -323,22 +295,22 @@ export default function OnboardingPage() {
                         onClick={() => updateField("sleepType", "early")}
                         className={getCardClass(formData.sleepType === "early")}
                       >
-                        <Sun className="h-5 w-5 mb-2 text-amber-400" />
-                        <span className="font-medium text-sm">Early Bird</span>
+                        <Sun className="h-5 w-5 mb-2 text-amber-500" />
+                        <span className="font-bold text-sm text-slate-800">Early Bird</span>
                       </div>
                       <div
                         onClick={() => updateField("sleepType", "night_owl")}
                         className={getCardClass(formData.sleepType === "night_owl")}
                       >
-                        <Moon className="h-5 w-5 mb-2 text-indigo-400" />
-                        <span className="font-medium text-sm">Night Owl</span>
+                        <Moon className="h-5 w-5 mb-2 text-[rgb(29,93,185)]" />
+                        <span className="font-bold text-sm text-slate-800">Night Owl</span>
                       </div>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-semibold text-zinc-200 mb-2">
+                      <label className="block text-sm font-semibold text-slate-700 mb-2">
                         Do you smoke?
                       </label>
                       <div className="grid grid-cols-2 gap-2">
@@ -358,7 +330,7 @@ export default function OnboardingPage() {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-semibold text-zinc-200 mb-2">
+                      <label className="block text-sm font-semibold text-slate-700 mb-2">
                         Do you drink alcohol?
                       </label>
                       <div className="grid grid-cols-2 gap-2">
@@ -379,7 +351,7 @@ export default function OnboardingPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-zinc-200 mb-3">
+                    <label className="block text-sm font-semibold text-slate-700 mb-3">
                       Guest Policy (How often do you host guests?)
                     </label>
                     <div className="grid grid-cols-3 gap-3">
@@ -417,7 +389,7 @@ export default function OnboardingPage() {
                   className="space-y-6"
                 >
                   <div>
-                    <label className="block text-sm font-semibold text-zinc-200 mb-3">
+                    <label className="block text-sm font-semibold text-slate-700 mb-3">
                       Are you actively searching for a room or roommate?
                     </label>
                     <div className="grid grid-cols-2 gap-4">
@@ -425,37 +397,35 @@ export default function OnboardingPage() {
                         onClick={() => updateField("isActiveSeeker", true)}
                         className={getCardClass(formData.isActiveSeeker === true)}
                       >
-                        <Home className="h-5 w-5 mb-2 text-indigo-400" />
-                        <span className="font-semibold text-sm">Yes, actively looking</span>
-                        <p className="text-xs text-zinc-500 mt-1">Specify budget/locations</p>
+                        <Home className="h-5 w-5 mb-2 text-[rgb(34,142,222)]" />
+                        <span className="font-bold text-sm text-slate-800">Yes, actively looking</span>
+                        <p className="text-xs text-slate-400 mt-1">Specify budget/locations</p>
                       </div>
                       <div
                         onClick={() => updateField("isActiveSeeker", false)}
                         className={getCardClass(formData.isActiveSeeker === false)}
                       >
-                        <CheckSquare className="h-5 w-5 mb-2 text-zinc-500" />
-                        <span className="font-semibold text-sm">No / Already have a place</span>
-                        <p className="text-xs text-zinc-500 mt-1">Just browsing matches</p>
+                        <CheckSquare className="h-5 w-5 mb-2 text-slate-400" />
+                        <span className="font-bold text-sm text-slate-800">No / Already have a place</span>
+                        <p className="text-xs text-slate-400 mt-1">Just browsing matches</p>
                       </div>
                     </div>
                   </div>
 
                   {formData.isActiveSeeker && (
                     <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: "auto" }}
-                      className="space-y-6 overflow-hidden pt-2"
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="space-y-6 pt-2"
                     >
                       {/* Budget inputs */}
                       <div>
-                        <label className="block text-sm font-semibold text-zinc-200 mb-2">
-                          Monthly Budget Range (USD)
+                        <label className="block text-sm font-semibold text-slate-700 mb-2">
+                          Monthly Budget Range (Rs.)
                         </label>
                         <div className="grid grid-cols-2 gap-4">
-                          <div className="relative">
-                            <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-zinc-500 pointer-events-none">
-                              <DollarSign className="h-4 w-4" />
-                            </span>
+                          <div className="relative group">
+                            <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 font-bold text-sm pointer-events-none">Rs.</span>
                             <input
                               type="number"
                               placeholder="Min Budget"
@@ -466,15 +436,13 @@ export default function OnboardingPage() {
                                   e.target.value ? Number(e.target.value) : undefined
                                 )
                               }
-                              className="w-full pl-9 pr-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-lg text-white placeholder-zinc-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-sm"
+                              className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-2xl text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[rgb(34,142,222)] focus:ring-4 focus:ring-[rgb(34,142,222)]/10 transition-all font-semibold"
                               required
                             />
                           </div>
 
-                          <div className="relative">
-                            <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-zinc-500 pointer-events-none">
-                              <DollarSign className="h-4 w-4" />
-                            </span>
+                          <div className="relative group">
+                            <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 font-bold text-sm pointer-events-none">Rs.</span>
                             <input
                               type="number"
                               placeholder="Max Budget"
@@ -485,7 +453,7 @@ export default function OnboardingPage() {
                                   e.target.value ? Number(e.target.value) : undefined
                                 )
                               }
-                              className="w-full pl-9 pr-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-lg text-white placeholder-zinc-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-sm"
+                              className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-2xl text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[rgb(34,142,222)] focus:ring-4 focus:ring-[rgb(34,142,222)]/10 transition-all font-semibold"
                               required
                             />
                           </div>
@@ -493,64 +461,24 @@ export default function OnboardingPage() {
                         {formData.budgetMin !== undefined &&
                           formData.budgetMax !== undefined &&
                           formData.budgetMax < formData.budgetMin && (
-                            <p className="text-xs text-red-400 mt-1">
+                            <p className="text-xs text-red-500 mt-1.5 ml-1">
                               Max budget must be greater than or equal to Min budget.
                             </p>
                           )}
                       </div>
 
-                      {/* Locations selector tag box */}
+                      {/* Locations selector dropdown */}
                       <div>
-                        <label className="block text-sm font-semibold text-zinc-200 mb-2">
-                          Preferred Locations
+                        <label className="block text-sm font-semibold text-slate-700 mb-2">
+                          Preferred Locations <span className="text-red-500">*</span>
                         </label>
-                        <div className="flex gap-2 mb-3">
-                          <div className="relative flex-1">
-                            <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-zinc-500 pointer-events-none">
-                              <MapPin className="h-4 w-4" />
-                            </span>
-                            <input
-                              type="text"
-                              placeholder="Type a location (e.g. Brooklyn, Manhattan)..."
-                              value={locInput}
-                              onChange={(e) => setLocInput(e.target.value)}
-                              onKeyDown={handleKeyDown}
-                              className="w-full pl-9 pr-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-lg text-white placeholder-zinc-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-sm"
-                            />
-                          </div>
-                          <button
-                            type="button"
-                            onClick={addLocation}
-                            className="px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-200 rounded-lg text-sm transition-all flex items-center gap-1.5"
-                          >
-                            <Plus className="h-4 w-4" /> Add
-                          </button>
-                        </div>
-
-                        {/* Location tags list */}
-                        {formData.preferredLocations.length > 0 ? (
-                          <div className="flex flex-wrap gap-2 p-3 bg-zinc-900/60 border border-zinc-800/80 rounded-xl">
-                            {formData.preferredLocations.map((loc) => (
-                              <span
-                                key={loc}
-                                className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 bg-indigo-950/40 border border-indigo-800/50 rounded-full text-indigo-300"
-                              >
-                                {loc}
-                                <button
-                                  type="button"
-                                  onClick={() => removeLocation(loc)}
-                                  className="text-indigo-400 hover:text-white transition-colors"
-                                >
-                                  <X className="h-3 w-3" />
-                                </button>
-                              </span>
-                            ))}
-                          </div>
-                        ) : (
-                          <p className="text-xs text-zinc-500 italic">
-                            No locations added yet. Please specify at least one location.
-                          </p>
-                        )}
+                        <LocationSelect
+                          value={formData.preferredLocations}
+                          onChange={(val) => updateField("preferredLocations", val)}
+                          multiple={true}
+                          placeholder="Select preferred locations..."
+                          theme="light"
+                        />
                       </div>
                     </motion.div>
                   )}
@@ -560,13 +488,13 @@ export default function OnboardingPage() {
           </div>
 
           {/* Action buttons footer */}
-          <div className="flex justify-between items-center mt-10 pt-6 border-t border-zinc-800/60">
+          <div className="flex justify-between items-center mt-10 pt-6 border-t border-slate-100">
             {step > 1 ? (
               <button
                 type="button"
                 onClick={handleBack}
                 disabled={isSubmitting}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-zinc-800 bg-zinc-900/40 text-zinc-300 hover:bg-zinc-900 hover:text-white transition-all disabled:opacity-50"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-2xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-all shadow-sm cursor-pointer"
               >
                 <ChevronLeft className="h-4 w-4" /> Back
               </button>
@@ -579,7 +507,7 @@ export default function OnboardingPage() {
                 type="button"
                 onClick={handleNext}
                 disabled={!isStepValid()}
-                className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-medium shadow-lg hover:shadow-indigo-500/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-[rgb(34,142,222)] hover:bg-[rgb(29,93,185)] text-white font-bold shadow-md hover:shadow-[rgb(34,142,222)]/20 transition-all disabled:opacity-55 disabled:cursor-not-allowed cursor-pointer"
               >
                 Continue <ChevronRight className="h-4 w-4" />
               </button>
@@ -587,29 +515,11 @@ export default function OnboardingPage() {
               <button
                 type="submit"
                 disabled={!isStepValid() || isSubmitting}
-                className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold shadow-lg hover:shadow-indigo-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-gradient-to-r from-[rgb(34,142,222)] to-[rgb(29,93,185)] hover:from-[rgb(29,93,185)] hover:to-[rgb(29,93,185)] text-white font-bold shadow-lg hover:shadow-[rgb(29,93,185)]/20 transition-all disabled:opacity-55 disabled:cursor-not-allowed cursor-pointer"
               >
                 {isSubmitting ? (
                   <>
-                    <svg
-                      className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      />
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      />
-                    </svg>
+                    <Loader2 className="animate-spin h-4 w-4 text-white" />
                     Finalizing...
                   </>
                 ) : (

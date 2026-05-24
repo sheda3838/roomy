@@ -96,16 +96,18 @@ export default function RoomImageGallery({ images, title }: RoomImageGalleryProp
         <>
           {/* Left Arrow */}
           <button
-            className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/70 backdrop-blur-md border border-white/50 text-slate-800 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-white hover:scale-105 shadow-lg"
+            className="absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/85 backdrop-blur-xl border border-white/60 text-slate-800 flex items-center justify-center transition-all duration-300 hover:bg-white hover:scale-110 active:scale-95 shadow-md hover:shadow-[0_0_20px_rgba(255,255,255,0.7)] z-10"
             onClick={() => paginate(-1)}
+            aria-label="Previous image"
           >
             <ChevronLeft className="w-6 h-6" />
           </button>
 
           {/* Right Arrow */}
           <button
-            className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/70 backdrop-blur-md border border-white/50 text-slate-800 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-white hover:scale-105 shadow-lg"
+            className="absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/85 backdrop-blur-xl border border-white/60 text-slate-800 flex items-center justify-center transition-all duration-300 hover:bg-white hover:scale-110 active:scale-95 shadow-md hover:shadow-[0_0_20px_rgba(255,255,255,0.7)] z-10"
             onClick={() => paginate(1)}
+            aria-label="Next image"
           >
             <ChevronRight className="w-6 h-6" />
           </button>

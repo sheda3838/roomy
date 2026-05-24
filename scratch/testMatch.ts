@@ -6,7 +6,7 @@ const mockUser = {
   smoker: false,
   drinker: false,
   guestPolicy: "regular",
-  preferredLocations: ["Colombo", "Kandy"],
+  preferredLocations: ["Colombo 07", "Kandy"],
   budgetMin: 10000,
   budgetMax: 20000,
 } as any;
@@ -39,7 +39,7 @@ const mockRooms = [
     smokerAllowed: false,
     drinkerAllowed: false,
     guestPolicy: "no",
-    locationText: "Colombo",
+    locationText: "Colombo 02",
     createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000),
   },
   {

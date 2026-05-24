@@ -3,6 +3,7 @@
 import { useCallback, useState, useEffect } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { Filter, X } from "lucide-react";
+import LocationSelect from "@/components/shared/LocationSelect";
 
 export default function PeopleFilterSidebar() {
   const router = useRouter();
@@ -16,6 +17,16 @@ export default function PeopleFilterSidebar() {
   const [drinker, setDrinker] = useState(searchParams.get("drinker") || "");
   const [sleepType, setSleepType] = useState(searchParams.get("sleepType") || "");
   const [cleanliness, setCleanliness] = useState(searchParams.get("cleanliness") || "");
+  const [city, setCity] = useState(searchParams.get("city") || "");
+
+  useEffect(() => {
+    setCity(searchParams.get("city") || "");
+  }, [searchParams]);
+
+  const handleCityChange = (val: string) => {
+    setCity(val);
+    updateFilter("city", val);
+  };
 
   const createQueryString = useCallback(
     (name: string, value: string) => {
@@ -49,6 +60,7 @@ export default function PeopleFilterSidebar() {
     setDrinker("");
     setSleepType("");
     setCleanliness("");
+    setCity("");
     router.push(`${pathname}?tab=people`, { scroll: false });
   };
 
@@ -67,6 +79,18 @@ export default function PeopleFilterSidebar() {
       </div>
 
       <div className="space-y-4">
+        {/* Location Filter */}
+        <div>
+          <label className="block text-sm font-semibold text-slate-600 mb-1.5">Preferred Location</label>
+          <LocationSelect
+            value={city}
+            onChange={handleCityChange}
+            multiple={false}
+            placeholder="Select location..."
+            theme="light"
+          />
+        </div>
+
         {/* Role Filter */}
         <div>
           <label className="block text-sm font-semibold text-slate-600 mb-1.5">Status</label>

@@ -44,6 +44,7 @@ export const createRoomSchema = z.object({
   genderPreference: z.enum(["male", "female", "any"], {
     message: "Please select gender preference.",
   }),
+  amenities: z.array(z.string()).default([]),
 });
 
 export const editRoomSchema = createRoomSchema.partial();

@@ -77,10 +77,25 @@ export async function handleRequest(requestId: string, action: "accept" | "rejec
       await request.save();
 
       // b) Create Connection Record
-      const newConnection = await Connection.create({
-        users: [new mongoose.Types.ObjectId(userId), new mongoose.Types.ObjectId(requesterIdStr)],
-        roomId: room._id,
-      });
+      let newConnection;
+      try {
+        newConnection = await Connection.create({
+          users: [new mongoose.Types.ObjectId(userId), new mongoose.Types.ObjectId(requesterIdStr)],
+          roomId: room._id,
+        });
+      } catch (err: any) {
+        if (err.code === 11000) {
+          newConnection = await Connection.findOne({
+            roomId: room._id,
+            users: { $all: [new mongoose.Types.ObjectId(userId), new mongoose.Types.ObjectId(requesterIdStr)] }
+          });
+          if (!newConnection) {
+            throw err;
+          }
+        } else {
+          throw err;
+        }
+      }
 
       // c) Update Room
       room.occupantIds.push(new mongoose.Types.ObjectId(requesterIdStr));
@@ -106,7 +121,10 @@ export async function handleRequest(requestId: string, action: "accept" | "rejec
         roomId: room._id,
       });
 
-      return { success: "Request accepted and connection established successfully." };
+      return { 
+        success: "Request accepted and connection established successfully.",
+        connectionId: newConnection._id.toString()
+      };
     }
 
     return { error: "Invalid action." };

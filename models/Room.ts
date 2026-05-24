@@ -26,6 +26,7 @@ export interface IRoom extends Document {
     to: string;
   };
   genderPreference: "male" | "female" | "any";
+  amenities?: string[];
 
   // System Fields
   isActive: boolean;
@@ -75,6 +76,7 @@ const RoomSchema = new Schema<IRoom>(
       default: "any", 
       required: true 
     },
+    amenities: { type: [String], default: [] },
 
     // System Fields
     isActive: { type: Boolean, default: true, required: true },

@@ -3,6 +3,7 @@
 import { useCallback, useState, useEffect } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { Filter, X } from "lucide-react";
+import LocationSelect from "@/components/shared/LocationSelect";
 
 export default function RoomsFilterSidebar() {
   const router = useRouter();
@@ -85,15 +86,12 @@ export default function RoomsFilterSidebar() {
         {/* City Filter */}
         <div>
           <label className="block text-sm font-semibold text-slate-600 mb-1.5">City / Location</label>
-          <input
-            type="text"
-            placeholder="e.g. Colombo"
-            defaultValue={searchParams.get("city") || ""}
-            onChange={(e) => {
-              const val = e.target.value;
-              setTimeout(() => handleCityChange(val), 600);
-            }}
-            className="roomy-input"
+          <LocationSelect
+            value={searchParams.get("city") || ""}
+            onChange={handleCityChange}
+            multiple={false}
+            placeholder="Select location..."
+            theme="light"
           />
         </div>
 

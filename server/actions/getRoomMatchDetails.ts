@@ -73,12 +73,12 @@ export async function getRoomMatchDetails(slug: string) {
     };
 
     // 3. Location Breakdown
+    const normalizeLoc = (str: string) => str.toLowerCase().replace(/[^a-z0-9]/g, "");
     const location = {
       userPreferred: user.preferredLocations || [],
       roomLocation: room.locationText,
       isMatched: (user.preferredLocations || []).some((loc: string) => 
-        room.locationText.toLowerCase().includes(loc.toLowerCase()) || 
-        loc.toLowerCase().includes(room.locationText.toLowerCase())
+        normalizeLoc(room.locationText) === normalizeLoc(loc)
       ),
     };
 

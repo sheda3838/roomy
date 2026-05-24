@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getRoomBySlug } from "@/server/actions/getRoomBySlug";
 import { auth } from "@/lib/auth";
-import { MapPin, Users, User, Check, Zap, Sparkles, Map as MapIcon, Bath, Wifi, Droplets, Sun, Moon, Cigarette, Wine } from "lucide-react";
+import { MapPin, Users, User, Check, Zap, Sparkles, Map as MapIcon, Bath, Wifi, Droplets, Sun, Moon, Cigarette, Wine, Wind, Flame, Car, Dumbbell, Shirt } from "lucide-react";
 import RoomLocationViewerWrapper from "@/components/maps/RoomLocationViewerWrapper";
 import RoomImageGallery from "@/components/rooms/RoomImageGallery";
 import RoomActionBottomBar from "@/components/rooms/RoomActionBottomBar";
@@ -22,6 +22,16 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     description: room.description.substring(0, 160),
   };
 }
+
+const AMENITY_MAP: { [key: string]: { label: string; icon: any } } = {
+  wifi: { label: "High-Speed Wi-Fi", icon: Wifi },
+  washroom: { label: "Attached Washroom", icon: Bath },
+  ac: { label: "Air Conditioning", icon: Wind },
+  kitchen: { label: "Kitchen Access", icon: Flame },
+  parking: { label: "Free Parking", icon: Car },
+  gym: { label: "Gym / Fitness", icon: Dumbbell },
+  laundry: { label: "Laundry / Washer", icon: Shirt },
+};
 
 export const revalidate = 60; // ISR 60 seconds
 
@@ -167,6 +177,31 @@ export default async function RoomDetailsPage({ params }: { params: Promise<{ sl
               <p className="text-xs font-medium text-slate-500 capitalize">{room.ownerId?.roleType || "Member"} • Joined recently</p>
             </div>
           </div>
+
+          {/* Amenities Section */}
+          {room.amenities && room.amenities.length > 0 && (
+            <div className="space-y-4">
+              <h3 className="font-serif text-2xl tracking-tight text-slate-900">Amenities</h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                {room.amenities.map((amenity: string) => {
+                  const item = AMENITY_MAP[amenity];
+                  if (!item) return null;
+                  const Icon = item.icon;
+                  return (
+                    <div
+                      key={amenity}
+                      className="flex items-center gap-3 p-4 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-[rgb(34,142,222)]/25 transition-all duration-300"
+                    >
+                      <div className="w-9 h-9 rounded-xl bg-slate-50 flex items-center justify-center text-[rgb(29,93,185)] shrink-0">
+                        <Icon className="w-5 h-5" />
+                      </div>
+                      <span className="text-sm font-semibold text-slate-700">{item.label}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {/* Location Map Section */}
           {room.coordinates?.lat && room.coordinates?.lng && (

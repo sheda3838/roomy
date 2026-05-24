@@ -57,6 +57,9 @@ export async function getSuggestedPeople(filters?: any) {
       if (filters.drinker !== undefined) query.drinker = filters.drinker;
       if (filters.sleepType) query.sleepType = filters.sleepType;
       if (filters.cleanlinessLevel) query.cleanlinessLevel = filters.cleanlinessLevel;
+      if (filters.locationText) {
+        query.preferredLocations = { $in: [filters.locationText] };
+      }
     }
 
     // 4. Fetch potential roommates

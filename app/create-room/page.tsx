@@ -17,26 +17,57 @@ import {
   CheckCircle,
   Loader2,
   Image as ImageIcon,
-  Map
+  Map,
+  Zap,
+  Cigarette,
+  Wine,
+  User,
+  Sparkles,
+  Bath,
+  Wifi,
+  Wind,
+  Flame,
+  Car,
+  Dumbbell,
+  Shirt,
+  ShieldAlert
 } from "lucide-react";
 
-// Dynamically import Leaflet map to prevent SSR window errors
-const RoomLocationPicker = dynamic(
-  () => import("@/components/maps/RoomLocationPicker"),
-  { ssr: false, loading: () => <div className="w-full h-[300px] md:h-[400px] bg-zinc-900 rounded-xl border border-zinc-800 flex items-center justify-center"><Loader2 className="w-8 h-8 text-indigo-500 animate-spin" /></div> }
-);
-
+import { cn } from "@/lib/utils";
+import LocationSelect from "@/components/shared/LocationSelect";
 import { createRoomSchema, type CreateRoomInput } from "@/server/validations/room";
 import { createRoom } from "@/server/actions/createRoom";
 import { uploadImage } from "@/server/actions/uploadImage";
 
+// Dynamically import Leaflet map to prevent SSR window errors
+const RoomLocationPicker = dynamic(
+  () => import("@/components/maps/RoomLocationPicker"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-[300px] md:h-[380px] bg-slate-50 rounded-3xl border border-slate-100 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-[rgb(34,142,222)] animate-spin" />
+      </div>
+    ),
+  }
+);
+
+const AMENITIES_LIST = [
+  { id: "wifi", label: "High-Speed Wi-Fi", icon: Wifi },
+  { id: "washroom", label: "Attached Washroom", icon: Bath },
+  { id: "ac", label: "Air Conditioning", icon: Wind },
+  { id: "kitchen", label: "Kitchen Access", icon: Flame },
+  { id: "parking", label: "Free Parking", icon: Car },
+  { id: "gym", label: "Gym / Fitness", icon: Dumbbell },
+  { id: "laundry", label: "Laundry / Washer", icon: Shirt },
+];
+
 export default function CreateRoomPage() {
   const router = useRouter();
-  
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
-
   const [images, setImages] = useState<{ file?: File; url: string; isUploading: boolean }[]>([]);
 
   const {
@@ -55,12 +86,13 @@ export default function CreateRoomPage() {
       smokerAllowed: false,
       drinkerAllowed: false,
       guestPolicy: "no",
+      amenities: [],
     } as Partial<CreateRoomInput>,
   });
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.length) return;
-    
+
     const files = Array.from(e.target.files);
     const newImages = files.map((file) => ({
       file,
@@ -70,25 +102,34 @@ export default function CreateRoomPage() {
 
     setImages((prev) => [...prev, ...newImages]);
 
-    // Upload each image to Cloudinary
     for (const imgObj of newImages) {
       try {
         const formData = new FormData();
         formData.append("file", imgObj.file);
 
-        const res = await uploadImage(formData) as { url?: string; error?: string };
-        
+        const res = (await uploadImage(formData)) as { url?: string; error?: string };
+
         if (res.error) {
           console.error("Upload failed:", res.error);
           setImages((prev) => {
             const updated = prev.filter((i) => i.url !== imgObj.url);
-            setValue("images", updated.filter((i) => !i.isUploading).map(i => i.url), { shouldValidate: true });
+            setValue(
+              "images",
+              updated.filter((i) => !i.isUploading).map((i) => i.url),
+              { shouldValidate: true }
+            );
             return updated;
           });
         } else if (res.url) {
           setImages((prev) => {
-            const updated = prev.map((i) => (i.url === imgObj.url ? { ...i, url: res.url as string, isUploading: false } : i));
-            setValue("images", updated.filter((i) => !i.isUploading).map(i => i.url), { shouldValidate: true });
+            const updated = prev.map((i) =>
+              i.url === imgObj.url ? { ...i, url: res.url as string, isUploading: false } : i
+            );
+            setValue(
+              "images",
+              updated.filter((i) => !i.isUploading).map((i) => i.url),
+              { shouldValidate: true }
+            );
             return updated;
           });
         }
@@ -96,7 +137,11 @@ export default function CreateRoomPage() {
         console.error("Upload error:", err);
         setImages((prev) => {
           const updated = prev.filter((i) => i.url !== imgObj.url);
-          setValue("images", updated.filter((i) => !i.isUploading).map(i => i.url), { shouldValidate: true });
+          setValue(
+            "images",
+            updated.filter((i) => !i.isUploading).map((i) => i.url),
+            { shouldValidate: true }
+          );
           return updated;
         });
       }
@@ -106,13 +151,16 @@ export default function CreateRoomPage() {
   const removeImage = (urlToRemove: string) => {
     setImages((prev) => {
       const updated = prev.filter((i) => i.url !== urlToRemove);
-      setValue("images", updated.filter((i) => !i.isUploading).map(i => i.url), { shouldValidate: true });
+      setValue(
+        "images",
+        updated.filter((i) => !i.isUploading).map((i) => i.url),
+        { shouldValidate: true }
+      );
       return updated;
     });
   };
 
   const onSubmit = async (data: CreateRoomInput) => {
-    // Check if there are still uploading images
     if (images.some((img) => img.isUploading)) {
       setErrorMsg("Please wait for all images to finish uploading.");
       return;
@@ -121,8 +169,9 @@ export default function CreateRoomPage() {
     setIsSubmitting(true);
     setErrorMsg("");
 
-    // Set uploaded image URLs
-    const uploadedUrls = images.filter((i) => !i.isUploading && !i.url.startsWith("blob:")).map((i) => i.url);
+    const uploadedUrls = images
+      .filter((i) => !i.isUploading && !i.url.startsWith("blob:"))
+      .map((i) => i.url);
     data.images = uploadedUrls;
 
     try {
@@ -143,255 +192,452 @@ export default function CreateRoomPage() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-zinc-950 text-zinc-100 py-10 px-4 relative overflow-hidden">
-      {/* Background decorations */}
-      <div className="absolute top-0 left-0 w-full h-[400px] bg-gradient-to-b from-indigo-900/20 to-transparent pointer-events-none" />
-      
-      <div className="max-w-4xl mx-auto relative z-10">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight text-white flex items-center gap-2">
-            Post a Room
+    <div className="min-h-screen w-full bg-[#f7f9ff] text-slate-900 py-16 px-4 md:px-6 relative overflow-hidden">
+      {/* Premium brand glows */}
+      <div className="absolute top-0 left-1/4 w-[600px] h-[300px] bg-gradient-to-br from-[rgb(46,219,244)]/10 to-[rgb(34,142,222)]/10 blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute bottom-10 right-1/4 w-[500px] h-[300px] bg-gradient-to-br from-[rgb(248,150,60)]/8 to-[rgb(239,62,43)]/8 blur-[120px] rounded-full pointer-events-none" />
+
+      <div className="max-w-4xl mx-auto relative z-10 space-y-12">
+        {/* Page Header */}
+        <div className="text-center space-y-3">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[rgb(34,142,222)]/10 border border-[rgb(34,142,222)]/20 text-[rgb(29,93,185)] text-[11px] font-bold uppercase tracking-wider">
+            <Zap className="w-3 h-3 fill-[rgb(29,93,185)]/10" /> Publisher V2
+          </div>
+          <h1 className="text-4xl md:text-5xl font-serif font-normal tracking-tight text-slate-900">
+            Post your space on{" "}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[rgb(34,142,222)] to-[rgb(29,93,185)]">
+              Roomy
+            </span>
           </h1>
-          <p className="text-zinc-400 mt-2">
-            Provide details about the space to find the most compatible flatmates.
+          <p className="text-slate-500 max-w-xl mx-auto text-sm md:text-base">
+            Share details about your room and rules to match with the most compatible roommate.
           </p>
         </div>
 
+        {/* Global Notifications */}
         {errorMsg && (
-          <div className="mb-6 p-4 bg-red-950/40 border border-red-800/50 rounded-xl text-red-200 text-sm">
-            {errorMsg}
-          </div>
-        )}
-        
-        {successMsg && (
-          <div className="mb-6 p-4 bg-emerald-950/40 border border-emerald-800/50 rounded-xl text-emerald-400 text-sm flex items-center gap-2">
-            <CheckCircle className="h-5 w-5" />
-            {successMsg}
+          <div className="p-4 bg-red-50 border border-red-100 rounded-2xl text-red-700 text-sm flex items-center gap-2.5 shadow-sm">
+            <ShieldAlert className="h-5 w-5 text-red-500 shrink-0" />
+            <span className="font-semibold">{errorMsg}</span>
           </div>
         )}
 
+        {successMsg && (
+          <div className="p-4 bg-emerald-50 border border-emerald-100 rounded-2xl text-emerald-700 text-sm flex items-center gap-2.5 shadow-sm">
+            <CheckCircle className="h-5 w-5 text-emerald-500 shrink-0" />
+            <span className="font-semibold">{successMsg}</span>
+          </div>
+        )}
+
+        {/* Listing Form */}
         <form onSubmit={handleSubmit(onSubmit as any)} className="space-y-8">
           
-          {/* Section 1: Basic Info */}
-          <div className="bg-zinc-900/40 border border-zinc-800 rounded-2xl p-6 md:p-8 space-y-6">
-            <h2 className="text-xl font-bold text-white flex items-center gap-2 border-b border-zinc-800 pb-4">
-              <Info className="h-5 w-5 text-indigo-400" /> Basic Details
+          {/* Card 1: Basic Information */}
+          <div className="bg-white/80 border border-slate-200/50 backdrop-blur-xl rounded-3xl p-6 md:p-8 space-y-6 shadow-xl hover:shadow-2xl transition-shadow duration-300">
+            <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2.5 border-b border-slate-100 pb-4">
+              <Info className="h-5 w-5 text-[rgb(34,142,222)]" /> Basic Details
             </h2>
 
-            <div>
-              <label className="block text-sm font-semibold text-zinc-300 mb-2">Title <span className="text-red-500">*</span></label>
-              <input
-                {...register("title")}
-                placeholder="e.g. Spacious Single Room in Colombo 07"
-                className="w-full px-4 py-2.5 bg-zinc-900/80 border border-zinc-800 rounded-lg text-white focus:outline-none focus:border-indigo-500 transition-colors"
+            <div className="space-y-5">
+              <div>
+                <label className="block text-sm font-semibold text-slate-600 mb-2">Listing Title <span className="text-red-500">*</span></label>
+                <input
+                  {...register("title")}
+                  placeholder="e.g. Spacious Single Room in Colombo 07"
+                  className="w-full px-4 py-3 bg-white border border-slate-200 rounded-2xl text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[rgb(34,142,222)] focus:ring-4 focus:ring-[rgb(34,142,222)]/10 transition-all font-semibold"
+                />
+                {errors.title && <p className="text-red-500 text-xs mt-1.5 ml-1">{errors.title.message}</p>}
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-600 mb-2">Listing Description <span className="text-red-500">*</span></label>
+                <textarea
+                  {...register("description")}
+                  rows={4}
+                  placeholder="Describe the room, house amenities, utility billing, and preferred roommate traits..."
+                  className="w-full px-4 py-3 bg-white border border-slate-200 rounded-2xl text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[rgb(34,142,222)] focus:ring-4 focus:ring-[rgb(34,142,222)]/10 transition-all font-medium resize-none leading-relaxed"
+                />
+                {errors.description && <p className="text-red-500 text-xs mt-1.5 ml-1">{errors.description.message}</p>}
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div>
+                  <label className="block text-sm font-semibold text-slate-600 mb-2">Monthly Rent (Rs.) <span className="text-red-500">*</span></label>
+                  <div className="relative group">
+                    <span className="absolute left-4 top-3.5 flex items-center text-slate-400 font-bold text-sm pointer-events-none">Rs.</span>
+                    <input
+                      type="number"
+                      {...register("rentAmount")}
+                      placeholder="e.g. 25000"
+                      className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-2xl text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[rgb(34,142,222)] focus:ring-4 focus:ring-[rgb(34,142,222)]/10 transition-all font-bold"
+                    />
+                  </div>
+                  {errors.rentAmount && <p className="text-red-500 text-xs mt-1.5 ml-1">{errors.rentAmount.message}</p>}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-slate-600 mb-2">Deposit (Rs.) <span className="text-slate-400 font-normal">(Optional)</span></label>
+                  <div className="relative group">
+                    <span className="absolute left-4 top-3.5 flex items-center text-slate-400 font-bold text-sm pointer-events-none">Rs.</span>
+                    <input
+                      type="number"
+                      {...register("deposit")}
+                      placeholder="e.g. 50000"
+                      className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-2xl text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[rgb(34,142,222)] focus:ring-4 focus:ring-[rgb(34,142,222)]/10 transition-all font-bold"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 2: Location Information */}
+          <div className="bg-white/80 border border-slate-200/50 backdrop-blur-xl rounded-3xl p-6 md:p-8 space-y-6 shadow-xl hover:shadow-2xl transition-shadow duration-300">
+            <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2.5 border-b border-slate-100 pb-4">
+              <Map className="h-5 w-5 text-[rgb(34,142,222)]" /> Location & Map Pin
+            </h2>
+
+            <div className="space-y-5">
+              <div>
+                <label className="block text-sm font-semibold text-slate-600 mb-2">Select Location / Area <span className="text-red-500">*</span></label>
+                <Controller
+                  control={control}
+                  name="locationText"
+                  render={({ field }) => (
+                    <LocationSelect
+                      value={field.value || ""}
+                      onChange={field.onChange}
+                      multiple={false}
+                      placeholder="Search Sri Lankan city or district..."
+                      theme="light"
+                      error={errors.locationText?.message}
+                    />
+                  )}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-slate-600">Pin Location on Map <span className="text-red-500">*</span></label>
+                <p className="text-xs text-slate-400">
+                  Zoom in and double click or drag the marker to pin the exact coordinates of the house.
+                </p>
+                <div className="rounded-3xl overflow-hidden border border-slate-200 shadow-inner h-[320px] md:h-[380px] bg-slate-50">
+                  <RoomLocationPicker
+                    onChange={(pos) => setValue("coordinates", pos, { shouldValidate: true })}
+                  />
+                </div>
+                {errors.coordinates?.lat && (
+                  <p className="text-red-500 text-xs mt-1.5 ml-1">{errors.coordinates.lat.message}</p>
+                )}
+                {errors.coordinates?.message && (
+                  <p className="text-red-500 text-xs mt-1.5 ml-1">{errors.coordinates.message}</p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Card 3: Amenities Selectors */}
+          <div className="bg-white/80 border border-slate-200/50 backdrop-blur-xl rounded-3xl p-6 md:p-8 space-y-6 shadow-xl hover:shadow-2xl transition-shadow duration-300">
+            <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2.5 border-b border-slate-100 pb-4">
+              <Zap className="h-5 w-5 text-[rgb(34,142,222)]" /> Features & Amenities
+            </h2>
+
+            <div className="space-y-4">
+              <label className="block text-sm font-semibold text-slate-600">Select Available Amenities</label>
+              <Controller
+                control={control}
+                name="amenities"
+                render={({ field }) => {
+                  const selected = field.value || [];
+                  const toggleAmenity = (id: string) => {
+                    const updated = selected.includes(id)
+                      ? selected.filter((v: string) => v !== id)
+                      : [...selected, id];
+                    field.onChange(updated);
+                  };
+
+                  return (
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                      {AMENITIES_LIST.map((item) => {
+                        const isSelected = selected.includes(item.id);
+                        const Icon = item.icon;
+                        return (
+                          <button
+                            type="button"
+                            key={item.id}
+                            onClick={() => toggleAmenity(item.id)}
+                            className={cn(
+                              "p-4 rounded-3xl border transition-all duration-300 cursor-pointer flex flex-col items-center justify-center gap-3 text-center select-none aspect-square hover:shadow-md",
+                              isSelected
+                                ? "bg-[rgb(34,142,222)]/8 border-[rgb(34,142,222)] text-[rgb(29,93,185)] shadow-[0_4px_20px_rgba(34,142,222,0.15)]"
+                                : "bg-white border-slate-200 text-slate-400 hover:border-slate-300 hover:text-slate-600"
+                            )}
+                          >
+                            <div className={cn(
+                              "w-11 h-11 rounded-2xl flex items-center justify-center transition-colors",
+                              isSelected ? "bg-[rgb(34,142,222)]/20" : "bg-slate-50 text-slate-400"
+                            )}>
+                              <Icon className="w-5.5 h-5.5" />
+                            </div>
+                            <span className="text-xs font-bold text-slate-800">{item.label}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  );
+                }}
               />
-              {errors.title && <p className="text-red-400 text-xs mt-1">{errors.title.message}</p>}
             </div>
+          </div>
 
-            <div>
-              <label className="block text-sm font-semibold text-zinc-300 mb-2">Description <span className="text-red-500">*</span></label>
-              <textarea
-                {...register("description")}
-                rows={4}
-                placeholder="Describe the room, building amenities, and the vibe of the place..."
-                className="w-full px-4 py-2.5 bg-zinc-900/80 border border-zinc-800 rounded-lg text-white focus:outline-none focus:border-indigo-500 transition-colors resize-none"
+          {/* Card 4: Rules & Lifestyle Profile */}
+          <div className="bg-white/80 border border-slate-200/50 backdrop-blur-xl rounded-3xl p-6 md:p-8 space-y-8 shadow-xl hover:shadow-2xl transition-shadow duration-300">
+            <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2.5 border-b border-slate-100 pb-4">
+              <Users className="h-5 w-5 text-[rgb(34,142,222)]" /> Room Rules & Preferences
+            </h2>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {/* Cleanliness Selector */}
+              <Controller
+                control={control}
+                name="cleanlinessExpectation"
+                render={({ field }) => (
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-600 mb-2.5">Cleanliness Standard</label>
+                    <div className="grid grid-cols-3 gap-2.5">
+                      {[
+                        { value: "low", label: "Low", desc: "Relaxed / Chill" },
+                        { value: "medium", label: "Medium", desc: "Standard weekly" },
+                        { value: "high", label: "High", desc: "Always pristine" },
+                      ].map((item) => (
+                        <button
+                          type="button"
+                          key={item.value}
+                          onClick={() => field.onChange(item.value)}
+                          className={cn(
+                            "p-2.5 py-3.5 rounded-2xl border text-center transition-all duration-200 cursor-pointer flex flex-col justify-between h-20 select-none",
+                            field.value === item.value
+                              ? "bg-[rgb(34,142,222)]/8 border-[rgb(34,142,222)] shadow-[0_4px_16px_rgba(34,142,222,0.1)] text-[rgb(29,93,185)]"
+                              : "bg-white border-slate-200 text-slate-400 hover:border-slate-300 hover:text-slate-600"
+                          )}
+                        >
+                          <span className="font-bold text-sm block text-slate-800">{item.label}</span>
+                          <span className="text-[9px] text-slate-400 mt-1 line-clamp-1">{item.desc}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               />
-              {errors.description && <p className="text-red-400 text-xs mt-1">{errors.description.message}</p>}
+
+              {/* Guest Policy Selector */}
+              <Controller
+                control={control}
+                name="guestPolicy"
+                render={({ field }) => (
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-600 mb-2.5">Guest Policy</label>
+                    <div className="grid grid-cols-3 gap-2.5">
+                      {[
+                        { value: "no", label: "No Guests", desc: "Private space" },
+                        { value: "often", label: "Occasional", desc: "Sometimes" },
+                        { value: "regular", label: "Frequent", desc: "Friends welcome" },
+                      ].map((item) => (
+                        <button
+                          type="button"
+                          key={item.value}
+                          onClick={() => field.onChange(item.value)}
+                          className={cn(
+                            "p-2.5 py-3.5 rounded-2xl border text-center transition-all duration-200 cursor-pointer flex flex-col justify-between h-20 select-none",
+                            field.value === item.value
+                              ? "bg-[rgb(34,142,222)]/8 border-[rgb(34,142,222)] shadow-[0_4px_16px_rgba(34,142,222,0.1)] text-[rgb(29,93,185)]"
+                              : "bg-white border-slate-200 text-slate-400 hover:border-slate-300 hover:text-slate-600"
+                          )}
+                        >
+                          <span className="font-bold text-sm block text-slate-800">{item.label}</span>
+                          <span className="text-[9px] text-slate-400 mt-1 line-clamp-1">{item.desc}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-semibold text-zinc-300 mb-2">Location (Area/City) <span className="text-red-500">*</span></label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-3 h-4 w-4 text-zinc-500" />
-                  <input
-                    {...register("locationText")}
-                    placeholder="e.g. Nugegoda, Colombo 03"
-                    className="w-full pl-9 pr-4 py-2.5 bg-zinc-900/80 border border-zinc-800 rounded-lg text-white focus:outline-none focus:border-indigo-500 transition-colors"
-                  />
-                </div>
-                {errors.locationText && <p className="text-red-400 text-xs mt-1">{errors.locationText.message}</p>}
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {/* Gender Preference */}
+              <Controller
+                control={control}
+                name="genderPreference"
+                render={({ field }) => (
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-600 mb-2.5">Gender Preference</label>
+                    <div className="grid grid-cols-3 gap-2.5">
+                      {[
+                        { value: "any", label: "Any Gender", icon: Users },
+                        { value: "male", label: "Male Only", icon: User },
+                        { value: "female", label: "Female Only", icon: User },
+                      ].map((item) => {
+                        const Icon = item.icon;
+                        const active = field.value === item.value;
+                        return (
+                          <button
+                            type="button"
+                            key={item.value}
+                            onClick={() => field.onChange(item.value)}
+                            className={cn(
+                              "p-2.5 py-3 rounded-2xl border text-center transition-all duration-200 cursor-pointer flex flex-col items-center justify-center gap-1.5 h-20 select-none",
+                              active
+                                ? "bg-[rgb(34,142,222)]/8 border-[rgb(34,142,222)] shadow-[0_4px_16px_rgba(34,142,222,0.1)] text-[rgb(29,93,185)] font-bold"
+                                : "bg-white border-slate-200 text-slate-400 hover:border-slate-300 hover:text-slate-600"
+                            )}
+                          >
+                            <Icon className={cn("w-4.5 h-4.5", active ? "text-[rgb(29,93,185)]" : "text-slate-400")} />
+                            <span className="text-xs font-bold text-slate-800">{item.label}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              />
 
+              {/* Room Capacity */}
               <div>
-                <label className="block text-sm font-semibold text-zinc-300 mb-2">Monthly Rent (Rs.) <span className="text-red-500">*</span></label>
-                <div className="relative">
-                  <DollarSign className="absolute left-3 top-3 h-4 w-4 text-zinc-500" />
-                  <input
-                    type="number"
-                    {...register("rentAmount")}
-                    placeholder="e.g. 25000"
-                    className="w-full pl-9 pr-4 py-2.5 bg-zinc-900/80 border border-zinc-800 rounded-lg text-white focus:outline-none focus:border-indigo-500 transition-colors"
-                  />
-                </div>
-                {errors.rentAmount && <p className="text-red-400 text-xs mt-1">{errors.rentAmount.message}</p>}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-semibold text-zinc-300 mb-2">Deposit (Rs.) <span className="text-zinc-500 font-normal">(Optional)</span></label>
-                <div className="relative">
-                  <DollarSign className="absolute left-3 top-3 h-4 w-4 text-zinc-500" />
-                  <input
-                    type="number"
-                    {...register("deposit")}
-                    placeholder="e.g. 50000"
-                    className="w-full pl-9 pr-4 py-2.5 bg-zinc-900/80 border border-zinc-800 rounded-lg text-white focus:outline-none focus:border-indigo-500 transition-colors"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-zinc-300 mb-2">Room Capacity <span className="text-red-500">*</span></label>
-                <div className="relative">
-                  <Users className="absolute left-3 top-3 h-4 w-4 text-zinc-500" />
+                <label className="block text-sm font-semibold text-slate-600 mb-2.5">Room Capacity <span className="text-red-500">*</span></label>
+                <div className="relative group">
+                  <span className="absolute left-4 top-3.5 flex items-center text-slate-400 font-bold text-sm pointer-events-none">People:</span>
                   <input
                     type="number"
                     {...register("capacity")}
                     placeholder="1"
                     min="1"
-                    className="w-full pl-9 pr-4 py-2.5 bg-zinc-900/80 border border-zinc-800 rounded-lg text-white focus:outline-none focus:border-indigo-500 transition-colors"
+                    className="w-full pl-18 pr-4 py-3 bg-white border border-slate-200 rounded-2xl text-slate-800 focus:outline-none focus:border-[rgb(34,142,222)] focus:ring-4 focus:ring-[rgb(34,142,222)]/10 transition-all font-bold h-20"
                   />
                 </div>
-                {errors.capacity && <p className="text-red-400 text-xs mt-1">{errors.capacity.message}</p>}
+                {errors.capacity && <p className="text-red-500 text-xs mt-1.5 ml-1">{errors.capacity.message}</p>}
               </div>
+            </div>
+
+            {/* Smoking & Drinking Toggles */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-6 border-t border-slate-100">
+              <Controller
+                control={control}
+                name="smokerAllowed"
+                render={({ field }) => (
+                  <button
+                    type="button"
+                    onClick={() => field.onChange(!field.value)}
+                    className={cn(
+                      "p-4 rounded-3xl border transition-all duration-300 cursor-pointer flex items-center gap-4 text-left select-none w-full hover:shadow-sm",
+                      field.value
+                        ? "bg-[rgb(248,150,60)]/8 border-[rgb(248,150,60)] text-[rgb(246,137,83)]"
+                        : "bg-white border-slate-200 text-slate-500 hover:border-slate-300"
+                    )}
+                  >
+                    <div className={cn(
+                      "w-11 h-11 rounded-2xl flex items-center justify-center shrink-0",
+                      field.value ? "bg-[rgb(248,150,60)]/20" : "bg-slate-50 text-slate-400"
+                    )}>
+                      <Cigarette className="w-5.5 h-5.5" />
+                    </div>
+                    <div>
+                      <span className="text-sm font-bold block text-slate-800">Smokers Allowed</span>
+                      <span className="text-[10px] text-slate-400 mt-0.5">{field.value ? "Yes, smoking permitted" : "No smoking allowed"}</span>
+                    </div>
+                  </button>
+                )}
+              />
+
+              <Controller
+                control={control}
+                name="drinkerAllowed"
+                render={({ field }) => (
+                  <button
+                    type="button"
+                    onClick={() => field.onChange(!field.value)}
+                    className={cn(
+                      "p-4 rounded-3xl border transition-all duration-300 cursor-pointer flex items-center gap-4 text-left select-none w-full hover:shadow-sm",
+                      field.value
+                        ? "bg-purple-500/8 border-purple-500 text-purple-600"
+                        : "bg-white border-slate-200 text-slate-500 hover:border-slate-300"
+                    )}
+                  >
+                    <div className={cn(
+                      "w-11 h-11 rounded-2xl flex items-center justify-center shrink-0",
+                      field.value ? "bg-purple-500/20" : "bg-slate-50 text-slate-400"
+                    )}>
+                      <Wine className="w-5.5 h-5.5" />
+                    </div>
+                    <div>
+                      <span className="text-sm font-bold block text-slate-800">Drinkers Allowed</span>
+                      <span className="text-[10px] text-slate-400 mt-0.5">{field.value ? "Yes, alcohol permitted" : "No alcohol allowed"}</span>
+                    </div>
+                  </button>
+                )}
+              />
             </div>
           </div>
 
-          {/* Section 1.5: Location Map */}
-          <div className="bg-zinc-900/40 border border-zinc-800 rounded-2xl p-6 md:p-8 space-y-6">
-            <h2 className="text-xl font-bold text-white flex items-center gap-2 border-b border-zinc-800 pb-4">
-              <Map className="h-5 w-5 text-indigo-400" /> Pin exact location <span className="text-red-500 ml-1">*</span>
+          {/* Card 5: Room Photos */}
+          <div className="bg-white/80 border border-slate-200/50 backdrop-blur-xl rounded-3xl p-6 md:p-8 space-y-6 shadow-xl hover:shadow-2xl transition-shadow duration-300">
+            <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2.5 border-b border-slate-100 pb-4">
+              <ImageIcon className="h-5 w-5 text-[rgb(34,142,222)]" /> Photos
             </h2>
-            <p className="text-sm text-zinc-400 mb-4">
-              Zoom in and click on the map to place a pin exactly where the room is located. This helps flatmates find you in local searches.
-            </p>
 
-            <RoomLocationPicker
-              onChange={(pos) => setValue("coordinates", pos, { shouldValidate: true })}
-            />
-            {errors.coordinates?.lat && (
-              <p className="text-red-400 text-sm mt-2">{errors.coordinates.lat.message}</p>
-            )}
-            {errors.coordinates?.lng && !errors.coordinates.lat && (
-              <p className="text-red-400 text-sm mt-2">{errors.coordinates.lng.message}</p>
-            )}
-            {errors.coordinates?.message && !errors.coordinates.lat && !errors.coordinates.lng && (
-              <p className="text-red-400 text-sm mt-2">{errors.coordinates.message}</p>
-            )}
-          </div>
-
-          {/* Section 2: Images */}
-          <div className="bg-zinc-900/40 border border-zinc-800 rounded-2xl p-6 md:p-8 space-y-6">
-            <h2 className="text-xl font-bold text-white flex items-center gap-2 border-b border-zinc-800 pb-4">
-              <ImageIcon className="h-5 w-5 text-indigo-400" /> Photos <span className="text-red-500 ml-1">*</span>
-            </h2>
-            
-            <div>
-              <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-zinc-800 border-dashed rounded-xl cursor-pointer bg-zinc-900/50 hover:bg-zinc-800/50 transition-colors">
+            <div className="space-y-4">
+              <label className="flex flex-col items-center justify-center w-full h-36 border-2 border-slate-200 border-dashed rounded-3xl cursor-pointer bg-slate-50 hover:bg-slate-100/50 transition-all hover:border-[rgb(34,142,222)]/50 shadow-inner group">
                 <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                  <UploadCloud className="w-8 h-8 mb-2 text-indigo-400" />
-                  <p className="text-sm text-zinc-400"><span className="font-semibold text-indigo-400">Click to upload</span> or drag and drop</p>
+                  <UploadCloud className="w-9 h-9 mb-2.5 text-[rgb(34,142,222)] group-hover:scale-110 transition-transform" />
+                  <p className="text-sm text-slate-600 font-medium">
+                    <span className="font-bold text-[rgb(29,93,185)]">Click to upload</span> or drag images
+                  </p>
+                  <p className="text-xs text-slate-400 mt-1">PNG, JPG, or JPEG up to 5MB</p>
                 </div>
                 <input type="file" multiple accept="image/*" className="hidden" onChange={handleImageChange} />
               </label>
-              {errors.images && <p className="text-red-400 text-sm mt-2">{errors.images.message}</p>}
-            </div>
+              {errors.images && <p className="text-red-500 text-xs mt-1.5 ml-1">{errors.images.message}</p>}
 
-            {images.length > 0 && (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4">
-                {images.map((img, idx) => (
-                  <div key={idx} className="relative group rounded-lg overflow-hidden border border-zinc-800 aspect-square bg-zinc-900">
-                    <img src={img.url} alt="Room" className={`w-full h-full object-cover ${img.isUploading ? "opacity-50" : "opacity-100"}`} />
-                    {img.isUploading ? (
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <Loader2 className="w-6 h-6 text-white animate-spin" />
-                      </div>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => removeImage(img.url)}
-                        className="absolute top-2 right-2 p-1 bg-black/50 hover:bg-black/80 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
+              {images.length > 0 && (
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6">
+                  {images.map((img, idx) => (
+                    <div key={idx} className="relative group rounded-2xl overflow-hidden border border-slate-200/80 aspect-square bg-slate-100 shadow-sm">
+                      <img src={img.url} alt="Room" className={cn("w-full h-full object-cover transition-transform duration-300 group-hover:scale-105", img.isUploading && "opacity-50")} />
+                      {img.isUploading ? (
+                        <div className="absolute inset-0 flex items-center justify-center bg-white/20 backdrop-blur-[1px]">
+                          <Loader2 className="w-6 h-6 text-[rgb(29,93,185)] animate-spin" />
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => removeImage(img.url)}
+                          className="absolute top-2 right-2 p-1.5 bg-black/60 hover:bg-red-600 rounded-full text-white transition-all scale-95 opacity-0 group-hover:opacity-100 group-hover:scale-100 cursor-pointer shadow-md"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Section 3: Roommate Preferences & Lifestyle */}
-          <div className="bg-zinc-900/40 border border-zinc-800 rounded-2xl p-6 md:p-8 space-y-6">
-            <h2 className="text-xl font-bold text-white flex items-center gap-2 border-b border-zinc-800 pb-4">
-              <Users className="h-5 w-5 text-indigo-400" /> Preferences & Rules
-            </h2>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-              
-              {/* Gender */}
-              <div>
-                <label className="block text-sm font-semibold text-zinc-300 mb-2">Gender Preference <span className="text-red-500">*</span></label>
-                <select {...register("genderPreference")} className="w-full px-4 py-2.5 bg-zinc-900/80 border border-zinc-800 rounded-lg text-white focus:outline-none focus:border-indigo-500">
-                  <option value="any">Any Gender</option>
-                  <option value="male">Male Only</option>
-                  <option value="female">Female Only</option>
-                </select>
-                {errors.genderPreference && <p className="text-red-400 text-xs mt-1">{errors.genderPreference.message}</p>}
-              </div>
-
-              {/* Cleanliness */}
-              <div>
-                <label className="block text-sm font-semibold text-zinc-300 mb-2">Cleanliness Expected <span className="text-red-500">*</span></label>
-                <select {...register("cleanlinessExpectation")} className="w-full px-4 py-2.5 bg-zinc-900/80 border border-zinc-800 rounded-lg text-white focus:outline-none focus:border-indigo-500">
-                  <option value="low">Relaxed / Low</option>
-                  <option value="medium">Average / Medium</option>
-                  <option value="high">Strict / High</option>
-                </select>
-                {errors.cleanlinessExpectation && <p className="text-red-400 text-xs mt-1">{errors.cleanlinessExpectation.message}</p>}
-              </div>
-
-              {/* Guest Policy */}
-              <div>
-                <label className="block text-sm font-semibold text-zinc-300 mb-2">Guest Policy <span className="text-red-500">*</span></label>
-                <select {...register("guestPolicy")} className="w-full px-4 py-2.5 bg-zinc-900/80 border border-zinc-800 rounded-lg text-white focus:outline-none focus:border-indigo-500">
-                  <option value="no">No Guests Allowed</option>
-                  <option value="often">Sometimes / Occasional</option>
-                  <option value="regular">Regular / Frequently</option>
-                </select>
-                {errors.guestPolicy && <p className="text-red-400 text-xs mt-1">{errors.guestPolicy.message}</p>}
-              </div>
-
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-6 pt-4 border-t border-zinc-800/50">
-              <label className="flex items-center gap-3 p-4 bg-zinc-900/50 border border-zinc-800 rounded-xl cursor-pointer">
-                <input type="checkbox" {...register("smokerAllowed")} className="w-4 h-4 rounded bg-zinc-800 border-zinc-700 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-zinc-900" />
-                <span className="text-sm font-semibold text-zinc-200">Smokers Allowed</span>
-              </label>
-
-              <label className="flex items-center gap-3 p-4 bg-zinc-900/50 border border-zinc-800 rounded-xl cursor-pointer">
-                <input type="checkbox" {...register("drinkerAllowed")} className="w-4 h-4 rounded bg-zinc-800 border-zinc-700 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-zinc-900" />
-                <span className="text-sm font-semibold text-zinc-200">Drinkers Allowed</span>
-              </label>
-            </div>
-            
-          </div>
-
+          {/* Bottom Action / Publish Button */}
           <div className="flex justify-end pt-4">
             <button
               type="submit"
-              disabled={isSubmitting || images.some(i => i.isUploading)}
-              className="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold rounded-xl shadow-lg hover:shadow-indigo-500/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              disabled={isSubmitting || images.some((i) => i.isUploading)}
+              className="roomy-btn-primary px-10 py-3.5 text-base shadow-[0_6px_24px_rgba(34,142,222,0.3)] flex items-center gap-2"
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 className="w-5 h-5 animate-spin" /> Publishing...
+                  <Loader2 className="w-5 h-5 animate-spin" /> Publishing Space...
                 </>
               ) : (
-                "Publish Room Listing"
+                <>
+                  Publish Room Listing <CheckCircle className="w-5 h-5" />
+                </>
               )}
             </button>
           </div>
