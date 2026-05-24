@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, ReactNode } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -8,13 +8,14 @@ import {
   CheckCircle2,
   XCircle,
   Zap,
-  Home,
+  UserPlus,
+  Loader2,
+  Users,
   DollarSign,
   Heart,
   Sparkles,
   Wine,
   Cigarette,
-  Users,
   MapPin,
   Clock,
   ShieldCheck,
@@ -23,53 +24,59 @@ import {
   AlertTriangle,
   ChevronDown,
   Activity,
-  User,
-  Coffee,
+  Briefcase,
+  GraduationCap,
   Info
 } from "lucide-react";
-import RequestToJoinButton from "@/components/rooms/RequestToJoinButton";
+import { sendRoommateRequest } from "@/server/actions/handleRoommateRequest";
 
-interface MatchExperienceClientProps {
-  room: any;
+interface UserCompatibilityClientProps {
+  currentUser: any;
+  targetUser: any;
   match: {
     score: number;
     label: string;
-    lifestyle: any;
-    budget: any;
-    location: any;
-    positiveSignals: string[];
-    possibleConflicts: string[];
+    reasons: string[];
+    conflicts: string[];
   };
   connectionState: {
-    isOwner: boolean;
-    isJoined: boolean;
+    isConnected: boolean;
     hasPendingRequest: boolean;
   };
 }
 
-export default function MatchExperienceClient({
-  room,
+export default function UserCompatibilityClient({
+  currentUser,
+  targetUser,
   match,
   connectionState,
-}: MatchExperienceClientProps) {
-  const { isOwner, isJoined, hasPendingRequest } = connectionState;
+}: UserCompatibilityClientProps) {
+  // Connection states
+  const [isConnected, setIsConnected] = useState(connectionState.isConnected);
+  const [hasPendingRequest, setHasPendingRequest] = useState(connectionState.hasPendingRequest);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [requestError, setRequestError] = useState("");
 
-  // Cinematic scanner state
+  // Scanner States
   const [isAnalyzing, setIsAnalyzing] = useState(true);
   const [progress, setProgress] = useState(0);
   const [activeStage, setActiveStage] = useState(0);
   const [expandedFactor, setExpandedFactor] = useState<string | null>(null);
 
-  // Analysis stages messages
+  const toggleFactor = (id: string) => {
+    setExpandedFactor(expandedFactor === id ? null : id);
+  };
+
+  // Scanner stages
   const stages = [
-    { text: "Initializing Roomy Compatibility Core...", duration: 500 },
-    { text: "Comparing lifestyle schedules and habits...", duration: 700 },
-    { text: "Evaluating budget margins & price points...", duration: 600 },
-    { text: "Mapping neighborhood geographical preferences...", duration: 500 },
-    { text: "Synthesizing AI compatibility index...", duration: 400 },
+    { text: "Accessing Roomy Matchmaking Core...", duration: 500 },
+    { text: "Evaluating sleep schedule alignments...", duration: 700 },
+    { text: "Analyzing cleanliness expectations...", duration: 600 },
+    { text: "Matching social (drink/smoke) boundaries...", duration: 500 },
+    { text: "Comparing monthly budget ranges...", duration: 400 },
   ];
 
-  // Run the analysis scanner simulation
+  // Scanner simulation
   useEffect(() => {
     if (!isAnalyzing) return;
 
@@ -105,60 +112,86 @@ export default function MatchExperienceClient({
     runStage();
   }, [isAnalyzing]);
 
-  // Dynamic AI Narrative brief generator
-  const aiNarrative = generateAINarrative(match, room);
+  // Score thematic styling
+  let scoreColor = "text-[rgb(29,93,185)]";
+  let scoreBg = "bg-[rgb(34,142,222)]/10";
+  let scoreBorder = "border-[rgb(34,142,222)]/20";
+  let scoreGradient = "from-[rgb(46,219,244)] to-[rgb(29,93,185)]";
 
-  // Score-based theme colors
-  let themeColor = "text-[rgb(29,93,185)]";
-  let themeBg = "bg-[rgb(34,142,222)]/10";
-  let themeBorder = "border-[rgb(34,142,222)]/20";
-  let themeGradient = "from-[rgb(46,219,244)] to-[rgb(29,93,185)]";
-
-  if (match.score >= 90) {
-    themeColor = "text-emerald-500";
-    themeBg = "bg-emerald-500/10";
-    themeBorder = "border-emerald-500/20";
-    themeGradient = "from-emerald-400 to-emerald-600";
-  } else if (match.score < 60) {
-    themeColor = "text-amber-500";
-    themeBg = "bg-amber-500/10";
-    themeBorder = "border-amber-500/20";
-    themeGradient = "from-amber-400 to-orange-500";
+  if (match.score >= 80) {
+    scoreColor = "text-emerald-500";
+    scoreBg = "bg-emerald-500/10";
+    scoreBorder = "border-emerald-500/20";
+    scoreGradient = "from-emerald-400 to-emerald-600";
+  } else if (match.score < 50) {
+    scoreColor = "text-amber-500";
+    scoreBg = "bg-amber-500/10";
+    scoreBorder = "border-amber-500/20";
+    scoreGradient = "from-amber-400 to-orange-500";
   }
 
-  // Calculate the SVG circle properties for overall compatibility score
+  // Ring circumference
   const radius = 54;
   const circumference = 2 * Math.PI * radius;
   const strokeOffset = circumference - (match.score / 100) * circumference;
 
-  // Build the list of compatibility factors
-  const factors = buildFactors(match);
+  // Build roommate factors list
+  const factors = buildRoommateFactors(currentUser, targetUser);
 
-  // Score metrics
-  const budgetPercent = match.budget.isPerfect
-    ? 100
-    : match.budget.isUnder
-    ? 80
-    : match.budget.isSlightlyOver
-    ? 60
-    : 30;
+  // Dynamic Dynamic Weighted Meters calculations
+  // 1. Lifestyle (Cleanliness, Sleep, Smoking, Guest Policy) = 75 points max
+  const cleanlinessMatch = currentUser.cleanlinessLevel === targetUser.cleanlinessLevel;
+  const sleepMatch = currentUser.sleepType === targetUser.sleepType;
+  const smokingMatch = currentUser.smoker === targetUser.smoker;
+  const guestMatch = currentUser.guestPolicy === targetUser.guestPolicy;
 
-  const lifestyleMatches = factors.filter((f) => f.status === "perfect").length;
-  const lifestylePercent = Math.round((lifestyleMatches / factors.length) * 100);
-  const locationPercent = match.location.isMatched ? 100 : 30;
+  const lifestyleScore = 
+    (cleanlinessMatch ? 25 : 10) +
+    (sleepMatch ? 20 : 5) +
+    (smokingMatch ? 15 : 0) +
+    (guestMatch ? 15 : 5);
+  const lifestylePercent = Math.round((lifestyleScore / 75) * 100);
 
-  const toggleFactor = (name: string) => {
-    setExpandedFactor(expandedFactor === name ? null : name);
+  // 2. Budget (Max overlap) = 15 points
+  const overlaps = currentUser.budgetMin <= targetUser.budgetMax && targetUser.budgetMin <= currentUser.budgetMax;
+  const highlyAligned = overlaps && Math.abs(currentUser.budgetMax - targetUser.budgetMax) <= (currentUser.budgetMax * 0.2);
+  const budgetPercent = highlyAligned ? 100 : overlaps ? 70 : 20;
+
+  // 3. Role (Role type alignment) = 10 points
+  const rolePercent = currentUser.roleType === targetUser.roleType ? 100 : 50;
+
+  // AI Narrative synthesis
+  const aiNarrative = generateAINarrative(match.score, currentUser, targetUser);
+
+  // Send request action handler
+  const handleConnect = async () => {
+    setIsSubmitting(true);
+    setRequestError("");
+    try {
+      const res = await sendRoommateRequest(
+        targetUser._id,
+        `Hi ${targetUser.fullName}, I saw we have a great compatibility score of ${match.score}%! Would you like to connect?`
+      );
+      if (res.success) {
+        setHasPendingRequest(true);
+      } else {
+        setRequestError(res.error || "Failed to send request.");
+      }
+    } catch (err) {
+      setRequestError("An unexpected error occurred.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <div className="min-h-screen bg-[rgb(243,244,237)] text-slate-900 pb-20 relative overflow-hidden font-sans">
-      {/* Moving Ambient Gradient Blobs for Cinematic Feeling */}
-      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-[rgb(46,219,244)]/8 rounded-full blur-[120px] pointer-events-none animate-pulse" />
+      {/* Background gradients */}
+      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-[rgb(46,219,244)]/8 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute top-[40%] right-[-10%] w-[600px] h-[600px] bg-[rgb(250,192,140)]/6 rounded-full blur-[140px] pointer-events-none" />
       <div className="absolute bottom-[-10%] left-[20%] w-[500px] h-[500px] bg-[rgb(34,142,222)]/8 rounded-full blur-[120px] pointer-events-none" />
 
-      {/* ── CINEMATIC SCANNING SEQUENCE OVERLAY ── */}
+      {/* ── CINEMATIC SCANNING SEQUENCE ── */}
       <AnimatePresence>
         {isAnalyzing && (
           <motion.div
@@ -167,11 +200,9 @@ export default function MatchExperienceClient({
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
             className="fixed inset-0 z-50 bg-[rgb(243,244,237)] flex flex-col items-center justify-center p-6"
           >
-            {/* Ambient glows behind scanner */}
             <div className="absolute w-[400px] h-[400px] bg-[rgb(34,142,222)]/12 rounded-full blur-[80px] animate-pulse" />
 
             <div className="w-full max-w-lg text-center relative z-10">
-              {/* Rotating Logo Core */}
               <div className="relative w-32 h-32 mx-auto mb-10 flex items-center justify-center">
                 <div className="absolute inset-0 rounded-full border-4 border-slate-200" />
                 <motion.div
@@ -188,11 +219,10 @@ export default function MatchExperienceClient({
                 </motion.div>
               </div>
 
-              {/* Progress Count */}
               <h2 className="text-5xl font-black text-slate-900 tracking-tighter mb-4 tabular-nums">
                 {progress}%
               </h2>
-              
+
               <div className="w-full h-1.5 bg-slate-200/80 rounded-full overflow-hidden mb-8 shadow-inner">
                 <motion.div
                   className="h-full bg-gradient-to-r from-[rgb(46,219,244)] via-[rgb(34,142,222)] to-[rgb(29,93,185)]"
@@ -200,7 +230,6 @@ export default function MatchExperienceClient({
                 />
               </div>
 
-              {/* Steps checklist */}
               <div className="bg-white/60 backdrop-blur-md rounded-2xl border border-white p-5 text-left shadow-sm space-y-3">
                 {stages.map((stage, idx) => {
                   const isDone = idx < activeStage;
@@ -231,7 +260,6 @@ export default function MatchExperienceClient({
                 })}
               </div>
 
-              {/* Skip scan option */}
               <button
                 onClick={() => setIsAnalyzing(false)}
                 className="mt-8 text-xs font-bold text-slate-400 hover:text-slate-800 bg-white/40 border border-slate-200/50 hover:bg-white rounded-full px-5 py-2 transition-all cursor-pointer"
@@ -243,24 +271,24 @@ export default function MatchExperienceClient({
         )}
       </AnimatePresence>
 
-      {/* ── MAIN DASHBOARD INTERFACE ── */}
+      {/* ── MAIN COMPATIBILITY DASHBOARD ── */}
       <div className="max-w-4xl mx-auto px-6 pt-24 pb-12 relative z-10">
-        {/* Navigation back */}
+        
+        {/* Back button */}
         <Link
-          href={`/rooms/${room.slug}`}
+          href={`/people/${targetUser._id}`}
           className="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-slate-900 transition-colors mb-8 group"
         >
           <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-          Back to room details
+          Back to user profile
         </Link>
 
-        {/* ── STAGE 1: COMPATIBILITY HEADER & SCORE CORE ── */}
+        {/* ── PROFILE MATCH HEADER & CIRCLE SCORE ── */}
         <section className="bg-white rounded-[32px] border border-slate-100 shadow-sm p-8 md:p-10 mb-8 relative overflow-hidden">
-          {/* subtle inside glow */}
           <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-gradient-to-bl from-[rgb(34,142,222)]/5 to-transparent rounded-full pointer-events-none" />
 
           <div className="flex flex-col lg:flex-row items-center gap-8 md:gap-10">
-            {/* Glowing Compatibility Circle Ring */}
+            {/* Animated SVG score circle */}
             <div className="relative shrink-0 flex items-center justify-center">
               <svg width="150" height="150" viewBox="0 0 120 120" className="-rotate-90">
                 <circle
@@ -276,7 +304,7 @@ export default function MatchExperienceClient({
                   cy="60"
                   r="54"
                   fill="none"
-                  stroke={`url(#scoreGrad)`}
+                  stroke={`url(#userScoreGrad)`}
                   strokeWidth="10"
                   strokeLinecap="round"
                   strokeDasharray={circumference}
@@ -285,7 +313,7 @@ export default function MatchExperienceClient({
                   transition={{ delay: 0.5, duration: 1.5, ease: "easeOut" }}
                 />
                 <defs>
-                  <linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <linearGradient id="userScoreGrad" x1="0%" y1="0%" x2="100%" y2="0%">
                     <stop offset="0%" stopColor="rgb(46,219,244)" />
                     <stop offset="100%" stopColor="rgb(29,93,185)" />
                   </linearGradient>
@@ -305,35 +333,40 @@ export default function MatchExperienceClient({
               </div>
             </div>
 
-            {/* Title Copy */}
+            {/* Profile Info */}
             <div className="text-center lg:text-left flex-1">
               <div
-                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full ${themeBg} ${themeColor} ${themeBorder} border text-[11px] font-bold uppercase tracking-wider mb-4`}
+                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full ${scoreBg} ${scoreColor} ${scoreBorder} border text-[11px] font-bold uppercase tracking-wider mb-4`}
               >
                 <Sparkles className="w-3.5 h-3.5" /> {match.label}
               </div>
 
               <h1 className="font-serif text-3xl md:text-4xl tracking-[-0.02em] leading-tight text-slate-900 mb-3">
-                Compatibility Profile with{" "}
+                Roommate Compatibility with{" "}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[rgb(34,142,222)] to-[rgb(29,93,185)] font-bold">
-                  {room.title}
+                  {targetUser.fullName}
                 </span>
               </h1>
 
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 text-xs font-semibold text-slate-500 mt-2">
-                <p className="flex items-center gap-1.5">
-                  <MapPin className="w-4 h-4 text-slate-400" /> {room.locationText}
+                <p className="flex items-center gap-1.5 capitalize">
+                  {targetUser.roleType === "student" ? (
+                    <GraduationCap className="w-4 h-4 text-slate-400" />
+                  ) : (
+                    <Briefcase className="w-4 h-4 text-slate-400" />
+                  )}
+                  {targetUser.roleType || "Member"}
                 </p>
                 <span className="text-slate-300">•</span>
                 <p className="flex items-center gap-1.5">
-                  <DollarSign className="w-4 h-4 text-slate-400" /> Rs. {room.rentAmount.toLocaleString()}/mo
+                  <Users className="w-4 h-4 text-slate-400" /> {targetUser.gender ? targetUser.gender : "Any gender"}
                 </p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* ── STAGE 2: INTELLIGENT AI SYNTHESIS NARRATIVE ── */}
+        {/* ── AI CO-LIVING COMPATIBILITY SYNTHESIS ── */}
         <section className="mb-10">
           <div className="roomy-glass rounded-3xl border border-white p-6 md:p-8 shadow-sm flex flex-col md:flex-row gap-5 items-start relative overflow-hidden">
             <div className="absolute top-0 right-0 p-1">
@@ -341,12 +374,12 @@ export default function MatchExperienceClient({
                 AI Synthesis
               </div>
             </div>
-            
+
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[rgb(46,219,244)] to-[rgb(29,93,185)] flex items-center justify-center shrink-0 shadow-md">
               <Sparkles className="w-5 h-5 text-white" />
             </div>
             <div className="space-y-2">
-              <h3 className="font-bold text-slate-900 text-sm tracking-tight flex items-center gap-1.5">
+              <h3 className="font-bold text-slate-900 text-sm tracking-tight">
                 AI Compatibility Brief
               </h3>
               <p className="text-sm text-slate-600 leading-relaxed font-medium">
@@ -356,7 +389,7 @@ export default function MatchExperienceClient({
           </div>
         </section>
 
-        {/* ── STAGE 3: CORE COMPATIBILITY FACTOR ROWS ── */}
+        {/* ── DETAILED FACTOR ACCORDIONS ── */}
         <section className="mb-10">
           <div className="flex items-center gap-2.5 mb-5">
             <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[rgb(46,219,244)] to-[rgb(29,93,185)] flex items-center justify-center shadow-sm">
@@ -378,7 +411,7 @@ export default function MatchExperienceClient({
                   key={idx}
                   className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md"
                 >
-                  {/* Summary Bar */}
+                  {/* Card Header Bar */}
                   <button
                     onClick={() => toggleFactor(factor.id)}
                     className="w-full text-left p-5 flex items-center gap-4 cursor-pointer focus:outline-none"
@@ -394,7 +427,7 @@ export default function MatchExperienceClient({
                         </span>
                       </div>
                       <p className="text-xs text-slate-500 mt-0.5 truncate">
-                        Room expectation: <span className="font-semibold text-slate-800">{factor.roomValue}</span>
+                        {targetUser.fullName}: <span className="font-semibold text-slate-800">{factor.targetValue}</span>
                       </p>
                     </div>
 
@@ -408,7 +441,7 @@ export default function MatchExperienceClient({
                     </div>
                   </button>
 
-                  {/* Expansion Area */}
+                  {/* Accordion Expansion */}
                   <AnimatePresence initial={false}>
                     {isExpanded && (
                       <motion.div
@@ -423,7 +456,7 @@ export default function MatchExperienceClient({
                             {factor.narrative}
                           </p>
 
-                          {/* Visual Match Bar comparison */}
+                          {/* Visual match comparison bar */}
                           <div className="bg-white border border-slate-100 rounded-xl p-4 shadow-sm">
                             <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-3">Alignment Comparison</h4>
                             {renderComparisonTrack(factor)}
@@ -436,33 +469,29 @@ export default function MatchExperienceClient({
               );
             })}
 
-            {/* Budget Row */}
+            {/* Budget Accordion */}
             <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden transition-all hover:shadow-md">
               <button
                 onClick={() => toggleFactor("budget")}
                 className="w-full text-left p-5 flex items-center gap-4 cursor-pointer focus:outline-none"
               >
-                <div className="w-10 h-10 rounded-xl bg-[rgb(34,142,222)]/10 flex items-center justify-center shrink-0">
-                  <DollarSign className="w-5 h-5 text-[rgb(29,93,185)]" />
+                <div className="w-10 h-10 rounded-xl bg-[rgb(250,192,140)]/15 flex items-center justify-center shrink-0">
+                  <DollarSign className="w-5 h-5 text-[rgb(246,137,83)]" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold text-slate-950">Budget / Rent</span>
+                    <span className="text-sm font-bold text-slate-950">Monthly Budget Range</span>
                     <span className="text-xs font-semibold text-slate-400">Financial</span>
                   </div>
                   <p className="text-xs text-slate-500 mt-0.5 truncate">
-                    Rent: <span className="font-semibold text-slate-800">Rs. {match.budget.roomRent.toLocaleString()}/mo</span>
+                    {targetUser.fullName}: <span className="font-semibold text-slate-800">Rs. {targetUser.budgetMin?.toLocaleString()} - {targetUser.budgetMax?.toLocaleString()}</span>
                   </p>
                 </div>
                 <div className="flex items-center gap-4 shrink-0">
-                  {match.budget.isPerfect ? (
-                    <StatusBadge status="perfect" label="Perfect Fit" />
-                  ) : match.budget.isUnder ? (
-                    <StatusBadge status="perfect" label="Under Budget" />
-                  ) : match.budget.isSlightlyOver ? (
-                    <StatusBadge status="partial" label="Slightly Over" />
+                  {overlaps ? (
+                    <StatusBadge status="perfect" label="Budgets Overlap" />
                   ) : (
-                    <StatusBadge status="conflict" label="Over Budget" />
+                    <StatusBadge status="conflict" label="No Overlap" />
                   )}
                   <ChevronDown
                     className={`w-4 h-4 text-slate-400 transition-transform duration-300 ${
@@ -483,129 +512,44 @@ export default function MatchExperienceClient({
                   >
                     <div className="p-5 space-y-4">
                       <p className="text-xs font-medium text-slate-600 leading-relaxed bg-white border border-slate-100 rounded-xl p-3.5 shadow-sm">
-                        {match.budget.isPerfect
-                          ? "The rent fits perfectly within your specified monthly range, keeping you comfortable and avoiding financial stress."
-                          : match.budget.isUnder
-                          ? "Great! The room is priced below your minimum budget target, allowing you to save money or spend on other needs."
-                          : match.budget.isSlightlyOver
-                          ? "The room is slightly over your maximum target budget. Make sure you can manage the extra cost before proceeding."
-                          : "This room's rent exceeds your stated budget limit significantly. We advise looking for a more financially suitable room."}
+                        {highlyAligned
+                          ? `Excellent financial alignment. Your budget targets are nearly identical, which makes split-rent apartment seeking highly practical.`
+                          : overlaps
+                          ? `Your budget ranges overlap. You can easily find a shared property that satisfies both of your rent limits (e.g. within Rs. ${Math.max(
+                              currentUser.budgetMin || 0,
+                              targetUser.budgetMin || 0
+                            ).toLocaleString()} - Rs. ${Math.min(
+                              currentUser.budgetMax || Infinity,
+                              targetUser.budgetMax || Infinity
+                            ).toLocaleString()}/month).`
+                          : `Financial mismatch. Your budget range (Rs. ${currentUser.budgetMin?.toLocaleString()} - ${currentUser.budgetMax?.toLocaleString()}) does not overlap with ${
+                              targetUser.fullName
+                            }'s budget parameters. This will make finding a joint flat highly challenging.`}
                       </p>
 
                       <div className="bg-white border border-slate-100 rounded-xl p-4 shadow-sm">
-                        <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-4">Your Budget Range vs. Room Rent</h4>
-                        <div className="space-y-4 pt-2 pb-1">
-                          <div className="relative h-2.5 bg-slate-100 rounded-full">
-                            {/* Target budget highlighted track */}
-                            <div className="absolute left-[20%] right-[20%] h-full bg-[rgb(34,142,222)]/20 rounded-full border-x border-white" />
-                            
-                            {/* Rent Pin */}
-                            <div
-                              className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 rounded-full border-2 border-white shadow-md flex items-center justify-center"
-                              style={{
-                                left: match.budget.isUnder ? "10%" 
-                                    : match.budget.isPerfect ? "50%" 
-                                    : match.budget.isSlightlyOver ? "85%" : "95%"
-                              }}
-                            >
-                              <div className={`w-2.5 h-2.5 rounded-full ${
-                                match.budget.isPerfect || match.budget.isUnder ? "bg-emerald-500" 
-                                : match.budget.isSlightlyOver ? "bg-amber-500" : "bg-red-500"
-                              }`} />
+                        <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-4">Budget Range Overlap</h4>
+                        <div className="space-y-6 pt-2 pb-2">
+                          {/* Current User Range */}
+                          <div className="space-y-1.5">
+                            <div className="flex justify-between text-[10px] text-slate-500 font-semibold">
+                              <span>You</span>
+                              <span>Rs. {currentUser.budgetMin?.toLocaleString()} - {currentUser.budgetMax?.toLocaleString()}</span>
+                            </div>
+                            <div className="h-2 bg-slate-100 rounded-full overflow-hidden relative">
+                              <div className="absolute left-[20%] right-[30%] h-full bg-[rgb(34,142,222)] rounded-full" />
                             </div>
                           </div>
-                          
-                          <div className="flex justify-between text-[10px] text-slate-400 font-bold">
-                            <span>Rs. {match.budget.userMin.toLocaleString()} (Min)</span>
-                            <span className="text-[rgb(29,93,185)]">Rent: Rs. {match.budget.roomRent.toLocaleString()}</span>
-                            <span>Rs. {match.budget.userMax.toLocaleString()} (Max)</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
 
-            {/* Location Row */}
-            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden transition-all hover:shadow-md">
-              <button
-                onClick={() => toggleFactor("location")}
-                className="w-full text-left p-5 flex items-center gap-4 cursor-pointer focus:outline-none"
-              >
-                <div className="w-10 h-10 rounded-xl bg-[rgb(34,142,222)]/10 flex items-center justify-center shrink-0">
-                  <MapPin className="w-5 h-5 text-[rgb(29,93,185)]" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold text-slate-950">Location / Area</span>
-                    <span className="text-xs font-semibold text-slate-400">Geography</span>
-                  </div>
-                  <p className="text-xs text-slate-500 mt-0.5 truncate">
-                    Room location: <span className="font-semibold text-slate-800">{match.location.roomLocation}</span>
-                  </p>
-                </div>
-                <div className="flex items-center gap-4 shrink-0">
-                  {match.location.isMatched ? (
-                    <StatusBadge status="perfect" label="Matched Area" />
-                  ) : (
-                    <StatusBadge status="partial" label="Different Area" />
-                  )}
-                  <ChevronDown
-                    className={`w-4 h-4 text-slate-400 transition-transform duration-300 ${
-                      expandedFactor === "location" ? "rotate-180" : ""
-                    }`}
-                  />
-                </div>
-              </button>
-
-              <AnimatePresence initial={false}>
-                {expandedFactor === "location" && (
-                  <motion.div
-                    initial={{ height: 0 }}
-                    animate={{ height: "auto" }}
-                    exit={{ height: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="overflow-hidden border-t border-slate-100 bg-slate-50/50"
-                  >
-                    <div className="p-5 space-y-4">
-                      <p className="text-xs font-medium text-slate-600 leading-relaxed bg-white border border-slate-100 rounded-xl p-3.5 shadow-sm">
-                        {match.location.isMatched
-                          ? `Excellent fit. The room is located directly in or near one of your specified preferred neighborhoods: ${match.location.userPreferred.join(
-                              ", "
-                            )}.`
-                          : `The room is situated in ${
-                              match.location.roomLocation
-                            }, which is not in your explicit list of preferred locations (${
-                              match.location.userPreferred.length > 0
-                                ? match.location.userPreferred.join(", ")
-                                : "None specified"
-                            }). However, the overall compatibility in lifestyle and budget remains strong.`}
-                      </p>
-
-                      <div className="bg-white border border-slate-100 rounded-xl p-4 shadow-sm flex flex-col gap-2">
-                        <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Geographic Alignment</h4>
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-1">
-                          <div>
-                            <span className="text-[11px] text-slate-400 font-bold block mb-1">Your Preferred Zones</span>
-                            <div className="flex flex-wrap gap-1.5">
-                              {match.location.userPreferred.length > 0 ? (
-                                match.location.userPreferred.map((loc: string, index: number) => (
-                                  <span key={index} className="px-2 py-0.5 rounded-md bg-slate-100 border border-slate-200 text-[10px] font-bold text-slate-700">
-                                    {loc}
-                                  </span>
-                                ))
-                              ) : (
-                                <span className="text-[10px] text-slate-500 italic font-semibold">Any location preferred</span>
-                              )}
+                          {/* Target User Range */}
+                          <div className="space-y-1.5">
+                            <div className="flex justify-between text-[10px] text-slate-500 font-semibold">
+                              <span>{targetUser.fullName}</span>
+                              <span>Rs. {targetUser.budgetMin?.toLocaleString()} - {targetUser.budgetMax?.toLocaleString()}</span>
                             </div>
-                          </div>
-                          <div className="text-right shrink-0">
-                            <span className="text-[11px] text-slate-400 font-bold block mb-1">Room Location</span>
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[rgb(34,142,222)]/10 text-[rgb(29,93,185)] border border-[rgb(34,142,222)]/20 text-[10px] font-bold">
-                              <MapPin className="w-3 h-3" /> {match.location.roomLocation}
-                            </span>
+                            <div className="h-2 bg-slate-100 rounded-full overflow-hidden relative">
+                              <div className="absolute left-[35%] right-[15%] h-full bg-[rgb(246,137,83)] rounded-full" />
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -617,14 +561,14 @@ export default function MatchExperienceClient({
           </div>
         </section>
 
-        {/* ── STAGE 4: DETAILED WEIGHTED METER BREAKDOWN ── */}
+        {/* ── WEIGHTED PROGRESS METERS ── */}
         <section className="mb-10">
           <div className="flex items-center gap-2.5 mb-5">
             <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[rgb(250,192,140)] to-[rgb(246,137,83)] flex items-center justify-center shadow-sm">
               <Activity className="w-4 h-4 text-white" />
             </div>
             <h2 className="font-serif text-2xl tracking-tight text-slate-900">
-              Factor Weighting
+              Score Weighting
             </h2>
           </div>
 
@@ -632,27 +576,27 @@ export default function MatchExperienceClient({
             <BreakdownMeter
               label="Lifestyle Compatibility"
               percent={lifestylePercent}
-              weight="50% weight"
+              weight="75% weight"
               color="from-[rgb(46,219,244)] to-[rgb(29,93,185)]"
             />
             <BreakdownMeter
-              label="Financial Alignment"
+              label="Budget Range Overlap"
               percent={budgetPercent}
-              weight="30% weight"
+              weight="15% weight"
               color="from-[rgb(250,192,140)] to-[rgb(246,137,83)]"
             />
             <BreakdownMeter
-              label="Location Proximity"
-              percent={locationPercent}
-              weight="20% weight"
+              label="Role Compatibility"
+              percent={rolePercent}
+              weight="10% weight"
               color="from-[rgb(239,62,43)] to-[rgb(248,150,60)]"
             />
           </div>
         </section>
 
-        {/* ── STAGE 5: COMPATIBILITY PROS & CONS (STRENGTHS / CONSIDERATIONS) ── */}
+        {/* ── STRENGTHS & CONSIDERATIONS GRID ── */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-          {/* Why this matches you */}
+          {/* Great Alignment */}
           <section className="bg-white rounded-[24px] border border-slate-100 p-6 shadow-sm flex flex-col">
             <div className="flex items-center gap-2.5 mb-4 border-b border-slate-100 pb-3">
               <div className="w-7 h-7 rounded-lg bg-emerald-500/10 flex items-center justify-center shrink-0">
@@ -660,22 +604,25 @@ export default function MatchExperienceClient({
               </div>
               <h3 className="font-serif text-lg font-bold text-slate-900">Strengths & Matches</h3>
             </div>
-            
-            {match.positiveSignals.length > 0 ? (
+
+            {match.reasons.length > 0 ? (
               <div className="space-y-2.5 flex-1">
-                {match.positiveSignals.map((signal, idx) => (
-                  <div key={idx} className="flex gap-2.5 items-start text-xs font-semibold text-slate-700 bg-emerald-50/50 border border-emerald-100/30 rounded-xl p-3">
+                {match.reasons.map((reason, idx) => (
+                  <div
+                    key={idx}
+                    className="flex gap-2.5 items-start text-xs font-semibold text-slate-700 bg-emerald-50/50 border border-emerald-100/30 rounded-xl p-3"
+                  >
                     <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-                    <span>{signal}</span>
+                    <span>{reason}</span>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-xs text-slate-400 italic py-4 text-center my-auto">No strong matches flagged.</p>
+              <p className="text-xs text-slate-400 italic py-4 text-center my-auto">No major routine alignments found.</p>
             )}
           </section>
 
-          {/* Things to consider */}
+          {/* Potential Friction */}
           <section className="bg-white rounded-[24px] border border-slate-100 p-6 shadow-sm flex flex-col">
             <div className="flex items-center gap-2.5 mb-4 border-b border-slate-100 pb-3">
               <div className="w-7 h-7 rounded-lg bg-amber-500/10 flex items-center justify-center shrink-0">
@@ -684,10 +631,13 @@ export default function MatchExperienceClient({
               <h3 className="font-serif text-lg font-bold text-slate-900">Considerations</h3>
             </div>
 
-            {match.possibleConflicts.length > 0 ? (
+            {match.conflicts.length > 0 ? (
               <div className="space-y-2.5 flex-1">
-                {match.possibleConflicts.map((conflict, idx) => (
-                  <div key={idx} className="flex gap-2.5 items-start text-xs font-semibold text-slate-700 bg-amber-50/50 border border-amber-100/30 rounded-xl p-3">
+                {match.conflicts.map((conflict, idx) => (
+                  <div
+                    key={idx}
+                    className="flex gap-2.5 items-start text-xs font-semibold text-slate-700 bg-amber-50/50 border border-amber-100/30 rounded-xl p-3"
+                  >
                     <Zap className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
                     <span>{conflict}</span>
                   </div>
@@ -699,60 +649,65 @@ export default function MatchExperienceClient({
           </section>
         </div>
 
-        {/* ── STAGE 6: ACTION / APPLICATION PANEL ── */}
+        {/* ── CONNECTION PANEL ── */}
         <section className="pt-4">
           <div className="bg-white rounded-[32px] border border-slate-100 shadow-md p-8 md:p-10 flex flex-col items-center text-center relative overflow-hidden">
             <div className="absolute inset-x-0 bottom-0 h-1.5 bg-gradient-to-r from-[rgb(46,219,244)] to-[rgb(29,93,185)]" />
 
-            {isOwner ? (
-              <>
-                <div className="w-14 h-14 rounded-2xl bg-[rgb(34,142,222)]/10 flex items-center justify-center mb-5">
-                  <Home className="w-7 h-7 text-[rgb(29,93,185)]" />
-                </div>
-                <h3 className="text-xl font-bold text-slate-900 mb-1.5">
-                  Your Room Listing
-                </h3>
-                <p className="text-sm font-semibold text-slate-500">
-                  You are the owner of this room listing.
-                </p>
-              </>
-            ) : isJoined ? (
+            {isConnected ? (
               <>
                 <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 flex items-center justify-center mb-5">
                   <CheckCircle2 className="w-7 h-7 text-emerald-500" />
                 </div>
-                <h3 className="text-xl font-bold text-slate-900 mb-1.5">
-                  Occupant Connected
-                </h3>
-                <p className="text-sm font-semibold text-slate-500">
-                  You are already a member of this co-living room.
+                <h3 className="text-xl font-bold text-slate-900 mb-1.5">Already Connected</h3>
+                <p className="text-sm font-semibold text-slate-500 mb-4">
+                  You are connected with {targetUser.fullName}!
                 </p>
+                <Link
+                  href="/messages"
+                  className="px-6 py-3 rounded-full bg-[rgb(29,93,185)] hover:bg-[rgb(34,142,222)] text-white font-bold text-sm transition-all"
+                >
+                  Start Chatting
+                </Link>
               </>
             ) : hasPendingRequest ? (
               <>
                 <div className="w-14 h-14 rounded-2xl bg-amber-500/10 flex items-center justify-center mb-5">
                   <Clock className="w-7 h-7 text-amber-500" />
                 </div>
-                <h3 className="text-xl font-bold text-slate-900 mb-1.5">
-                  Application In Review
-                </h3>
+                <h3 className="text-xl font-bold text-slate-900 mb-1.5">Request Pending</h3>
                 <p className="text-sm text-slate-500 font-semibold max-w-sm">
-                  You have already sent a request to join. The owner is reviewing your profile and compatibility index.
+                  You have already sent a roommate request to {targetUser.fullName}. They will review your profile compatibility score soon.
                 </p>
               </>
             ) : (
               <>
                 <h3 className="text-2xl font-serif tracking-tight text-slate-950 mb-3">
-                  Ready to send a request?
+                  Ready to connect?
                 </h3>
                 <p className="text-sm text-slate-500 font-semibold mb-8 max-w-md">
-                  Send a connection request to the owner. They will review your profile and match details to ensure a good fit.
+                  Send a roommate connection request to {targetUser.fullName}. They will be notified and can review your compatibility summary.
                 </p>
-                <div className="w-full max-w-sm bg-slate-50 rounded-2xl border border-slate-200/60 p-5 shadow-inner">
-                  <RequestToJoinButton roomId={room._id} isOwner={false} />
+                <div className="w-full max-w-xs">
+                  <button
+                    onClick={handleConnect}
+                    disabled={isSubmitting}
+                    className="w-full flex items-center justify-center gap-2 py-4 rounded-xl bg-gradient-to-r from-[rgb(34,142,222)] to-[rgb(29,93,185)] hover:from-[rgb(29,93,185)] hover:to-[rgb(29,93,185)] text-white font-bold text-sm shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" /> Connecting...
+                      </>
+                    ) : (
+                      <>
+                        <UserPlus className="w-4 h-4" /> Connect as Roommates
+                      </>
+                    )}
+                  </button>
+                  {requestError && <p className="text-red-500 text-xs font-semibold mt-2">{requestError}</p>}
                 </div>
                 <p className="text-xs text-slate-400 font-bold mt-5 flex items-center gap-1.5 justify-center">
-                  <ShieldCheck className="w-3.5 h-3.5 text-slate-400" /> Secure, private co-living matchmaking
+                  <ShieldCheck className="w-3.5 h-3.5 text-slate-400" /> Secure co-living roommate matching
                 </p>
               </>
             )}
@@ -763,26 +718,30 @@ export default function MatchExperienceClient({
   );
 }
 
-// ─── ACCORDION EXPANSION COMPARISON TRACK RENDERER ───
+// ─── STAGE DETAILS ACCORDION COMPARISON TRACKS ───
 
 function renderComparisonTrack(factor: any) {
   if (factor.id === "cleanliness") {
-    const levels = ["casual", "moderate", "spotless"];
+    const levels = ["low", "medium", "high"];
     const userIndex = levels.indexOf(factor.rawUserValue?.toLowerCase() || "");
-    const roomIndex = levels.indexOf(factor.rawRoomValue?.toLowerCase() || "");
-    
+    const targetIndex = levels.indexOf(factor.rawTargetValue?.toLowerCase() || "");
+
+    const labels = ["casual", "moderate", "spotless"];
+
     return (
       <div className="space-y-4 pt-1">
         <div className="relative h-2 bg-slate-100 rounded-full flex justify-between">
           {levels.map((level, idx) => (
             <div key={idx} className="relative flex flex-col items-center">
               <div className="w-2.5 h-2.5 rounded-full bg-slate-200 border-2 border-white -mt-0.5 relative z-10" />
-              <span className="text-[10px] text-slate-400 font-bold capitalize mt-2 absolute top-1.5 whitespace-nowrap">{level}</span>
+              <span className="text-[10px] text-slate-400 font-bold capitalize mt-2 absolute top-1.5 whitespace-nowrap">
+                {labels[idx]}
+              </span>
             </div>
           ))}
 
           {/* Markers */}
-          {userIndex === roomIndex ? (
+          {userIndex === targetIndex ? (
             userIndex !== -1 && (
               <div
                 className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-white border-2 border-[rgb(29,93,185)] shadow-md flex items-center justify-center z-20 transition-all duration-500"
@@ -790,7 +749,7 @@ function renderComparisonTrack(factor: any) {
               >
                 <div className="w-2.5 h-2.5 rounded-full bg-[rgb(29,93,185)]" />
                 <span className="absolute -top-6 text-[9px] font-bold text-[rgb(29,93,185)] bg-[rgb(34,142,222)]/10 px-1.5 py-0.5 rounded border border-[rgb(34,142,222)]/20 whitespace-nowrap">
-                  You & Room
+                  You & Them
                 </span>
               </div>
             )
@@ -807,41 +766,117 @@ function renderComparisonTrack(factor: any) {
                   </span>
                 </div>
               )}
-              {roomIndex !== -1 && (
+              {targetIndex !== -1 && (
                 <div
                   className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-white border-2 border-[rgb(246,137,83)] shadow-md flex items-center justify-center z-20 transition-all duration-500"
-                  style={{ left: `${roomIndex * 50}%` }}
+                  style={{ left: `${targetIndex * 50}%` }}
                 >
                   <div className="w-2 h-2 rounded-full bg-[rgb(246,137,83)]" />
                   <span className="absolute -top-6 text-[9px] font-bold text-[rgb(246,137,83)] bg-[rgb(250,192,140)]/20 px-1.5 py-0.5 rounded border border-[rgb(246,137,83)]/25 whitespace-nowrap">
-                    Room
+                    Them
                   </span>
                 </div>
               )}
             </>
           )}
         </div>
-        <div className="h-4" /> {/* spacers */}
+        <div className="h-4" />
+      </div>
+    );
+  }
+
+  if (factor.id === "sleep") {
+    const levels = ["early", "night_owl"];
+    const userIndex = levels.indexOf(factor.rawUserValue?.toLowerCase() || "");
+    const targetIndex = levels.indexOf(factor.rawTargetValue?.toLowerCase() || "");
+
+    const labels = ["Early Bird", "Night Owl"];
+
+    return (
+      <div className="space-y-4 pt-1">
+        <div className="relative h-2 bg-slate-100 rounded-full flex justify-between">
+          {levels.map((level, idx) => (
+            <div key={idx} className="relative flex flex-col items-center">
+              <div className="w-2.5 h-2.5 rounded-full bg-slate-200 border-2 border-white -mt-0.5 relative z-10" />
+              <span className="text-[10px] text-slate-400 font-bold capitalize mt-2 absolute top-1.5 whitespace-nowrap">
+                {labels[idx]}
+              </span>
+            </div>
+          ))}
+
+          {/* Markers */}
+          {userIndex === targetIndex ? (
+            userIndex !== -1 && (
+              <div
+                className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-white border-2 border-[rgb(29,93,185)] shadow-md flex items-center justify-center z-20 transition-all duration-500"
+                style={{ left: `${userIndex * 100}%` }}
+              >
+                <div className="w-2.5 h-2.5 rounded-full bg-[rgb(29,93,185)]" />
+                <span className="absolute -top-6 text-[9px] font-bold text-[rgb(29,93,185)] bg-[rgb(34,142,222)]/10 px-1.5 py-0.5 rounded border border-[rgb(34,142,222)]/20 whitespace-nowrap">
+                  You & Them
+                </span>
+              </div>
+            )
+          ) : (
+            <>
+              {userIndex !== -1 && (
+                <div
+                  className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-white border-2 border-[rgb(29,93,185)] shadow-md flex items-center justify-center z-20 transition-all duration-500"
+                  style={{ left: `${userIndex * 100}%` }}
+                >
+                  <div className="w-2 h-2 rounded-full bg-[rgb(29,93,185)]" />
+                  <span className="absolute -top-6 text-[9px] font-bold text-[rgb(29,93,185)] bg-[rgb(34,142,222)]/10 px-1.5 py-0.5 rounded border border-[rgb(34,142,222)]/20 whitespace-nowrap">
+                    You
+                  </span>
+                </div>
+              )}
+              {targetIndex !== -1 && (
+                <div
+                  className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-white border-2 border-[rgb(246,137,83)] shadow-md flex items-center justify-center z-20 transition-all duration-500"
+                  style={{ left: `${targetIndex * 100}%` }}
+                >
+                  <div className="w-2 h-2 rounded-full bg-[rgb(246,137,83)]" />
+                  <span className="absolute -top-6 text-[9px] font-bold text-[rgb(246,137,83)] bg-[rgb(250,192,140)]/20 px-1.5 py-0.5 rounded border border-[rgb(246,137,83)]/25 whitespace-nowrap">
+                    Them
+                  </span>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+        <div className="h-4" />
       </div>
     );
   }
 
   if (factor.id === "smoker" || factor.id === "drinker") {
     const userBool = !!factor.rawUserValue;
-    const roomBool = !!factor.rawRoomValue;
-    
+    const targetBool = !!factor.rawTargetValue;
+
     return (
       <div className="grid grid-cols-2 gap-4 pt-1">
         <div className="flex flex-col items-center bg-slate-50 border border-slate-200/50 rounded-xl p-3">
-          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Your Setting</span>
-          <span className={`text-xs font-bold px-3 py-1 rounded-full ${userBool ? "bg-purple-50 text-purple-700 border border-purple-100" : "bg-slate-100 text-slate-600 border border-slate-200"}`}>
+          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Your habits</span>
+          <span
+            className={`text-xs font-bold px-3 py-1 rounded-full ${
+              userBool
+                ? "bg-purple-50 text-purple-700 border border-purple-100"
+                : "bg-slate-100 text-slate-600 border border-slate-200"
+            }`}
+          >
             {userBool ? "Yes" : "No"}
           </span>
         </div>
         <div className="flex flex-col items-center bg-slate-50 border border-slate-200/50 rounded-xl p-3">
-          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Room Allowance</span>
-          <span className={`text-xs font-bold px-3 py-1 rounded-full ${roomBool ? "bg-emerald-50 text-emerald-700 border border-emerald-100" : "bg-red-50 text-red-700 border border-red-100"}`}>
-            {roomBool ? "Allowed" : "Not Allowed"}
+          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Their habits</span>
+          <span
+            className={`text-xs font-bold px-3 py-1 rounded-full ${
+              targetBool
+                ? "bg-purple-50 text-purple-700 border border-purple-100"
+                : "bg-slate-100 text-slate-600 border border-slate-200"
+            }`}
+          >
+            {targetBool ? "Yes" : "No"}
           </span>
         </div>
       </div>
@@ -852,15 +887,15 @@ function renderComparisonTrack(factor: any) {
     return (
       <div className="grid grid-cols-2 gap-4 pt-1">
         <div className="flex flex-col items-center bg-slate-50 border border-slate-200/50 rounded-xl p-3">
-          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Your Preference</span>
+          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Your Rule</span>
           <span className="text-xs font-black text-slate-700 capitalize">
             {factor.rawUserValue || "Not Set"}
           </span>
         </div>
         <div className="flex flex-col items-center bg-slate-50 border border-slate-200/50 rounded-xl p-3">
-          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Room Policy</span>
+          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Their Rule</span>
           <span className="text-xs font-black text-slate-700 capitalize">
-            {factor.rawRoomValue || "Not Set"}
+            {factor.rawTargetValue || "Not Set"}
           </span>
         </div>
       </div>
@@ -903,7 +938,7 @@ function StatusBadge({
   );
 }
 
-// ─── BREAKDOWN WEIGHTED PROGRESS METERS ───
+// ─── BREAKDOWN METERS ───
 
 function BreakdownMeter({
   label,
@@ -939,58 +974,52 @@ function BreakdownMeter({
 
 // ─── AI NARRATIVE BRIEF GENERATOR ───
 
-function generateAINarrative(match: any, room: any) {
+function generateAINarrative(score: number, user: any, partner: any) {
   const parts = [];
 
-  // Match Label and Score
-  if (match.score >= 90) {
+  // Match Level
+  if (score >= 80) {
     parts.push(
-      `Based on our analysis, this is an outstanding match (${match.score}%). You and the household are highly aligned on routine expectations, routine schedules, and lifestyle boundaries.`
+      `Based on our analysis, this is an outstanding match (${score}%). You and ${partner.fullName} share highly compatible schedules, routine standards, and social preferences.`
     );
-  } else if (match.score >= 75) {
+  } else if (score >= 60) {
     parts.push(
-      `This is a strong match (${match.score}%). You share highly compatible core values and cleanliness habits with the room owners, suggesting an easy, comfortable co-living flow.`
+      `This is a strong match (${score}%). You align on key routine and boundary expectations with ${partner.fullName}, making flatmate co-living comfortable.`
     );
-  } else if (match.score >= 60) {
+  } else if (score >= 45) {
     parts.push(
-      `This is a moderate match (${match.score}%). You have a solid foundation, but there are a few lifestyle differences or rule variations you will want to talk through.`
-    );
-  } else {
-    parts.push(
-      `This is a lower compatibility match (${match.score}%). There are multiple key areas (such as budget alignment, location, or daily routines) where your preferences differ.`
-    );
-  }
-
-  // Budget
-  if (match.budget.isPerfect || match.budget.isUnder) {
-    parts.push(
-      `Rent is Rs. ${room.rentAmount.toLocaleString()} which fits well within or under your target budget margins.`
-    );
-  } else if (match.budget.isSlightlyOver) {
-    parts.push(
-      `The rent amount slightly exceeds your specified target max, but is likely manageable.`
+      `This is a moderate match (${score}%). You share some routine goals, but there are differences in sleeping rhythms, budgets, or guest boundaries.`
     );
   } else {
     parts.push(
-      `The monthly rent is above your maximum budget limit, which poses a potential conflict.`
-    );
-  }
-
-  // Location
-  if (match.location.isMatched) {
-    parts.push(
-      `Furthermore, the room is perfectly located in ${room.locationText}, aligning directly with your preferred neighborhood zones.`
-    );
-  } else if (match.location.userPreferred.length > 0) {
-    parts.push(
-      `The location in ${room.locationText} is outside your specified preferred areas, which is a trade-off to consider.`
+      `This is a lower compatibility match (${score}%). Multiple daily habits (cleanliness expectations, social values, or budgets) diverge and may create friction.`
     );
   }
 
   // Cleanliness
-  if (match.lifestyle.cleanliness.match === "perfect") {
+  if (user.cleanlinessLevel === partner.cleanlinessLevel) {
     parts.push(
-      `Your spotless/cleanliness habits align perfectly with the expectations of the room.`
+      `Both of you prefer a ${
+        user.cleanlinessLevel === "high" ? "spotless" : user.cleanlinessLevel === "medium" ? "moderate" : "casual"
+      } cleanliness level, reducing shared chores arguments.`
+    );
+  } else {
+    parts.push(
+      `Cleanliness expectations differ (you prefer ${user.cleanlinessLevel || "moderate"} vs their ${
+        partner.cleanlinessLevel || "moderate"
+      }), indicating chore rules should be pre-planned.`
+    );
+  }
+
+  // Budget
+  const overlaps = user.budgetMin <= partner.budgetMax && partner.budgetMin <= user.budgetMax;
+  if (overlaps) {
+    parts.push(
+      `Additionally, your monthly budget ranges overlap comfortably, enabling shared flat hunting.`
+    );
+  } else {
+    parts.push(
+      `Notably, your budgets do not overlap, which may complicate finding a property that satisfies both targets.`
     );
   }
 
@@ -999,107 +1028,110 @@ function generateAINarrative(match: any, room: any) {
 
 // ─── FACTORS BUILDER ───
 
-function buildFactors(match: any) {
+function buildRoommateFactors(currentUser: any, targetUser: any) {
   const factors = [];
 
-  // Cleanliness expectation
+  // Cleanliness
+  const cleanlinessMatch = currentUser.cleanlinessLevel === targetUser.cleanlinessLevel;
+  const cleanlinessLabels = {
+    high: "Spotless (High)",
+    medium: "Moderate (Medium)",
+    low: "Casual (Low)",
+  };
   factors.push({
     id: "cleanliness",
     icon: <Sparkles className="w-5 h-5 text-[rgb(46,219,244)]" />,
-    label: "Cleanliness",
-    scoreLabel: "Lifestyle Habit",
-    roomValue: match.lifestyle.cleanliness.room || "Moderate",
-    status: match.lifestyle.cleanliness.match as "perfect" | "partial" | "conflict",
-    badgeLabel:
-      match.lifestyle.cleanliness.match === "perfect"
-        ? "Aligned"
-        : match.lifestyle.cleanliness.match === "partial"
-        ? "Partial Fit"
-        : "Conflict",
-    rawUserValue: match.lifestyle.cleanliness.user,
-    rawRoomValue: match.lifestyle.cleanliness.room,
-    narrative:
-      match.lifestyle.cleanliness.match === "perfect"
-        ? "You and the room owner share the exact same cleanliness expectations. This reduces day-to-day friction in shared kitchen, bath, and living spaces."
-        : match.lifestyle.cleanliness.match === "partial"
-        ? "Your cleanliness habits are close, but there may be small differences. A quick alignment on who does what chores is recommended."
-        : "Your cleanliness expectations differ. It's best to discuss rules for shared spaces before requesting connection.",
+    label: "Cleanliness Expectation",
+    scoreLabel: "Lifestyle Routine",
+    targetValue: cleanlinessLabels[targetUser.cleanlinessLevel as "high" | "medium" | "low"] || "Moderate",
+    status: (cleanlinessMatch ? "perfect" : "partial") as "perfect" | "partial" | "conflict",
+    badgeLabel: cleanlinessMatch ? "Aligned" : "Differs",
+    rawUserValue: currentUser.cleanlinessLevel,
+    rawTargetValue: targetUser.cleanlinessLevel,
+    narrative: cleanlinessMatch
+      ? "You share the exact same cleanliness expectations. This reduces day-to-day friction in shared areas like bathrooms and kitchens."
+      : `You prefer a ${currentUser.cleanlinessLevel || "medium"} standard, while they prefer a ${
+          targetUser.cleanlinessLevel || "medium"
+        } standard. It is recommended to align on chore schedules.`,
   });
 
-  // Smoking Policy
+  // Sleep Clock
+  const sleepMatch = currentUser.sleepType === targetUser.sleepType;
+  factors.push({
+    id: "sleep",
+    icon: targetUser.sleepType === "night_owl" ? (
+      <Moon className="w-5 h-5 text-indigo-400" />
+    ) : (
+      <Sun className="w-5 h-5 text-amber-400" />
+    ),
+    label: "Sleeping Schedule",
+    scoreLabel: "Bio-Clock Alignment",
+    targetValue: targetUser.sleepType === "night_owl" ? "Night Owl" : "Early Bird",
+    status: (sleepMatch ? "perfect" : "partial") as "perfect" | "partial" | "conflict",
+    badgeLabel: sleepMatch ? "Aligned" : "Differs",
+    rawUserValue: currentUser.sleepType,
+    rawTargetValue: targetUser.sleepType,
+    narrative: sleepMatch
+      ? `Both are ${
+          currentUser.sleepType === "night_owl" ? "Night Owls" : "Early Birds"
+        }, which helps synchronize quiet hours and household activity schedules.`
+      : `You are an ${currentUser.sleepType === "night_owl" ? "Night Owl" : "Early Bird"} and they are a ${
+          targetUser.sleepType === "night_owl" ? "Night Owl" : "Early Bird"
+        }. Make sure to establish noise rules for mornings/evenings.`,
+  });
+
+  // Smoker
+  const smokerMatch = currentUser.smoker === targetUser.smoker;
   factors.push({
     id: "smoker",
     icon: <Cigarette className="w-5 h-5 text-slate-500" />,
-    label: "Smoking Policy",
-    scoreLabel: "House Rule",
-    roomValue: match.lifestyle.smoker.roomAllowed ? "Allowed" : "Not Allowed",
-    status: match.lifestyle.smoker.match as "perfect" | "partial" | "conflict",
-    badgeLabel: match.lifestyle.smoker.match === "perfect" ? "Compatible" : "Conflict",
-    rawUserValue: match.lifestyle.smoker.user,
-    rawRoomValue: match.lifestyle.smoker.roomAllowed,
-    narrative:
-      match.lifestyle.smoker.match === "perfect"
-        ? "Your smoking habits completely align with the room's policy. No smoke smell conflicts are expected."
-        : "Conflict detected: You smoke, but this listing enforces a strict no-smoking policy. This is typically a firm boundary.",
+    label: "Smoking Habits",
+    scoreLabel: "Lifestyle preference",
+    targetValue: targetUser.smoker ? "Smoker" : "Non-smoker",
+    status: (smokerMatch ? "perfect" : "conflict") as "perfect" | "partial" | "conflict",
+    badgeLabel: smokerMatch ? "Compatible" : "Conflict",
+    rawUserValue: currentUser.smoker,
+    rawTargetValue: targetUser.smoker,
+    narrative: smokerMatch
+      ? "Your smoking preferences match perfectly, meaning no smoke smell disputes should arise."
+      : "Preference mismatch: One of you smokes, while the other does not. A discussion on outdoor/indoor boundaries is necessary.",
   });
 
-  // Drinking Policy
+  // Drinker
+  const drinkerMatch = currentUser.drinker === targetUser.drinker;
   factors.push({
     id: "drinker",
     icon: <Wine className="w-5 h-5 text-purple-500" />,
-    label: "Drinking Policy",
-    scoreLabel: "House Rule",
-    roomValue: match.lifestyle.drinker.roomAllowed ? "Allowed" : "Not Allowed",
-    status: match.lifestyle.drinker.match as "perfect" | "partial" | "conflict",
-    badgeLabel: match.lifestyle.drinker.match === "perfect" ? "Compatible" : "Conflict",
-    rawUserValue: match.lifestyle.drinker.user,
-    rawRoomValue: match.lifestyle.drinker.roomAllowed,
-    narrative:
-      match.lifestyle.drinker.match === "perfect"
-        ? "Your drinking choices align perfectly with the house guidelines."
-        : "Conflict detected: You drink, but this room does not allow alcohol. This rule conflict should be respected.",
+    label: "Drinking Habits",
+    scoreLabel: "Lifestyle preference",
+    targetValue: targetUser.drinker ? "Drinker" : "Non-drinker",
+    status: (drinkerMatch ? "perfect" : "conflict") as "perfect" | "partial" | "conflict",
+    badgeLabel: drinkerMatch ? "Compatible" : "Conflict",
+    rawUserValue: currentUser.drinker,
+    rawTargetValue: targetUser.drinker,
+    narrative: drinkerMatch
+      ? "Your alcohol consumption preferences align perfectly."
+      : "One of you drinks occasionally, while the other prefers an alcohol-free space. Make sure boundaries are understood.",
   });
 
   // Guest Policy
+  const guestMatch = currentUser.guestPolicy === targetUser.guestPolicy;
   factors.push({
     id: "guestPolicy",
     icon: <Users className="w-5 h-5 text-indigo-500" />,
     label: "Guest Policy",
-    scoreLabel: "House Rule",
-    roomValue: match.lifestyle.guestPolicy.room || "No restrictions",
-    status: match.lifestyle.guestPolicy.match as "perfect" | "partial" | "conflict",
-    badgeLabel:
-      match.lifestyle.guestPolicy.match === "perfect" ? "Aligned" : "Slightly Differs",
-    rawUserValue: match.lifestyle.guestPolicy.user,
-    rawRoomValue: match.lifestyle.guestPolicy.room,
-    narrative:
-      match.lifestyle.guestPolicy.match === "perfect"
-        ? "Your guest policy preferences match the room rules. You are both on the same page regarding daytime visitors and overnight stays."
-        : "The room has different rules regarding guests (e.g. sleepovers, number of guests allowed) than your preferences. Discuss during visit.",
+    scoreLabel: "Co-living Rules",
+    targetValue: targetUser.guestPolicy || "Regular",
+    status: (guestMatch ? "perfect" : "partial") as "perfect" | "partial" | "conflict",
+    badgeLabel: guestMatch ? "Aligned" : "Differs",
+    rawUserValue: currentUser.guestPolicy,
+    rawTargetValue: targetUser.guestPolicy,
+    narrative: guestMatch
+      ? `Both share the same guest rules (${currentUser.guestPolicy}), which helps avoid unexpected overnight guest conflicts.`
+      : `You prefer guest policy: ${currentUser.guestPolicy || "regular"} vs their guest policy: ${
+          targetUser.guestPolicy || "regular"
+        }. Make sure to agree on sleepover policies.`,
   });
-
-  // Sleep Schedule
-  if (match.lifestyle.sleep?.user) {
-    const isNightOwl = match.lifestyle.sleep.user === "night_owl";
-    factors.push({
-      id: "sleep",
-      icon: isNightOwl ? (
-        <Moon className="w-5 h-5 text-indigo-400" />
-      ) : (
-        <Sun className="w-5 h-5 text-amber-400" />
-      ),
-      label: "Sleep Schedule",
-      scoreLabel: "Bio-Clock Alignment",
-      roomValue: match.lifestyle.sleep.room || "Flexible",
-      status: "perfect" as const,
-      badgeLabel: "Noted",
-      rawUserValue: match.lifestyle.sleep.user,
-      rawRoomValue: match.lifestyle.sleep.room,
-      narrative: isNightOwl
-        ? "As a Night Owl, you tend to stay active later. Be sure to discuss noise levels and quiet hours with any early risers."
-        : "As an Early Bird, you prefer quiet, bright mornings. Coordinate schedule offsets to avoid bathroom bottle-necks.",
-    });
-  }
 
   return factors;
 }

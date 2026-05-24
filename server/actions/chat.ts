@@ -7,6 +7,8 @@ import Connection from "@/models/Connection";
 import Message from "@/models/Message";
 import User from "@/models/User";
 import { pusherServer } from "@/lib/pusher";
+import { createNotification } from "@/server/services/notificationService";
+
 
 /**
  * Validates if the current user has access to a specific connection chat.
@@ -100,9 +102,22 @@ export async function sendMessage(connectionId: string, content: string) {
     const messageData = JSON.parse(JSON.stringify(newMessage));
 
     // Trigger Pusher event to the specific connection channel
-    // We use a connection-specific channel rather than a user-specific one
-    // so both parties in the UI can just subscribe to the connection channel.
     await pusherServer.trigger(`private-chat-${connectionId}`, "message:new", messageData);
+
+    // Notify the receiver with a notification (non-blocking)
+    const senderId = access.userId;
+    const partnerId = access.partner?._id?.toString();
+    if (partnerId) {
+      const senderUser = await User.findById(senderId).select("fullName").lean();
+      const senderName = (senderUser as any)?.fullName ?? "Someone";
+      createNotification({
+        userId: partnerId,
+        type: "message_received",
+        title: `New message from ${senderName}`,
+        message: content.trim().slice(0, 80) + (content.length > 80 ? "…" : ""),
+        link: `/chat/${connectionId}`,
+      }).catch(() => {}); // fire-and-forget
+    }
 
     return { success: true, message: messageData };
   } catch (error: any) {

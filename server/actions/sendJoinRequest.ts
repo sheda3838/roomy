@@ -5,6 +5,9 @@ import { auth } from "@/lib/auth";
 import dbConnect from "@/lib/db";
 import Room from "@/models/Room";
 import RoomRequest from "@/models/RoomRequest";
+import User from "@/models/User";
+import { createNotification } from "@/server/services/notificationService";
+
 
 export async function sendJoinRequest(roomId: string, message?: string) {
   if (!roomId || !mongoose.Types.ObjectId.isValid(roomId)) {
@@ -73,6 +76,17 @@ export async function sendJoinRequest(roomId: string, message?: string) {
       message: message || undefined,
     });
 
+    // 6. Notify room owner
+    const requester = await User.findById(userId).select("fullName").lean();
+    const requesterName = (requester as any)?.fullName ?? "Someone";
+    await createNotification({
+      userId: room.ownerId.toString(),
+      type: "request_received",
+      title: "New Join Request",
+      message: `${requesterName} wants to join your room "${room.title}".`,
+      link: `/requests?tab=rooms`,
+    });
+
     return { 
       success: "Your request to join has been sent!", 
       request: {
@@ -80,6 +94,7 @@ export async function sendJoinRequest(roomId: string, message?: string) {
         status: newRequest.status,
       } 
     };
+
   } catch (error: any) {
     console.error("sendJoinRequest Server Action error:", error);
     return { error: error.message || "An unexpected error occurred while sending the join request." };

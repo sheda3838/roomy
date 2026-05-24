@@ -6,6 +6,8 @@ import dbConnect from "@/lib/db";
 import RoommateRequest from "@/models/RoommateRequest";
 import Connection from "@/models/Connection";
 import User from "@/models/User";
+import { createNotification } from "@/server/services/notificationService";
+
 
 export async function sendRoommateRequest(receiverId: string, message?: string) {
   if (!receiverId || !mongoose.Types.ObjectId.isValid(receiverId)) {
@@ -54,10 +56,21 @@ export async function sendRoommateRequest(receiverId: string, message?: string) 
       message: message?.trim(),
     });
 
+    // Notify receiver
+    const sender = await User.findById(requesterId).select("fullName").lean();
+    const senderName = (sender as any)?.fullName ?? "Someone";
+    await createNotification({
+      userId: receiverId,
+      type: "request_received",
+      title: "New Roommate Request",
+      message: `${senderName} sent you a roommate connection request.`,
+      link: `/requests`,
+    });
+
     return { success: true, request: JSON.parse(JSON.stringify(request)) };
   } catch (error: any) {
     console.error("sendRoommateRequest error:", error);
-    return { error: "Failed to send roommate request." };
+    return { error: error.message || "Failed to send roommate request." };
   }
 }
 
@@ -88,6 +101,15 @@ export async function handleRoommateRequestAction(requestId: string, action: "ac
     if (action === "reject") {
       request.status = "rejected";
       await request.save();
+
+      await createNotification({
+        userId: request.requesterId.toString(),
+        type: "request_rejected",
+        title: "Roommate Request Declined",
+        message: `Your roommate connection request was not accepted.`,
+        link: `/discover?tab=people`,
+      });
+
       return { success: true, message: "Request rejected." };
     }
 
@@ -110,12 +132,21 @@ export async function handleRoommateRequestAction(requestId: string, action: "ac
       request.status = "accepted";
       await request.save();
 
+      // Notify requester they're now connected
+      await createNotification({
+        userId: request.requesterId.toString(),
+        type: "request_accepted",
+        title: "Roommate Request Accepted! 🎉",
+        message: `You are now connected! Start a conversation.`,
+        link: `/messages`,
+      });
+
       return { success: true, connectionId: newConnection._id.toString() };
     }
 
     return { error: "Invalid action." };
   } catch (error: any) {
     console.error("handleRoommateRequestAction error:", error);
-    return { error: "Failed to process request." };
+    return { error: error.message || "Failed to process request." };
   }
 }

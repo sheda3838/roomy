@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { User, Sparkles, Briefcase, GraduationCap, ArrowRight } from "lucide-react";
+import { User, Briefcase, GraduationCap } from "lucide-react";
 import { SuggestedPerson } from "@/server/actions/getSuggestedPeople";
 
 interface RoommateCardProps {
@@ -13,54 +13,53 @@ export default function RoommateCard({ person }: RoommateCardProps) {
 
   return (
     <Link
-      href={`/people/${user._id}/match`}
-      className="group relative flex flex-col p-6 rounded-2xl bg-white border border-slate-100 hover:border-[rgb(34,142,222)]/40 hover:shadow-xl hover:shadow-[rgb(34,142,222)]/10 transition-all duration-300 overflow-hidden hover:-translate-y-1"
+      href={`/people/${user._id}`}
+      className="group relative flex flex-col p-6 rounded-[28px] bg-white/70 backdrop-blur-md border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.02)] hover:border-[rgb(34,142,222)]/40 hover:shadow-[0_20px_50px_rgba(29,93,185,0.08)] transition-all duration-500 overflow-hidden hover:-translate-y-1.5"
     >
-      {/* Subtle hover glow */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[rgb(46,219,244)]/0 to-[rgb(29,93,185)]/0 group-hover:from-[rgb(46,219,244)]/3 group-hover:to-[rgb(29,93,185)]/5 transition-all duration-500 rounded-2xl pointer-events-none" />
+      {/* Subtle brand hover background glow */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[rgb(46,219,244)]/0 to-[rgb(29,93,185)]/0 group-hover:from-[rgb(46,219,244)]/2 group-hover:to-[rgb(29,93,185)]/4 transition-all duration-500 rounded-[28px] pointer-events-none" />
 
-      <div className="flex items-start justify-between mb-6 relative z-10">
-        <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[rgb(46,219,244)]/15 to-[rgb(29,93,185)]/20 border border-[rgb(34,142,222)]/20 overflow-hidden flex items-center justify-center shrink-0 shadow-md group-hover:scale-105 transition-transform duration-300">
+      {/* Main card visual grid layout */}
+      <div className="flex flex-col items-center text-center space-y-4 relative z-10 py-2">
+        {/* Profile Avatar with double borders and hover scale */}
+        <div className="relative w-24 h-24 rounded-full p-[3px] bg-slate-100 border border-slate-200/60 shadow-inner overflow-hidden shrink-0 group-hover:scale-[1.03] transition-transform duration-500">
+          <div className="w-full h-full rounded-full overflow-hidden bg-white border border-slate-200/40 relative">
             {user.profilePicture ? (
-              <img src={user.profilePicture} alt={user.fullName} className="w-full h-full object-cover" />
+              <img
+                src={user.profilePicture}
+                alt={user.fullName}
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+              />
             ) : (
-              <User className="w-8 h-8 text-[rgb(34,142,222)]/50" />
+              <div className="absolute inset-0 flex items-center justify-center bg-slate-50">
+                <User className="w-10 h-10 text-[rgb(34,142,222)]/40" />
+              </div>
             )}
           </div>
-          <div>
-            <h3 className="font-bold text-xl text-slate-900 group-hover:text-[rgb(29,93,185)] transition-colors">
-              {user.fullName}
-            </h3>
-            <div className="flex items-center gap-2 mt-1">
-              <span className="text-sm font-medium text-slate-400 capitalize flex items-center gap-1">
-                {user.roleType === 'student' ? <GraduationCap className="w-3.5 h-3.5" /> : <Briefcase className="w-3.5 h-3.5" />}
-                {user.roleType || 'Member'}
-              </span>
-              {user.gender && (
-                <>
-                  <span className="text-slate-300">•</span>
-                  <span className="text-sm text-slate-400 capitalize">{user.gender}</span>
-                </>
-              )}
-            </div>
-          </div>
         </div>
-      </div>
 
-      <div className="space-y-4 mt-auto relative z-10">
-        {user.budgetMax && (
-          <div className="flex items-center gap-2 text-sm text-slate-600">
-            <span className="w-6 h-6 rounded-lg flex items-center justify-center bg-[rgb(250,192,140)]/20 text-sm shrink-0">💰</span>
-            <span>Budget up to <span className="font-semibold text-[rgb(29,93,185)]">${user.budgetMax}</span></span>
+        {/* User Info with premium typography */}
+        <div className="space-y-1.5 w-full">
+          <h3 className="font-serif text-lg font-bold tracking-tight text-slate-900 group-hover:text-[rgb(29,93,185)] transition-colors duration-300">
+            {user.fullName}
+          </h3>
+          
+          <div className="flex items-center justify-center gap-2">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-50/80 border border-slate-100 text-xs font-bold text-slate-500 capitalize">
+              {user.roleType === "student" ? (
+                <GraduationCap className="w-3.5 h-3.5 text-[rgb(34,142,222)]" />
+              ) : (
+                <Briefcase className="w-3.5 h-3.5 text-[rgb(248,150,60)]" />
+              )}
+              {user.roleType || "Member"}
+            </span>
+
+            {user.gender && (
+              <span className="inline-flex items-center px-3 py-1 rounded-full bg-slate-50/80 border border-slate-100 text-xs font-bold text-slate-500 capitalize">
+                {user.gender}
+              </span>
+            )}
           </div>
-        )}
-
-        <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-[rgb(34,142,222)] font-semibold group-hover:text-[rgb(29,93,185)] transition-colors">
-          <span className="flex items-center gap-1.5">
-            <Sparkles className="w-4 h-4" /> Check Compatibility
-          </span>
-          <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
         </div>
       </div>
     </Link>

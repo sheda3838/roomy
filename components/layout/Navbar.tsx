@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
+import NotificationBell from "@/components/layout/NotificationBell";
+
 
 export default function Navbar() {
   const { status } = useSession();
@@ -20,10 +22,10 @@ export default function Navbar() {
 
   return (
     <header
-      className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-4xl rounded-full transition-all duration-300 ${
+      className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-5xl rounded-full transition-all duration-500 ${
         scrolled
-          ? "bg-white/85 backdrop-blur-2xl shadow-xl shadow-zinc-200/50 border border-zinc-200/60"
-          : "bg-white/60 backdrop-blur-xl border border-white/60 shadow-lg shadow-black/5"
+          ? "bg-white/70 backdrop-blur-3xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-white/50 py-1"
+          : "bg-white/40 backdrop-blur-xl border border-white/40 shadow-sm py-2"
       }`}
     >
       <div className="flex h-14 items-center justify-between px-5">
@@ -53,15 +55,16 @@ export default function Navbar() {
         <div className="hidden md:flex items-center gap-3">
           {isAuthenticated ? (
             <>
+              <NotificationBell />
               <button
                 onClick={() => signOut({ callbackUrl: "/" })}
-                className="text-[13px] font-semibold text-zinc-500 hover:text-zinc-900 transition-colors"
+                className="text-[13px] font-bold text-slate-500 hover:text-slate-900 transition-colors"
               >
                 Log out
               </button>
               <Link
                 href="/create-room"
-                className="rounded-full bg-zinc-900 hover:bg-zinc-700 px-5 py-2 text-[13px] font-bold text-white transition-all hover:scale-105 active:scale-95 shadow-md"
+                className="rounded-full bg-slate-900 hover:bg-slate-800 px-6 py-2.5 text-[13px] font-bold text-white transition-all shadow-[0_4px_14px_0_rgb(0,0,0,0.1)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.15)] hover:scale-[1.02]"
               >
                 Post a Room
               </Link>
@@ -70,19 +73,20 @@ export default function Navbar() {
             <>
               <Link
                 href="/login"
-                className="text-[13px] font-semibold text-zinc-500 hover:text-zinc-900 transition-colors"
+                className="text-[13px] font-bold text-slate-600 hover:text-[rgb(29,93,185)] transition-colors px-3 py-2"
               >
                 Log in
               </Link>
               <Link
                 href="/register"
-                className="rounded-full bg-zinc-900 hover:bg-zinc-700 px-5 py-2 text-[13px] font-bold text-white transition-all hover:scale-105 active:scale-95 shadow-md"
+                className="rounded-full bg-gradient-to-r from-[rgb(46,219,244)] to-[rgb(29,93,185)] px-6 py-2.5 text-[13px] font-bold text-white shadow-lg shadow-[rgb(29,93,185)]/20 transition-all hover:scale-[1.02]"
               >
                 Get Started
               </Link>
             </>
           )}
         </div>
+
 
         {/* Mobile hamburger */}
         <button

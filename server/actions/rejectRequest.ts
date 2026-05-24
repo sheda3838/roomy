@@ -5,6 +5,8 @@ import { auth } from "@/lib/auth";
 import dbConnect from "@/lib/db";
 import Room from "@/models/Room";
 import RoomRequest from "@/models/RoomRequest";
+import { createNotification } from "@/server/services/notificationService";
+
 
 export async function rejectRequest(requestId: string) {
   if (!requestId || !mongoose.Types.ObjectId.isValid(requestId)) {
@@ -44,6 +46,15 @@ export async function rejectRequest(requestId: string) {
     // 5. Update request status
     request.status = "rejected";
     await request.save();
+
+    // Notify requester their request was rejected
+    await createNotification({
+      userId: request.fromUserId.toString(),
+      type: "request_rejected",
+      title: "Join Request Declined",
+      message: `Your request to join "${room.title}" was not accepted. Keep exploring!`,
+      link: `/discover`,
+    });
 
     return { success: "Join request rejected successfully." };
   } catch (error: any) {

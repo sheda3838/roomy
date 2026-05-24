@@ -20,7 +20,6 @@ const ConnectionSchema = new Schema<IConnection>(
     roomId: {
       type: Schema.Types.ObjectId,
       ref: "Room",
-      required: true,
     },
     isActive: {
       type: Boolean,
@@ -42,6 +41,10 @@ ConnectionSchema.index({ roomId: 1 });
 // (Note: To strictly enforce this at the DB level regardless of array order, we'd sort before insert, 
 // but this compound index will help enforce it if we maintain sorted insertion)
 ConnectionSchema.index({ "users.0": 1, "users.1": 1, roomId: 1 }, { unique: true });
+
+if (process.env.NODE_ENV === "development") {
+  delete (mongoose.models as any).Connection;
+}
 
 const Connection: Model<IConnection> =
   mongoose.models.Connection || mongoose.model<IConnection>("Connection", ConnectionSchema);

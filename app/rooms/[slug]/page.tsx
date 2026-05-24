@@ -1,11 +1,11 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
-import Link from "next/link";
 import { getRoomBySlug } from "@/server/actions/getRoomBySlug";
 import { auth } from "@/lib/auth";
-import { MapPin, Users, User, Info, Check, Shield, ChevronRight, Zap } from "lucide-react";
+import { MapPin, Users, User, Check, Zap, Sparkles, Map as MapIcon, Bath, Wifi, Droplets, Sun, Moon, Cigarette, Wine } from "lucide-react";
 import RoomLocationViewerWrapper from "@/components/maps/RoomLocationViewerWrapper";
-import { Map as MapIcon } from "lucide-react";
+import RoomImageGallery from "@/components/rooms/RoomImageGallery";
+import RoomActionBottomBar from "@/components/rooms/RoomActionBottomBar";
 
 // Metadata generation for SEO
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -35,7 +35,6 @@ export default async function RoomDetailsPage({ params }: { params: Promise<{ sl
 
   const room = data.room;
   const session = await auth();
-  const isLoggedIn = !!session?.user;
   let ownerIdStr = "";
   if (typeof room.ownerId === "string") ownerIdStr = room.ownerId;
   else if (room.ownerId?._id) ownerIdStr = room.ownerId._id.toString();
@@ -44,177 +43,158 @@ export default async function RoomDetailsPage({ params }: { params: Promise<{ sl
   const isOwner = ownerIdStr === session?.user?.id;
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100">
-      {/* 1. Image Gallery */}
-      <div className="w-full h-[40vh] md:h-[60vh] bg-zinc-900 relative overflow-hidden">
-        {room.images && room.images.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-1 w-full h-full">
-            <img 
-              src={room.images[0]} 
-              alt={room.title} 
-              className="w-full h-full object-cover" 
-            />
-            <div className="hidden md:grid grid-cols-2 grid-rows-2 gap-1 h-full">
-              {room.images.slice(1, 5).map((img: string, i: number) => (
-                <img 
-                  key={i} 
-                  src={img} 
-                  alt="Room angle" 
-                  className="w-full h-full object-cover" 
-                />
-              ))}
-              {/* Fallback empty slots for gallery grid layout */}
-              {Array.from({ length: Math.max(0, 4 - (room.images.length - 1)) }).map((_, i) => (
-                <div key={`empty-${i}`} className="w-full h-full bg-zinc-800/50" />
-              ))}
-            </div>
-          </div>
-        ) : (
-          <div className="flex items-center justify-center w-full h-full bg-zinc-900 border-b border-zinc-800">
-            <div className="text-center text-zinc-500">
-              <MapPin className="w-12 h-12 mx-auto mb-2 opacity-50" />
-              <p>No images provided</p>
-            </div>
-          </div>
-        )}
-      </div>
+    <div className="min-h-screen bg-[rgb(243,244,237)] text-slate-900 pb-40">
+      
+      {/* Decorative gradient blur */}
+      <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-white to-transparent pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-4 py-10 md:py-16 grid grid-cols-1 lg:grid-cols-3 gap-10">
+      <div className="relative max-w-[1200px] mx-auto px-6 lg:px-10 py-10 lg:py-12 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
         
-        {/* Left Column: Room Details */}
-        <div className="lg:col-span-2 space-y-10">
-          <div>
-            <div className="flex items-center gap-2 text-indigo-400 font-semibold mb-3">
-              <MapPin className="w-5 h-5" /> {room.locationText}
+        {/* =========================================
+            LEFT COLUMN: ROOM INFORMATION 
+        ========================================= */}
+        <div className="order-2 lg:order-1 space-y-10">
+          
+          {/* Header Section */}
+          <div className="space-y-4">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[rgb(34,142,222)]/10 border border-[rgb(34,142,222)]/20 text-[rgb(29,93,185)] text-[11px] font-bold uppercase tracking-wider">
+              <MapPin className="w-3 h-3" /> {room.locationText}
             </div>
-            <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">
+            
+            <h1 className="font-serif text-4xl md:text-5xl tracking-[-0.02em] leading-tight text-zinc-900">
               {room.title}
             </h1>
-            <p className="text-zinc-300 whitespace-pre-wrap leading-relaxed text-lg">
-              {room.description}
-            </p>
-          </div>
-
-          <div className="h-px w-full bg-zinc-800" />
-
-          {/* Room Specs & Rules */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            <div className="space-y-1">
-              <span className="text-zinc-500 text-sm font-semibold uppercase tracking-wider">Capacity</span>
-              <p className="text-white font-medium flex items-center gap-2">
-                <Users className="w-4 h-4 text-zinc-400" /> {room.capacity} Person(s)
-              </p>
-            </div>
-            <div className="space-y-1">
-              <span className="text-zinc-500 text-sm font-semibold uppercase tracking-wider">Gender Pref</span>
-              <p className="text-white font-medium flex items-center gap-2 capitalize">
-                <User className="w-4 h-4 text-zinc-400" /> {room.genderPreference}
-              </p>
-            </div>
-            <div className="space-y-1">
-              <span className="text-zinc-500 text-sm font-semibold uppercase tracking-wider">Cleanliness</span>
-              <p className="text-white font-medium capitalize">
-                {room.cleanlinessExpectation}
-              </p>
-            </div>
-            <div className="space-y-1">
-              <span className="text-zinc-500 text-sm font-semibold uppercase tracking-wider">Guests</span>
-              <p className="text-white font-medium capitalize">
-                {room.guestPolicy}
-              </p>
+            
+            <div className="flex flex-col gap-2">
+              <div className="flex items-end gap-2.5">
+                <span className="text-3xl font-bold tracking-tight text-[rgb(29,93,185)]">
+                  Rs. {room.rentAmount.toLocaleString()}
+                </span>
+                <span className="text-slate-500 font-medium mb-1 text-sm">/ month</span>
+              </div>
+              
+              <div className="flex items-center gap-4 mt-1">
+                {room.deposit > 0 && (
+                  <div className="flex items-center gap-1.5 text-sm font-medium text-slate-600 bg-slate-100/80 px-2.5 py-1 rounded-lg border border-slate-200/60">
+                    <span className="text-slate-400 font-normal">Deposit</span> Rs. {room.deposit.toLocaleString()}
+                  </div>
+                )}
+                <div className="flex items-center gap-1.5 text-sm font-semibold text-[rgb(29,93,185)] bg-[rgb(34,142,222)]/10 border border-[rgb(34,142,222)]/20 px-2.5 py-1 rounded-lg">
+                  <Zap className="w-3.5 h-3.5" /> Available Now
+                </div>
+              </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/50 flex items-center gap-3">
-              <Check className={`w-5 h-5 ${room.smokerAllowed ? "text-emerald-400" : "text-zinc-600"}`} />
-              <span className={room.smokerAllowed ? "text-zinc-200" : "text-zinc-500 line-through"}>Smoking Allowed</span>
+          {/* Lifestyle / Rules Chips */}
+          <div className="flex flex-wrap gap-2.5">
+            {/* Capacity */}
+            <div className="group relative flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-sm font-semibold text-slate-700 shadow-sm cursor-help">
+              <Users className="w-3.5 h-3.5 text-[rgb(29,93,185)]" />
+              {room.capacity} Person{room.capacity > 1 ? "s" : ""}
+              <div className="absolute -top-8 left-1/2 -translate-x-1/2 px-2.5 py-1 bg-slate-800 text-white text-[10px] rounded-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+                Capacity
+              </div>
             </div>
-            <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/50 flex items-center gap-3">
-              <Check className={`w-5 h-5 ${room.drinkerAllowed ? "text-emerald-400" : "text-zinc-600"}`} />
-              <span className={room.drinkerAllowed ? "text-zinc-200" : "text-zinc-500 line-through"}>Drinking Allowed</span>
+
+            {/* Gender Preference */}
+            <div className="group relative flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-sm font-semibold text-slate-700 capitalize shadow-sm cursor-help">
+              <User className="w-3.5 h-3.5 text-[rgb(248,150,60)]" />
+              {room.genderPreference}
+              <div className="absolute -top-8 left-1/2 -translate-x-1/2 px-2.5 py-1 bg-slate-800 text-white text-[10px] rounded-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+                Gender Preference
+              </div>
+            </div>
+
+            {/* Cleanliness */}
+            <div className="group relative flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-sm font-semibold text-slate-700 capitalize shadow-sm cursor-help">
+              <Sparkles className="w-3.5 h-3.5 text-[rgb(46,219,244)]" />
+              {room.cleanlinessExpectation}
+              <div className="absolute -top-8 left-1/2 -translate-x-1/2 px-2.5 py-1 bg-slate-800 text-white text-[10px] rounded-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+                Cleanliness
+              </div>
+            </div>
+
+            {/* Guest Policy */}
+            <div className="group relative flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-sm font-semibold text-slate-700 capitalize shadow-sm cursor-help">
+              <Users className="w-3.5 h-3.5 text-indigo-500" />
+              {room.guestPolicy === "no" ? "No Guests" : `${room.guestPolicy} Guests`}
+              <div className="absolute -top-8 left-1/2 -translate-x-1/2 px-2.5 py-1 bg-slate-800 text-white text-[10px] rounded-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+                Guest Policy
+              </div>
+            </div>
+
+            {/* Smoking Policy */}
+            <div className={`group relative flex items-center gap-2 px-3.5 py-2 rounded-xl border text-sm font-semibold shadow-sm cursor-help ${room.smokerAllowed ? 'bg-emerald-50 border-emerald-100 text-emerald-700' : 'bg-red-50 border-red-100 text-red-700'}`}>
+              <Cigarette className="w-3.5 h-3.5" /> 
+              {room.smokerAllowed ? "Allowed" : "Not Allowed"}
+              <div className="absolute -top-8 left-1/2 -translate-x-1/2 px-2.5 py-1 bg-slate-800 text-white text-[10px] rounded-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+                Smoking Policy
+              </div>
+            </div>
+
+            {/* Drinking Policy */}
+            <div className={`group relative flex items-center gap-2 px-3.5 py-2 rounded-xl border text-sm font-semibold shadow-sm cursor-help ${room.drinkerAllowed ? 'bg-emerald-50 border-emerald-100 text-emerald-700' : 'bg-red-50 border-red-100 text-red-700'}`}>
+              <Wine className="w-3.5 h-3.5" /> 
+              {room.drinkerAllowed ? "Allowed" : "Not Allowed"}
+              <div className="absolute -top-8 left-1/2 -translate-x-1/2 px-2.5 py-1 bg-slate-800 text-white text-[10px] rounded-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+                Drinking Policy
+              </div>
             </div>
           </div>
 
-          <div className="h-px w-full bg-zinc-800" />
+          {/* Description Section */}
+          <div className="prose prose-slate prose-base max-w-none prose-p:leading-relaxed prose-p:text-slate-600 prose-strong:text-slate-800">
+            <p className="whitespace-pre-wrap">{room.description}</p>
+          </div>
+
+          {/* Owner Profile Card */}
+          <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[rgb(46,219,244)] to-[rgb(29,93,185)] p-[2px]">
+              <div className="w-full h-full rounded-[14px] bg-white overflow-hidden flex items-center justify-center">
+                {room.ownerId?.profilePicture ? (
+                  <img src={room.ownerId.profilePicture} alt="Owner" className="w-full h-full object-cover" />
+                ) : (
+                  <User className="w-6 h-6 text-slate-400" />
+                )}
+              </div>
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-0.5">
+                <h3 className="font-bold text-lg text-slate-900">{room.ownerId?.fullName || "Verified Owner"}</h3>
+                <Check className="w-3.5 h-3.5 text-emerald-500 bg-emerald-50 rounded-full p-0.5" />
+              </div>
+              <p className="text-xs font-medium text-slate-500 capitalize">{room.ownerId?.roleType || "Member"} • Joined recently</p>
+            </div>
+          </div>
 
           {/* Location Map Section */}
           {room.coordinates?.lat && room.coordinates?.lng && (
             <div className="space-y-4">
-              <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                <MapIcon className="w-5 h-5 text-indigo-400" /> Location map
-              </h2>
-              <RoomLocationViewerWrapper coordinates={room.coordinates} />
+              <h3 className="font-serif text-2xl tracking-tight text-slate-900">Neighborhood</h3>
+              <div className="rounded-2xl overflow-hidden border border-slate-200 shadow-sm h-[240px]">
+                <RoomLocationViewerWrapper coordinates={room.coordinates} />
+              </div>
             </div>
           )}
 
-          <div className="h-px w-full bg-zinc-800" />
-
-          {/* Owner Profile Snippet */}
-          <div>
-            <h2 className="text-xl font-bold text-white mb-6">Listed by</h2>
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-full bg-indigo-900/50 border border-indigo-500/30 flex items-center justify-center overflow-hidden">
-                {room.ownerId?.profilePicture ? (
-                  <img src={room.ownerId.profilePicture} alt="Owner" className="w-full h-full object-cover" />
-                ) : (
-                  <User className="w-8 h-8 text-indigo-400" />
-                )}
-              </div>
-              <div>
-                <h3 className="font-bold text-lg text-white">{room.ownerId?.fullName || "Verified Owner"}</h3>
-                <p className="text-zinc-400 capitalize">{room.ownerId?.roleType || "Member"} • ID Verified</p>
-              </div>
-            </div>
-          </div>
         </div>
 
-        {/* Right Column: Floating Action Card */}
-        <div className="lg:col-span-1">
-          <div className="sticky top-24 p-6 rounded-2xl bg-zinc-900 border border-zinc-800 shadow-2xl space-y-6">
-            
-            <div>
-              <p className="text-zinc-400 font-medium">Monthly Rent</p>
-              <div className="text-3xl font-bold text-white mt-1">Rs. {room.rentAmount.toLocaleString()}</div>
-              {room.deposit > 0 && (
-                <p className="text-sm text-zinc-500 mt-2">Deposit: Rs. {room.deposit.toLocaleString()}</p>
-              )}
-            </div>
 
-            {isOwner && (
-              <Link
-                href={`/rooms/${room.slug}/requests`}
-                className="w-full flex items-center justify-center gap-2 py-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition-all shadow-lg shadow-indigo-900/20"
-              >
-                <Users className="w-5 h-5" />
-                View Join Requests
-              </Link>
-            )}
-
-            {/* Signature Compatibility Feature CTA */}
-            {!isOwner && (
-              <Link
-                href={`/rooms/${room.slug}/match`}
-                className="group w-full p-4 rounded-xl bg-gradient-to-br from-indigo-600/20 to-purple-600/10 border border-indigo-500/30 hover:border-indigo-400 flex flex-col gap-3 transition-all"
-              >
-                <div className="flex items-center justify-between text-indigo-300 group-hover:text-indigo-200">
-                  <span className="font-bold flex items-center gap-2"><Zap className="w-5 h-5 fill-indigo-400 text-indigo-400" /> Check Compatibility</span>
-                  <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </div>
-                <p className="text-sm text-zinc-400">
-                  See how well your lifestyle and budget aligns with this room and owner. You can request to join after checking your compatibility match.
-                </p>
-              </Link>
-            )}
-
-            <div className="h-px w-full bg-zinc-800" />
-
-            <p className="text-xs text-center text-zinc-500 flex items-center justify-center gap-1.5">
-              <Shield className="w-4 h-4" /> Secure application process
-            </p>
-          </div>
+        {/* =========================================
+            RIGHT COLUMN: IMMERSIVE VISUALS
+        ========================================= */}
+        <div className="order-1 lg:order-2 lg:sticky lg:top-24">
+          <RoomImageGallery images={room.images || []} title={room.title} />
         </div>
+
       </div>
+
+      {/* =========================================
+          BOTTOM ACTION BAR
+      ========================================= */}
+      <RoomActionBottomBar roomSlug={room.slug} isOwner={isOwner} />
+
     </div>
   );
 }

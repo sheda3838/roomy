@@ -1,6 +1,6 @@
 import Link from "next/link";
-import CompatibilityVisual from "@/components/home/CompatibilityVisual";
 import { ArrowRight, Sparkles, Users, Zap, MessageCircle, ShieldCheck, Home } from "lucide-react";
+import HeroVisualEcosystem from "@/components/home/HeroVisualEcosystem";
 
 export default function HomePage() {
   return (
@@ -9,78 +9,51 @@ export default function HomePage() {
       {/* ═══════════════════════════════════════
           HERO
       ═══════════════════════════════════════ */}
-      <section className="relative min-h-screen flex items-center pt-28 pb-16 px-6 lg:px-16">
-
-        {/* Subtle background glows */}
+      <section className="relative min-h-[90vh] pt-24 pb-10 px-6 lg:px-16 bg-white overflow-hidden flex flex-col justify-center rounded-b-[40px] shadow-sm">
+        
+        {/* Subtle background glow */}
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-          <div className="absolute top-1/4 -left-32 w-[500px] h-[500px] bg-[rgb(46,219,244)] rounded-full opacity-[0.07] blur-[100px]" />
-          <div className="absolute bottom-1/4 -right-32 w-[500px] h-[500px] bg-[rgb(248,150,60)] rounded-full opacity-[0.07] blur-[100px]" />
+          <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-gradient-to-b from-[rgb(34,142,222)]/10 to-transparent blur-[80px]" />
         </div>
 
-        <div className="relative z-10 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center">
-
-          {/* ── Left: Editorial Copy ── */}
-          <div className="flex flex-col justify-center order-2 lg:order-1 text-center lg:text-left">
-
-            {/* Label */}
-            <div className="inline-flex items-center gap-2 self-center lg:self-start mb-7 px-3.5 py-1.5 rounded-full border border-[rgb(34,142,222)]/25 bg-[rgb(34,142,222)]/8 text-[rgb(29,93,185)] text-xs font-bold tracking-[0.15em] uppercase">
-              <Sparkles className="w-3.5 h-3.5" />
-              Compatibility-First Living
+        <div className="relative z-10 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-6 items-center">
+          
+          {/* ── Left: Cinematic Copy ── */}
+          <div className="flex flex-col justify-center order-2 lg:order-1 text-center lg:text-left pt-6 lg:pt-0">
+            
+            <div className="inline-flex items-center gap-2 self-center lg:self-start mb-6 px-4 py-2 rounded-full bg-slate-50/80 backdrop-blur-md border border-slate-200/60 shadow-sm text-slate-700 text-[11px] font-bold tracking-wider uppercase transition-all hover:bg-white hover:shadow-md cursor-default">
+              <Sparkles className="w-3 h-3 text-[rgb(46,219,244)]" />
+              AI-Powered Compatibility
             </div>
 
-            {/* Headline */}
-            <h1 className="font-serif text-5xl md:text-6xl xl:text-7xl leading-[0.92] tracking-[-0.03em] text-zinc-900 mb-6">
-              Compatible<br />
-              people.{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[rgb(34,142,222)] to-[rgb(29,93,185)]">
-                Better<br className="hidden lg:block" /> living.
-              </span>
+            <h1 className="font-sans font-bold tracking-tighter text-[48px] md:text-[60px] lg:text-[72px] xl:text-[80px] leading-[0.95] text-slate-900 mb-6">
+              Find the roommate<br />
+              that actually <span className="text-transparent bg-clip-text bg-gradient-to-r from-[rgb(46,219,244)] to-[rgb(29,93,185)]">fits your life.</span>
             </h1>
 
-            {/* Subline */}
-            <p className="text-lg text-zinc-500 font-medium leading-relaxed max-w-[480px] self-center lg:self-start mb-10">
-              Roomy intelligently matches you with rooms and roommates that truly fit your lifestyle — not just your budget.
+            <p className="text-base text-slate-500 font-medium leading-relaxed max-w-[460px] self-center lg:self-start mb-8">
+              Roomy goes beyond square footage and price. Our ecosystem matches you with people and places based on lifestyle, sleep schedules, and shared values.
             </p>
 
-            {/* CTAs */}
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
               <Link
                 href="/discover?tab=rooms"
-                className="w-full sm:w-auto text-center rounded-full bg-zinc-900 hover:bg-zinc-800 px-9 py-4 text-[15px] font-semibold text-white shadow-xl shadow-zinc-900/10 transition-all hover:scale-[1.03] active:scale-[0.98]"
+                className="w-full sm:w-auto text-center rounded-2xl bg-gradient-to-r from-[rgb(34,142,222)] to-[rgb(29,93,185)] hover:from-[rgb(29,93,185)] hover:to-[rgb(29,93,185)] px-7 py-3.5 text-sm font-bold text-white shadow-lg shadow-[rgb(29,93,185)]/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
               >
-                Find Rooms
+                Explore Rooms
               </Link>
               <Link
                 href="/discover?tab=people"
-                className="w-full sm:w-auto text-center rounded-full bg-white/80 hover:bg-white backdrop-blur-sm px-9 py-4 text-[15px] font-semibold text-zinc-800 shadow-sm border border-zinc-200/80 transition-all hover:scale-[1.03] active:scale-[0.98]"
+                className="w-full sm:w-auto text-center rounded-2xl bg-white hover:bg-slate-50 px-7 py-3.5 text-sm font-bold text-slate-700 shadow-sm border border-slate-200 transition-all hover:scale-[1.02] active:scale-[0.98]"
               >
                 Find Roommates
               </Link>
             </div>
-
-            {/* Social Proof */}
-            <div className="flex items-center gap-4 mt-10 justify-center lg:justify-start">
-              <div className="flex -space-x-2">
-                {[
-                  "bg-gradient-to-br from-[rgb(46,219,244)] to-[rgb(29,93,185)]",
-                  "bg-gradient-to-br from-[rgb(250,192,140)] to-[rgb(246,137,83)]",
-                  "bg-gradient-to-br from-[rgb(239,62,43)] to-[rgb(248,150,60)]",
-                  "bg-zinc-200",
-                ].map((bg, i) => (
-                  <div key={i} className={`w-8 h-8 rounded-full ${bg} border-2 border-[rgb(243,244,237)] flex items-center justify-center`}>
-                    <Users className="w-3 h-3 text-white" />
-                  </div>
-                ))}
-              </div>
-              <p className="text-sm text-zinc-500 font-medium">
-                <span className="font-bold text-zinc-800">2,400+</span> people matched this month
-              </p>
-            </div>
           </div>
 
-          {/* ── Right: Compatibility Dashboard Visual ── */}
-          <div className="order-1 lg:order-2 flex items-center justify-center">
-            <CompatibilityVisual />
+          {/* ── Right: Immersive Floating Ecosystem ── */}
+          <div className="order-1 lg:order-2">
+             <HeroVisualEcosystem />
           </div>
 
         </div>
@@ -225,23 +198,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════
-          FOOTER
-      ═══════════════════════════════════════ */}
-      <footer className="bg-[rgb(243,244,237)] border-t border-zinc-200 py-12 px-6 lg:px-16">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-2.5">
-            <img src="/logo.png" alt="Roomy" className="h-7 w-7 object-contain" />
-            <span className="text-xl font-bold font-serif text-zinc-900">Roomy</span>
-          </div>
-          <div className="flex gap-8 text-sm text-zinc-500 font-medium">
-            <Link href="/discover" className="hover:text-zinc-900 transition-colors">Discover</Link>
-            <Link href="/#how-it-works" className="hover:text-zinc-900 transition-colors">How it works</Link>
-            <Link href="/#faq" className="hover:text-zinc-900 transition-colors">FAQ</Link>
-          </div>
-          <p className="text-sm text-zinc-400">© 2026 Roomy. All rights reserved.</p>
-        </div>
-      </footer>
+
 
     </main>
   );

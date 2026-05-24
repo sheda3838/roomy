@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { verifyEmailToken } from "@/server/actions/verifyEmail";
@@ -9,7 +9,7 @@ import { CheckCircle, XCircle, Loader } from "lucide-react";
 
 type State = "loading" | "success" | "error";
 
-export default function VerifyEmailConfirmPage() {
+function VerifyEmailConfirmPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const token = searchParams.get("token");
@@ -108,5 +108,24 @@ export default function VerifyEmailConfirmPage() {
 
       </div>
     </div>
+  );
+}
+
+export default function VerifyEmailConfirmPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center py-12 px-4 bg-gray-50">
+        <div className="w-full max-w-md text-center">
+          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-indigo-50">
+            <Loader className="h-9 w-9 text-indigo-600 animate-spin" />
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-3">
+            Loading…
+          </h1>
+        </div>
+      </div>
+    }>
+      <VerifyEmailConfirmPageContent />
+    </Suspense>
   );
 }

@@ -43,8 +43,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(authResponse);
     }
 
-    // For any other private channels, block access for now
+    // Allow users to subscribe to their own personal notification channel
+    if (channelName === `private-user-${session.user.id}`) {
+      const authResponse = pusherServer.authorizeChannel(socketId, channelName);
+      return NextResponse.json(authResponse);
+    }
+
+    // Block everything else
     return new NextResponse("Forbidden", { status: 403 });
+
 
   } catch (error: any) {
     console.error("Pusher auth error:", error);

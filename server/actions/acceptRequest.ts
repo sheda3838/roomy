@@ -5,6 +5,8 @@ import { auth } from "@/lib/auth";
 import dbConnect from "@/lib/db";
 import Room from "@/models/Room";
 import RoomRequest from "@/models/RoomRequest";
+import { createNotification } from "@/server/services/notificationService";
+
 
 export async function acceptRequest(requestId: string) {
   if (!requestId || !mongoose.Types.ObjectId.isValid(requestId)) {
@@ -59,6 +61,15 @@ export async function acceptRequest(requestId: string) {
 
     request.status = "accepted";
     await request.save();
+
+    // Notify requester their request was accepted
+    await createNotification({
+      userId: request.fromUserId.toString(),
+      type: "request_accepted",
+      title: "Join Request Accepted! 🎉",
+      message: `Your request to join "${room.title}" has been accepted.`,
+      link: `/rooms/${room.slug}`,
+    });
 
     return { success: "Join request accepted successfully! Applicant added as occupant." };
   } catch (error: any) {
