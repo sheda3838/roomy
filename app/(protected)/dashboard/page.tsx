@@ -11,9 +11,12 @@ import {
   Home,
   Users,
   ArrowRight,
+  Edit2,
 } from "lucide-react";
 import type { Metadata } from "next";
 import UserAvatar from "@/components/shared/UserAvatar";
+import { getConnections } from "@/server/actions/getConnections";
+import ConnectionsModal from "@/components/dashboard/ConnectionsModal";
 
 export const metadata: Metadata = {
   title: "Dashboard | Roomy",
@@ -43,6 +46,9 @@ export default async function DashboardPage() {
   const displayName = user.fullName || session.user.name || "Roomy User";
   const avatarLetter = displayName[0]?.toUpperCase() ?? "R";
 
+  const connectionsRes = await getConnections();
+  const connections = connectionsRes.success ? connectionsRes.connections : [];
+
   return (
     <div className="min-h-screen w-full bg-[#f7f9ff] text-slate-900 flex flex-col">
 
@@ -52,18 +58,29 @@ export default async function DashboardPage() {
         <div className="absolute bottom-0 -right-32 w-[500px] h-[500px] bg-[rgb(248,150,60)] rounded-full opacity-[0.06] blur-[100px]" />
       </div>
 
-      <main className="flex-1 max-w-4xl w-full mx-auto px-4 py-10 relative z-10 space-y-8">
+      <main className="flex-1 max-w-4xl w-full mx-auto px-4 pt-28 pb-10 relative z-10 space-y-8">
 
         {/* Welcome Banner */}
-        <div className="flex items-start gap-4 p-6 bg-gradient-to-r from-[rgb(46,219,244)]/10 to-[rgb(29,93,185)]/10 border border-[rgb(34,142,222)]/20 rounded-2xl">
-          <CheckCircle className="h-6 w-6 text-[rgb(34,142,222)] flex-shrink-0 mt-0.5" />
-          <div>
-            <h2 className="text-lg font-bold text-slate-900">
-              Welcome back, {displayName.split(" ")[0]}!
-            </h2>
-            <p className="text-sm text-[rgb(29,93,185)]/70 mt-1">
-              Your profile and preferences are loaded. Start exploring rooms matched to your lifestyle.
-            </p>
+        <div className="flex items-start justify-between gap-4 p-6 bg-gradient-to-r from-[rgb(46,219,244)]/10 to-[rgb(29,93,185)]/10 border border-[rgb(34,142,222)]/20 rounded-2xl">
+          <div className="flex items-start gap-4">
+            <CheckCircle className="h-6 w-6 text-[rgb(34,142,222)] flex-shrink-0 mt-0.5" />
+            <div>
+              <h2 className="text-lg font-bold text-slate-900">
+                Welcome back, {displayName.split(" ")[0]}!
+              </h2>
+              <p className="text-sm text-[rgb(29,93,185)]/70 mt-1">
+                Your profile and preferences are loaded. Start exploring rooms matched to your lifestyle.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <ConnectionsModal connections={connections} />
+            <Link
+              href="/dashboard/edit"
+              className="flex items-center gap-1.5 px-4 py-2 bg-white text-[rgb(34,142,222)] text-sm font-bold rounded-xl border border-[rgb(34,142,222)]/20 shadow-sm hover:shadow-md transition-all whitespace-nowrap"
+            >
+              <Edit2 className="w-4 h-4" /> Edit Profile
+            </Link>
           </div>
         </div>
 
@@ -73,7 +90,7 @@ export default async function DashboardPage() {
           {/* Profile Card */}
           <div className="bg-white border border-slate-100 rounded-2xl p-6 flex flex-col items-center text-center shadow-sm">
             <UserAvatar
-              src={session.user.image}
+              src={user.profilePicture || session.user.image}
               alt={displayName}
               className="h-20 w-20 border-2 border-[rgb(34,142,222)]/30 shadow-xl mb-4"
             />

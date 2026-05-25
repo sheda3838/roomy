@@ -12,6 +12,7 @@ import {
   Briefcase,
   Moon,
   DollarSign,
+  GraduationCap,
 } from "lucide-react";
 
 interface TagType {
@@ -87,6 +88,14 @@ const TAGS: TagType[] = [
     y: "76%",
     color: "text-emerald-600 bg-emerald-50/90 border-emerald-200/60 shadow-sm",
     dotColor: "bg-emerald-400",
+  },
+  {
+    label: "Only Students",
+    icon: GraduationCap,
+    x: "65%",
+    y: "14%",
+    color: "text-orange-600 bg-orange-50/90 border-orange-200/60 shadow-sm",
+    dotColor: "bg-orange-400",
   },
 ];
 

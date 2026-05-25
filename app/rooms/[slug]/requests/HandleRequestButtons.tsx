@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Check, X, Loader2, MessageSquare } from "lucide-react";
 import { handleRequest } from "@/server/actions/handleRequest";
 import Link from "next/link";
+import { showErrorToast, showSuccessToast } from "@/lib/toast";
 
 interface HandleRequestButtonsProps {
   requestId: string;
@@ -23,26 +24,26 @@ export default function HandleRequestButtons({
   const [status, setStatus] = useState<"pending" | "accepted">(initialStatus);
   const [connectionId, setConnectionId] = useState<string | undefined>(initialConnectionId);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [errorMsg, setErrorMsg] = useState("");
 
   const onAction = async (action: "accept" | "reject") => {
     setIsProcessing(true);
-    setErrorMsg("");
     try {
       const res = await handleRequest(requestId, action);
       if (res.error) {
-        setErrorMsg(res.error);
+        showErrorToast("Action Failed", res.error);
       } else {
         if (action === "accept") {
           setStatus("accepted");
           if (res.connectionId) {
             setConnectionId(res.connectionId);
           }
+        } else {
+          showSuccessToast("Request Declined", "The request has been removed.");
         }
         router.refresh();
       }
     } catch (err: any) {
-      setErrorMsg("An unexpected error occurred.");
+      showErrorToast("Error", "An unexpected error occurred.");
     } finally {
       setIsProcessing(false);
     }
@@ -88,7 +89,6 @@ export default function HandleRequestButtons({
           Accept
         </button>
       </div>
-      {errorMsg && <p className="text-red-500 text-xs font-semibold text-center md:text-right mt-1">{errorMsg}</p>}
       {disabled && <p className="text-amber-500 text-xs font-semibold text-center md:text-right mt-1">Room is at full capacity</p>}
     </div>
   );

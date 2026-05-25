@@ -12,12 +12,24 @@ export async function POST(req: NextRequest) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    const body = await req.text();
-    const params = new URLSearchParams(body);
-    const socketId = params.get("socket_id") as string;
-    const channelName = params.get("channel_name") as string;
+    let socketId = "";
+    let channelName = "";
+
+    try {
+      const data = await req.formData();
+      socketId = data.get("socket_id") as string;
+      channelName = data.get("channel_name") as string;
+    } catch {
+      const body = await req.text();
+      const params = new URLSearchParams(body);
+      socketId = params.get("socket_id") as string;
+      channelName = params.get("channel_name") as string;
+    }
+
+    console.log("[Pusher Auth Request]", { socketId, channelName, userId: session.user.id });
 
     if (!socketId || !channelName) {
+      console.error("[Pusher Auth] Missing socketId or channelName");
       return new NextResponse("Missing socket_id or channel_name", { status: 400 });
     }
 
@@ -46,10 +58,12 @@ export async function POST(req: NextRequest) {
     // Allow users to subscribe to their own personal notification channel
     if (channelName === `private-user-${session.user.id}`) {
       const authResponse = pusherServer.authorizeChannel(socketId, channelName);
+      console.log("[Pusher Auth] Authorized personal channel", channelName);
       return NextResponse.json(authResponse);
     }
 
     // Block everything else
+    console.error("[Pusher Auth] Forbidden. Mismatch between channel and userId:", { channelName, expected: `private-user-${session.user.id}` });
     return new NextResponse("Forbidden", { status: 403 });
 
 

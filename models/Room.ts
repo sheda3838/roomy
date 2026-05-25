@@ -13,6 +13,7 @@ export interface IRoom extends Document {
   rentAmount: number;
   deposit?: number;
   capacity: number;
+  currentOccupants: number;
   occupantIds: mongoose.Types.ObjectId[];
   occupantsCount: number;
   
@@ -26,6 +27,7 @@ export interface IRoom extends Document {
     to: string;
   };
   genderPreference: "male" | "female" | "any";
+  occupationPreference: "student" | "worker" | "any";
   amenities?: string[];
 
   // System Fields
@@ -50,6 +52,7 @@ const RoomSchema = new Schema<IRoom>(
     rentAmount: { type: Number, required: true, min: 0 },
     deposit: { type: Number, min: 0 },
     capacity: { type: Number, required: true, min: 1 },
+    currentOccupants: { type: Number, default: 0, required: true },
     occupantIds: [{ type: Schema.Types.ObjectId, ref: "User", default: [] }],
     occupantsCount: { type: Number, default: 0, required: true },
     
@@ -73,6 +76,12 @@ const RoomSchema = new Schema<IRoom>(
     genderPreference: { 
       type: String, 
       enum: ["male", "female", "any"], 
+      default: "any", 
+      required: true 
+    },
+    occupationPreference: { 
+      type: String, 
+      enum: ["student", "worker", "any"], 
       default: "any", 
       required: true 
     },

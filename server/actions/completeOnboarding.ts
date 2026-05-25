@@ -41,6 +41,7 @@ export async function completeOnboarding(data: OnboardingInput) {
         preferredLocations: validatedData.preferredLocations,
         budgetMin: validatedData.budgetMin,
         budgetMax: validatedData.budgetMax,
+        profilePicture: validatedData.profilePicture || session.user.image, // fallback to existing session image if present
         isOnboardingComplete: true,
       },
       { new: true }

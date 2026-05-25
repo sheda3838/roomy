@@ -130,7 +130,7 @@ export default function NotificationsPage() {
         <div className="absolute bottom-0 -right-32 w-80 h-80 bg-[rgb(248,150,60)] rounded-full opacity-[0.05] blur-[80px]" />
       </div>
 
-      <div className="relative z-10 max-w-2xl mx-auto px-4 py-10">
+      <div className="relative z-10 max-w-2xl mx-auto px-4 pt-28 pb-10">
         
         {/* Header */}
         <div className="flex items-center justify-between mb-8">

@@ -145,11 +145,7 @@ export default function ConversationView({ connectionId }: ConversationViewProps
 
       {/* Messages Scroll Feed */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
-        {isLoadingMessages && conversationMessages.length === 0 ? (
-          <div className="h-full flex items-center justify-center text-slate-400">
-            <Loader2 className="w-6 h-6 animate-spin text-[rgb(34,142,222)]" />
-          </div>
-        ) : conversationMessages.length === 0 ? (
+        {conversationMessages.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-slate-400 p-6 text-center space-y-2.5">
             <div className="w-12 h-12 rounded-2xl bg-white border border-slate-100 flex items-center justify-center shadow-sm">
               <Send className="w-5 h-5 text-[rgb(34,142,222)]/70 rotate-45 -translate-x-0.5" />

@@ -12,6 +12,7 @@ export const metadata: Metadata = {
 export const revalidate = 60;
 
 export default async function DiscoverPage(props: { searchParams?: Promise<{ [key: string]: string | string[] | undefined }> }) {
+
   const searchParams = await props.searchParams;
   const currentTab = searchParams?.tab === "people" ? "people" : "rooms";
 
@@ -19,7 +20,7 @@ export default async function DiscoverPage(props: { searchParams?: Promise<{ [ke
     <div className="min-h-screen bg-[#f7f9ff] text-slate-900">
       
       {/* Hero Section */}
-      <div className="relative pt-20 pb-12 px-4 overflow-hidden border-b border-slate-100 bg-white">
+      <div className="relative pt-28 pb-12 px-4 overflow-hidden border-b border-slate-100 bg-white">
         {/* Soft brand glows */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[200px] bg-gradient-to-b from-[rgb(46,219,244)]/12 to-transparent blur-[60px] pointer-events-none rounded-full" />
         

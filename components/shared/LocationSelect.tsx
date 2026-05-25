@@ -192,6 +192,35 @@ export default function LocationSelect({
 
   return (
     <div ref={containerRef} className="relative w-full text-left">
+      {/* Multi-select chips container */}
+      {multiple && selectedValues.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 mb-3 p-3 bg-zinc-900/10 dark:bg-zinc-900/30 border border-zinc-200/40 dark:border-zinc-800/50 rounded-2xl">
+          {selectedValues.map((loc) => (
+            <span
+              key={loc}
+              className={cn(
+                "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all border",
+                isDark
+                  ? "bg-indigo-950/30 border-indigo-800/40 text-indigo-300 shadow-[0_2px_8px_rgba(99,102,241,0.1)]"
+                  : "bg-[rgb(34,142,222)]/8 border-[rgb(34,142,222)]/15 text-[rgb(29,93,185)] shadow-[0_2px_8px_rgba(34,142,222,0.06)]"
+              )}
+            >
+              {loc}
+              <button
+                type="button"
+                onClick={(e) => handleRemove(loc, e)}
+                className={cn(
+                  "rounded-full p-0.5 hover:bg-black/10 dark:hover:bg-white/10 transition-colors",
+                  isDark ? "text-indigo-400 hover:text-indigo-200" : "text-[rgb(34,142,222)] hover:text-[rgb(29,93,185)]"
+                )}
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+
       {/* Search Input Box */}
       <div className="relative flex items-center">
         <MapPin
@@ -307,34 +336,6 @@ export default function LocationSelect({
         )}
       </AnimatePresence>
 
-      {/* Multi-select chips container */}
-      {multiple && selectedValues.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 mt-3 p-3 bg-zinc-900/10 dark:bg-zinc-900/30 border border-zinc-200/40 dark:border-zinc-800/50 rounded-2xl">
-          {selectedValues.map((loc) => (
-            <span
-              key={loc}
-              className={cn(
-                "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all border",
-                isDark
-                  ? "bg-indigo-950/30 border-indigo-800/40 text-indigo-300 shadow-[0_2px_8px_rgba(99,102,241,0.1)]"
-                  : "bg-[rgb(34,142,222)]/8 border-[rgb(34,142,222)]/15 text-[rgb(29,93,185)] shadow-[0_2px_8px_rgba(34,142,222,0.06)]"
-              )}
-            >
-              {loc}
-              <button
-                type="button"
-                onClick={(e) => handleRemove(loc, e)}
-                className={cn(
-                  "rounded-full p-0.5 hover:bg-black/10 dark:hover:bg-white/10 transition-colors",
-                  isDark ? "text-indigo-400 hover:text-indigo-200" : "text-[rgb(34,142,222)] hover:text-[rgb(29,93,185)]"
-                )}
-              >
-                <X className="w-3 h-3" />
-              </button>
-            </span>
-          ))}
-        </div>
-      )}
     </div>
   );
 }

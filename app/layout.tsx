@@ -5,6 +5,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import FloatingChatProvider from "@/components/chat/FloatingChatProvider";
 import FloatingChatWidget from "@/components/chat/FloatingChatWidget";
+import RoomyToastProvider from "@/components/global/RoomyToastProvider";
 import "./globals.css";
 
 const quicksand = Quicksand({
@@ -37,6 +38,7 @@ export default function RootLayout({
             </main>
             <Footer />
             <FloatingChatWidget />
+            <RoomyToastProvider />
           </FloatingChatProvider>
         </SessionProvider>
       </body>

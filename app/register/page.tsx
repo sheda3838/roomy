@@ -5,6 +5,7 @@ import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { registerUser } from "@/server/actions/register";
 import { Mail } from "lucide-react";
+import { showErrorToast, showSuccessToast } from "@/lib/toast";
 
 // ─── Check Inbox Screen ───────────────────────────────────────────────────────
 function CheckInboxScreen({ email }: { email: string }) {
@@ -60,7 +61,6 @@ export default function RegisterPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [registered, setRegistered] = useState(false);
   const [submittedEmail, setSubmittedEmail] = useState("");
@@ -68,20 +68,20 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
 
     try {
       const result = await registerUser({ fullName: name, email, password });
 
       if (result?.error) {
-        setError(result.error);
+        showErrorToast("Registration Failed", result.error);
         setLoading(false);
       } else {
+        showSuccessToast("Account Created", "Check your email to verify your account.");
         setSubmittedEmail(email);
         setRegistered(true);
       }
     } catch (err) {
-      setError("An unexpected error occurred");
+      showErrorToast("Error", "An unexpected error occurred");
       setLoading(false);
     }
   };
@@ -125,12 +125,6 @@ export default function RegisterPage() {
         {/* Card */}
         <div className="bg-white px-8 py-8 shadow-xl shadow-slate-200/60 rounded-3xl border border-slate-100">
           <form className="space-y-5" onSubmit={handleSubmit}>
-            {error && (
-              <div className="rounded-xl bg-red-50 border border-red-100 p-4">
-                <p className="text-sm text-red-600 font-medium">{error}</p>
-              </div>
-            )}
-
             <div>
               <label htmlFor="name" className="block text-sm font-semibold text-slate-700 mb-1.5">
                 Full Name

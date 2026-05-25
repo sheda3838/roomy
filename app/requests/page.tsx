@@ -48,7 +48,7 @@ export default async function RequestsPage({
         <div className="absolute bottom-0 -right-32 w-80 h-80 bg-[rgb(248,150,60)] rounded-full opacity-[0.05] blur-[80px]" />
       </div>
 
-      <div className="relative z-10 max-w-4xl mx-auto px-4 py-10">
+      <div className="relative z-10 max-w-4xl mx-auto px-4 pt-28 pb-10">
         <header className="mb-8">
           <h1 className="text-2xl font-bold font-serif text-slate-900">Requests</h1>
           <p className="text-slate-400 text-sm mt-1">

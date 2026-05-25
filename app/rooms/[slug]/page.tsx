@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getRoomBySlug } from "@/server/actions/getRoomBySlug";
 import { auth } from "@/lib/auth";
-import { MapPin, Users, User, Check, Brush, Map as MapIcon, Bath, Wifi, Droplets, Sun, Moon, Cigarette, Wine, Wind, Flame, Car, Dumbbell, Shirt, CheckCircle } from "lucide-react";
+import { MapPin, Users, User, Check, Brush, Map as MapIcon, Bath, Wifi, Droplets, Sun, Moon, Cigarette, Wine, Wind, Flame, Car, Dumbbell, Shirt, CheckCircle, BookOpen, ShieldAlert } from "lucide-react";
 import RoomLocationViewerWrapper from "@/components/maps/RoomLocationViewerWrapper";
 import RoomImageGallery from "@/components/rooms/RoomImageGallery";
 import RoomActionBottomBar from "@/components/rooms/RoomActionBottomBar";
@@ -25,13 +25,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 const AMENITY_MAP: { [key: string]: { label: string; icon: any } } = {
-  wifi: { label: "High-Speed Wi-Fi", icon: Wifi },
-  washroom: { label: "Attached Washroom", icon: Bath },
-  ac: { label: "Air Conditioning", icon: Wind },
-  kitchen: { label: "Kitchen Access", icon: Flame },
-  parking: { label: "Free Parking", icon: Car },
-  gym: { label: "Gym / Fitness", icon: Dumbbell },
-  laundry: { label: "Laundry / Washer", icon: Shirt },
+  washroom: { label: "Attached washroom", icon: Bath },
+  ac: { label: "Air conditioning", icon: Wind },
+  kitchen: { label: "Kitchen access", icon: Flame },
+  parking: { label: "Parking", icon: Car },
+  laundry: { label: "Laundry", icon: Shirt },
+  study_table: { label: "Personal study table", icon: BookOpen },
 };
 
 export const revalidate = 60; // ISR 60 seconds
@@ -59,12 +58,22 @@ export default async function RoomDetailsPage({ params }: { params: Promise<{ sl
       {/* Decorative gradient blur */}
       <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-white to-transparent pointer-events-none" />
 
-      <div className="relative max-w-[1200px] mx-auto px-6 lg:px-10 py-10 lg:py-12 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
+      <div className="relative max-w-[1200px] mx-auto px-6 lg:px-10 pt-28 pb-10 lg:pt-32 lg:pb-12">
         
-        {/* =========================================
-            LEFT COLUMN: ROOM INFORMATION 
-        ========================================= */}
-        <div className="order-2 lg:order-1 space-y-10">
+        {/* Inactive Badge */}
+        {!room.isActive && (
+          <div className="bg-amber-100 border border-amber-200 px-4 py-3 rounded-2xl mb-8 flex items-center justify-center gap-2 text-amber-800 font-semibold text-sm">
+            <ShieldAlert className="w-4 h-4" />
+            This listing is currently deactivated and hidden from discovery.
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
+          
+          {/* =========================================
+              LEFT COLUMN: ROOM INFORMATION 
+          ========================================= */}
+          <div className="order-2 lg:order-1 space-y-10">
           
           {/* Header Section */}
           <div className="space-y-4">
@@ -102,7 +111,7 @@ export default async function RoomDetailsPage({ params }: { params: Promise<{ sl
             {/* Capacity */}
             <div className="group relative flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-sm font-semibold text-slate-700 shadow-sm cursor-help">
               <Users className="w-3.5 h-3.5 text-[rgb(29,93,185)]" />
-              {room.capacity} Person{room.capacity > 1 ? "s" : ""}
+              {(room.currentOccupants || 0) + room.occupantsCount} / {room.capacity} Filled
               <div className="absolute -top-8 left-1/2 -translate-x-1/2 px-2.5 py-1 bg-slate-800 text-white text-[10px] rounded-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
                 Capacity
               </div>
@@ -114,6 +123,15 @@ export default async function RoomDetailsPage({ params }: { params: Promise<{ sl
               {room.genderPreference}
               <div className="absolute -top-8 left-1/2 -translate-x-1/2 px-2.5 py-1 bg-slate-800 text-white text-[10px] rounded-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
                 Gender Preference
+              </div>
+            </div>
+
+            {/* Occupation Preference */}
+            <div className="group relative flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-sm font-semibold text-slate-700 capitalize shadow-sm cursor-help">
+              <BookOpen className="w-3.5 h-3.5 text-[rgb(34,142,222)]" />
+              {room.occupationPreference || "Any Occupation"}
+              <div className="absolute -top-8 left-1/2 -translate-x-1/2 px-2.5 py-1 bg-slate-800 text-white text-[10px] rounded-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+                Occupation Rule
               </div>
             </div>
 
@@ -222,14 +240,15 @@ export default async function RoomDetailsPage({ params }: { params: Promise<{ sl
         ========================================= */}
         <div className="order-1 lg:order-2 lg:sticky lg:top-24">
           <RoomImageGallery images={room.images || []} title={room.title} />
-        </div>
+          </div>
+      </div>
 
       </div>
 
       {/* =========================================
           BOTTOM ACTION BAR
       ========================================= */}
-      <RoomActionBottomBar roomSlug={room.slug} isOwner={isOwner} />
+      <RoomActionBottomBar roomSlug={room.slug} isOwner={isOwner} isActive={room.isActive} />
 
     </div>
   );

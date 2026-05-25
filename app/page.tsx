@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, Heart, Compass, Users, MessageCircle, ShieldCheck, Home } from "lucide-react";
 import HeroVisualCompatibility from "@/components/home/HeroVisualCompatibility";
-import FallingText from "@/components/ui/FallingText";
 
 export default function HomePage() {
   return (
@@ -73,15 +72,9 @@ export default function HomePage() {
               Not just a room.<br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[rgb(250,192,140)] to-[rgb(246,137,83)]">The right home.</span>
             </h2>
-            <div className="w-full text-slate-500 max-w-[520px] min-h-[220px] sm:min-h-[180px] md:min-h-[160px]">
-              <FallingText
-                text="Roomy goes beyond square footage and price. Our engine analyses sleep schedules, cleanliness habits, social preferences, and over 20 lifestyle dimensions to recommend people and rooms you'll actually enjoy sharing life with."
-                highlightWords={["beyond", "price", "schedules", "cleanliness", "habits", "social", "dimensions", "recommend", "enjoy"]}
-                highlightClass="text-[rgb(29,93,185)] font-bold"
-                trigger="hover"
-                fontSize="1.125rem"
-              />
-            </div>
+            <p className="text-zinc-500 leading-relaxed text-lg max-w-[520px]">
+              Roomy goes beyond square footage and price. Our engine analyses sleep schedules, cleanliness habits, social preferences, and over 20 lifestyle dimensions to recommend people and rooms you'll actually enjoy sharing life with.
+            </p>
           </div>
           <div className="grid grid-cols-2 gap-4">
             {[

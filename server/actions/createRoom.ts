@@ -28,7 +28,7 @@ export async function createRoom(data: CreateRoomInput) {
     const validation = createRoomSchema.safeParse(data);
     if (!validation.success) {
       const errorMsg = validation.error.issues.map((err) => err.message).join(", ");
-      return { error: `Validation failed: ${errorMsg}` };
+      return { error: errorMsg };
     }
 
     const validatedData = validation.data;

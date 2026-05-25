@@ -31,6 +31,7 @@ export const onboardingSchema = z
       .default([]),
     budgetMin: z.coerce.number().min(0, "Budget cannot be negative").optional(),
     budgetMax: z.coerce.number().min(0, "Budget cannot be negative").optional(),
+    profilePicture: z.string().optional(),
   })
   .refine(
     (data) => {

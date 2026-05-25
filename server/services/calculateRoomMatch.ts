@@ -9,6 +9,7 @@ export interface LightweightRoom {
   rentAmount: number;
   images: string[];
   capacity: number;
+  currentOccupants: number;
   occupantsCount: number;
   slug: string;
 }
@@ -40,8 +41,16 @@ export function filterEligibleRooms(user: IUser, rooms: IRoom[]): IRoom[] {
       }
     }
 
-    // 2. Capacity check
-    if (room.occupantsCount >= room.capacity) {
+    // 2. Occupation check: Strict hard rule
+    if (room.occupationPreference && room.occupationPreference !== "any") {
+      if (user.roleType && room.occupationPreference !== user.roleType) {
+        return false;
+      }
+    }
+
+    // 3. Capacity check
+    const totalOccupants = (room.currentOccupants || 0) + room.occupantsCount;
+    if (totalOccupants >= room.capacity) {
       return false;
     }
 
@@ -217,6 +226,7 @@ export function calculateRoomMatch(user: IUser, room: IRoom): MatchResult {
     rentAmount: room.rentAmount,
     images: room.images || [],
     capacity: room.capacity,
+    currentOccupants: room.currentOccupants || 0,
     occupantsCount: room.occupantsCount,
     slug: room.slug,
   };

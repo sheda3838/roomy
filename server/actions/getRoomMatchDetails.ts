@@ -58,6 +58,11 @@ export async function getRoomMatchDetails(slug: string) {
       sleep: {
         user: user.sleepType,
         room: "Not specified", // room schema doesn't currently specify sleep type, but we can display user's
+      },
+      occupation: {
+        user: user.roleType,
+        room: room.occupationPreference,
+        match: room.occupationPreference === "any" ? "neutral" : (user.roleType === room.occupationPreference ? "perfect" : "conflict"),
       }
     };
 
@@ -97,6 +102,7 @@ export async function getRoomMatchDetails(slug: string) {
     if (lifestyle.smoker.match === "conflict") possibleConflicts.push("You smoke, but room does not allow smoking");
     if (lifestyle.drinker.match === "conflict") possibleConflicts.push("You drink, but room does not allow drinking");
     if (lifestyle.guestPolicy.match === "perfect") positiveSignals.push("Perfect guest policy alignment");
+    if (lifestyle.occupation.match === "perfect") positiveSignals.push(`Matches occupation requirement (${lifestyle.occupation.room})`);
 
     let matchLabel = "Moderate Match";
     if (baseMatch.score >= 80) matchLabel = "Strong Match";

@@ -21,8 +21,11 @@ import {
   Home,
   CheckSquare,
   Loader2,
+  UploadCloud,
+  Image as ImageIcon,
 } from "lucide-react";
 import { completeOnboarding } from "@/server/actions/completeOnboarding";
+import { uploadImage } from "@/server/actions/uploadImage";
 import { type OnboardingInput } from "@/server/validations/onboarding";
 import LocationSelect from "@/components/shared/LocationSelect";
 import { cn } from "@/lib/utils";
@@ -34,6 +37,7 @@ export default function OnboardingPage() {
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [image, setImage] = useState<{ file?: File; url: string; isUploading: boolean } | null>(null);
 
   const [formData, setFormData] = useState<OnboardingInput>({
     gender: undefined as any,
@@ -47,6 +51,7 @@ export default function OnboardingPage() {
     preferredLocations: [],
     budgetMin: undefined,
     budgetMax: undefined,
+    profilePicture: undefined,
   });
 
   const updateField = (key: keyof OnboardingInput, value: any) => {
@@ -85,12 +90,46 @@ export default function OnboardingPage() {
       }
       return true;
     }
+    if (step === 4) {
+      // Step 4 is completely optional (profile picture)
+      return true;
+    }
     return false;
   };
 
   const handleNext = () => {
-    if (isStepValid() && step < 3) {
+    if (isStepValid() && step < 4) {
       setStep((prev) => prev + 1);
+    }
+  };
+
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files?.length) return;
+    const file = e.target.files[0];
+    
+    const imgObj = {
+      file,
+      url: URL.createObjectURL(file),
+      isUploading: true,
+    };
+    setImage(imgObj);
+
+    try {
+      const uploadData = new FormData();
+      uploadData.append("file", file);
+      const res = (await uploadImage(uploadData)) as { url?: string; error?: string };
+
+      if (res.error) {
+        console.error("Upload failed:", res.error);
+        setErrorMsg(res.error);
+        setImage(null);
+      } else if (res.url) {
+        setImage({ file, url: res.url, isUploading: false });
+        updateField("profilePicture", res.url);
+      }
+    } catch (err) {
+      console.error("Upload error:", err);
+      setImage(null);
     }
   };
 
@@ -102,6 +141,13 @@ export default function OnboardingPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // If the form is submitted (e.g., via Enter key) before the final step, just advance the step
+    if (step < 4) {
+      handleNext();
+      return;
+    }
+
     if (!isStepValid()) return;
 
     setIsSubmitting(true);
@@ -123,8 +169,14 @@ export default function OnboardingPage() {
         setErrorMsg(result.error);
         setIsSubmitting(false);
       } else {
-        await update({ isOnboardingComplete: true });
-        router.push("/dashboard");
+        // Wait for cookie update (max 1s) to prevent middleware race conditions
+        await Promise.race([
+          update({ isOnboardingComplete: true }).catch(console.error),
+          new Promise((resolve) => setTimeout(resolve, 1000))
+        ]);
+        
+        // Force a hard navigation to bypass router cache and ensure middleware reads the new cookie
+        window.location.href = "/dashboard";
       }
     } catch (err: any) {
       console.error(err);
@@ -168,7 +220,7 @@ export default function OnboardingPage() {
               </p>
             </div>
             <span className="text-xs font-semibold px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-full text-[rgb(29,93,185)]">
-              Step {step} of 3
+              Step {step} of 4
             </span>
           </div>
 
@@ -176,7 +228,7 @@ export default function OnboardingPage() {
           <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
             <motion.div
               className="h-full bg-gradient-to-r from-[rgb(46,219,244)] via-[rgb(34,142,222)] to-[rgb(29,93,185)]"
-              animate={{ width: `${(step / 3) * 100}%` }}
+              animate={{ width: `${(step / 4) * 100}%` }}
               transition={{ duration: 0.3 }}
             />
           </div>
@@ -483,6 +535,54 @@ export default function OnboardingPage() {
                   )}
                 </motion.div>
               )}
+
+              {/* STEP 4: PROFILE PICTURE (Optional) */}
+              {step === 4 && (
+                <motion.div
+                  key="step-4"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.2 }}
+                  className="space-y-6 flex flex-col items-center pt-4"
+                >
+                  <div className="text-center space-y-2 mb-4">
+                    <h2 className="text-xl font-bold text-slate-800">Add a Profile Picture</h2>
+                    <p className="text-sm text-slate-500 max-w-sm mx-auto">
+                      Profiles with pictures get 3x more responses. You can always change or add this later.
+                    </p>
+                  </div>
+
+                  <div className="w-full max-w-sm mx-auto">
+                    <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-slate-200 border-dashed rounded-3xl cursor-pointer bg-slate-50 hover:bg-slate-100/50 transition-all hover:border-[rgb(34,142,222)]/50 shadow-inner group overflow-hidden relative">
+                      {image ? (
+                        <>
+                          <img src={image.url} alt="Profile" className={cn("w-full h-full object-cover", image.isUploading && "opacity-50")} />
+                          {image.isUploading ? (
+                            <div className="absolute inset-0 flex items-center justify-center bg-white/20 backdrop-blur-[1px]">
+                              <Loader2 className="w-8 h-8 text-[rgb(29,93,185)] animate-spin" />
+                            </div>
+                          ) : (
+                            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <ImageIcon className="w-8 h-8 text-white mb-2" />
+                              <span className="text-white text-sm font-semibold">Change Photo</span>
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                          <UploadCloud className="w-10 h-10 mb-3 text-[rgb(34,142,222)] group-hover:scale-110 transition-transform" />
+                          <p className="text-sm text-slate-600 font-medium">
+                            <span className="font-bold text-[rgb(29,93,185)]">Click to upload</span>
+                          </p>
+                          <p className="text-xs text-slate-400 mt-1">PNG, JPG up to 5MB</p>
+                        </div>
+                      )}
+                      <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} disabled={image?.isUploading} />
+                    </label>
+                  </div>
+                </motion.div>
+              )}
             </AnimatePresence>
           </div>
 
@@ -501,10 +601,15 @@ export default function OnboardingPage() {
               <div /> // spacing placeholder
             )}
 
-            {step < 3 ? (
+            {step < 4 ? (
               <button
+                key="continue-btn"
                 type="button"
-                onClick={handleNext}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleNext();
+                }}
                 disabled={!isStepValid()}
                 className="flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-[rgb(34,142,222)] hover:bg-[rgb(29,93,185)] text-white font-bold shadow-md hover:shadow-[rgb(34,142,222)]/20 transition-all disabled:opacity-55 disabled:cursor-not-allowed cursor-pointer"
               >
@@ -512,8 +617,9 @@ export default function OnboardingPage() {
               </button>
             ) : (
               <button
+                key="submit-btn"
                 type="submit"
-                disabled={!isStepValid() || isSubmitting}
+                disabled={!isStepValid() || isSubmitting || image?.isUploading}
                 className="flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-gradient-to-r from-[rgb(34,142,222)] to-[rgb(29,93,185)] hover:from-[rgb(29,93,185)] hover:to-[rgb(29,93,185)] text-white font-bold shadow-lg hover:shadow-[rgb(29,93,185)]/20 transition-all disabled:opacity-55 disabled:cursor-not-allowed cursor-pointer"
               >
                 {isSubmitting ? (

@@ -56,7 +56,7 @@ export async function registerUser(formData: {
       // Log error but proceed since user was successfully written
       console.error("Error sending verification email to new user:", emailResult.error);
       return { 
-        success: "Account created successfully, but we encountered an issue sending the verification email. Please request a resend later." 
+        error: `Account created successfully, but we encountered an issue sending the verification email: ${emailResult.error}. Note: Since we are using the Resend sandbox, you can only send emails to the verified sender address. Please verify your domain in Resend or use the verified email address.` 
       };
     }
 

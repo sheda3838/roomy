@@ -4,18 +4,17 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { showErrorToast, showSuccessToast } from "@/lib/toast";
 
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
 
     try {
       const result = await signIn("credentials", {
@@ -25,14 +24,15 @@ export default function LoginPage() {
       });
 
       if (result?.error) {
-        setError("Invalid email or password");
+        showErrorToast("Sign In Failed", "Invalid email or password");
         setLoading(false);
       } else {
+        showSuccessToast("Welcome Back!", "Successfully signed into Roomy.");
         router.push("/dashboard");
         router.refresh();
       }
     } catch (err) {
-      setError("An unexpected error occurred");
+      showErrorToast("Error", "An unexpected error occurred");
       setLoading(false);
     }
   };
@@ -72,12 +72,6 @@ export default function LoginPage() {
         {/* Card */}
         <div className="bg-white px-8 py-8 shadow-xl shadow-slate-200/60 rounded-3xl border border-slate-100">
           <form className="space-y-5" onSubmit={handleSubmit}>
-            {error && (
-              <div className="rounded-xl bg-red-50 border border-red-100 p-4">
-                <p className="text-sm text-red-600 font-medium">{error}</p>
-              </div>
-            )}
-
             <div>
               <label htmlFor="email" className="block text-sm font-semibold text-slate-700 mb-1.5">
                 Email address

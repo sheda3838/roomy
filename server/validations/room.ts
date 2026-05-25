@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const createRoomSchema = z.object({
+export const baseRoomSchema = z.object({
   title: z
     .string({ message: "Title is required." })
     .min(3, "Title must be at least 3 characters.")
@@ -22,7 +22,10 @@ export const createRoomSchema = z.object({
   deposit: z.coerce.number().min(0, "Deposit cannot be negative.").optional(),
   capacity: z.coerce
     .number({ message: "Capacity is required." })
-    .min(1, "Capacity must be at least 1 occupants."),
+    .min(1, "Capacity must be at least 1 occupant."),
+  currentOccupants: z.coerce
+    .number({ message: "Current occupants count is required." })
+    .min(0, "Current occupants cannot be negative."),
   cleanlinessExpectation: z.enum(["low", "medium", "high"], {
     message: "Please select cleanliness expectation.",
   }),
@@ -44,10 +47,33 @@ export const createRoomSchema = z.object({
   genderPreference: z.enum(["male", "female", "any"], {
     message: "Please select gender preference.",
   }),
+  occupationPreference: z.enum(["student", "worker", "any"], {
+    message: "Please select occupation preference.",
+  }),
   amenities: z.array(z.string()).default([]),
 });
 
-export const editRoomSchema = createRoomSchema.partial();
+export const createRoomSchema = baseRoomSchema.superRefine((data, ctx) => {
+  if (data.currentOccupants >= data.capacity) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Current occupants must be strictly less than total capacity.",
+      path: ["currentOccupants"],
+    });
+  }
+});
+
+export const editRoomSchema = baseRoomSchema.partial().superRefine((data, ctx) => {
+  if (data.currentOccupants !== undefined && data.capacity !== undefined) {
+    if (data.currentOccupants >= data.capacity) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Current occupants must be strictly less than total capacity.",
+        path: ["currentOccupants"],
+      });
+    }
+  }
+});
 
 export type CreateRoomInput = z.infer<typeof createRoomSchema>;
 export type EditRoomInput = z.infer<typeof editRoomSchema>;

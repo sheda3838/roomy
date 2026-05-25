@@ -1,15 +1,28 @@
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 
-// Resend client initialization
-const resend = new Resend(process.env.RESEND_API_KEY);
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER, // e.g. "kamilzaid53@gmail.com"
+    pass: process.env.EMAIL_APP_PASSWORD, // 16-character App Password
+  },
+});
 
 export async function sendVerificationEmail(email: string, token: string) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const confirmLink = `${appUrl}/verify-email/confirm?token=${token}`;
 
   try {
-    const data = await resend.emails.send({
-      from: "Roomy <onboarding@resend.dev>", // Default sandbox sender. Replace with domain once verified in Resend.
+    if (process.env.NODE_ENV === "development") {
+      console.log("==========================================");
+      console.log("🛠️ DEVELOPMENT MODE: VERIFICATION EMAIL 🛠️");
+      console.log(`To: ${email}`);
+      console.log(`Verify Link: ${confirmLink}`);
+      console.log("==========================================");
+    }
+
+    const info = await transporter.sendMail({
+      from: `"Roomy" <${process.env.EMAIL_USER}>`,
       to: email,
       subject: "Verify your email address - Roomy",
       html: `
@@ -35,9 +48,9 @@ export async function sendVerificationEmail(email: string, token: string) {
       `,
     });
 
-    return { success: true, data };
-  } catch (error) {
-    console.error("Failed to send verification email:", error);
-    return { success: false, error };
+    return { success: true, data: info };
+  } catch (error: any) {
+    console.error("Failed to send verification email via Nodemailer:", error);
+    return { success: false, error: error.message };
   }
 }

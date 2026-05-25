@@ -40,9 +40,13 @@ export async function validateChatAccess(connectionId: string) {
     }
 
     // Identify the partner
-    const partnerId = connection.users.find(
-      (id) => id && id.toString().toLowerCase() !== userId.toLowerCase()
+    let partnerId = connection.users.find(
+      (id: any) => id && id.toString().toLowerCase() !== userId.toLowerCase()
     );
+    if (!partnerId && connection.users.length > 0) {
+      // Fallback for self-chats (testing)
+      partnerId = connection.users[0];
+    }
     
     let partner = null;
     if (partnerId) {
@@ -166,7 +170,11 @@ export async function getChatConnections() {
 
     // 2. Extract partner IDs and fetch users in a single batch query
     const partnerIds = connections
-      .map((conn: any) => conn.users.find((id: any) => id && id.toString().toLowerCase() !== userId.toLowerCase()))
+      .map((conn: any) => {
+        let pId = conn.users.find((id: any) => id && id.toString().toLowerCase() !== userId.toLowerCase());
+        if (!pId && conn.users.length > 0) pId = conn.users[0];
+        return pId;
+      })
       .filter(Boolean);
 
     const partners = await User.find({ _id: { $in: partnerIds } })
@@ -210,9 +218,12 @@ export async function getChatConnections() {
 
     // 5. Format the connections list
     const formatted = connections.map((conn: any) => {
-      const partnerId = conn.users.find(
+      let partnerId = conn.users.find(
         (id: any) => id && id.toString().toLowerCase() !== userId.toLowerCase()
       );
+      if (!partnerId && conn.users.length > 0) {
+        partnerId = conn.users[0];
+      }
       const partner = partnerId ? partnerMap.get(partnerId.toString()) : null;
       const lastMessage = lastMessageMap.get(conn._id.toString());
       const unreadCount = unreadCountMap.get(conn._id.toString()) || 0;

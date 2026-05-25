@@ -29,7 +29,12 @@ export async function getSuggestedRooms(limit: number = 20): Promise<{ error: st
 
     const roomsCursor = await Room.find({
       isActive: true,
-      $expr: { $lt: ["$occupantsCount", "$capacity"] },
+      $expr: { 
+        $lt: [
+          { $add: [{ $ifNull: ["$currentOccupants", 0] }, "$occupantsCount"] }, 
+          "$capacity"
+        ] 
+      },
       rentAmount: { $lte: budgetUpperBound },
     }).lean() as IRoom[];
 

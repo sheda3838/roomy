@@ -33,7 +33,7 @@ export async function editRoom(roomId: string, data: EditRoomInput) {
     const validation = editRoomSchema.safeParse(data);
     if (!validation.success) {
       const errorMsg = validation.error.issues.map((err) => err.message).join(", ");
-      return { error: `Validation failed: ${errorMsg}` };
+      return { error: errorMsg };
     }
 
     const validatedData = validation.data;

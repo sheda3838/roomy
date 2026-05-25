@@ -2,6 +2,7 @@
 
 import cloudinary from "@/lib/cloudinary";
 import { auth } from "@/lib/auth";
+import { PassThrough } from "stream";
 
 export async function uploadImage(formData: FormData) {
   try {
@@ -29,14 +30,16 @@ export async function uploadImage(formData: FormData) {
         (error, result) => {
           if (error) {
             console.error("Cloudinary upload error:", error);
-            resolve({ error: "Failed to upload image" });
+            resolve({ error: `Cloudinary error: ${error.message || JSON.stringify(error)}` });
           } else {
             resolve({ url: result?.secure_url });
           }
         }
       );
 
-      uploadStream.end(buffer);
+      const passThrough = new PassThrough();
+      passThrough.end(buffer);
+      passThrough.pipe(uploadStream);
     });
   } catch (error: any) {
     console.error("Upload Image Server Action Error:", error);

@@ -73,7 +73,7 @@ export default async function RoomRequestsPage({ params }: { params: Promise<{ s
   });
 
   return (
-    <div className="min-h-screen bg-[#f7f9ff] text-slate-900 py-10 px-4 relative overflow-hidden">
+    <div className="min-h-screen bg-[#f7f9ff] text-slate-900 pt-28 pb-10 px-4 relative overflow-hidden">
       {/* Background glows */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-0 -left-32 w-80 h-80 bg-[rgb(46,219,244)] rounded-full opacity-[0.05] blur-[80px]" />
