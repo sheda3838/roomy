@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 import { Check, X, Loader2 } from "lucide-react";
-import { acceptRequest } from "@/server/actions/acceptRequest";
-import { rejectRequest } from "@/server/actions/rejectRequest";
+import { handleRequest } from "@/server/actions/handleRequest";
 
 interface RoomRequestActionsProps {
   requestId: string;
@@ -24,8 +23,8 @@ export default function RoomRequestActions({
     if (atCapacity) return;
     setLoading(true);
     setError("");
-    const res = await acceptRequest(requestId);
-    if (res.success) {
+    const res = await handleRequest(requestId, "accept");
+    if (res.success || res.connectionId) {
       setResolved("accepted");
     } else {
       setError(res.error || "Failed to accept");
@@ -36,7 +35,7 @@ export default function RoomRequestActions({
   const handleReject = async () => {
     setLoading(true);
     setError("");
-    const res = await rejectRequest(requestId);
+    const res = await handleRequest(requestId, "reject");
     if (res.success) {
       setResolved("rejected");
     } else {

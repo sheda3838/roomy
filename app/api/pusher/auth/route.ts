@@ -12,19 +12,10 @@ export async function POST(req: NextRequest) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    let socketId = "";
-    let channelName = "";
-
-    try {
-      const data = await req.formData();
-      socketId = data.get("socket_id") as string;
-      channelName = data.get("channel_name") as string;
-    } catch {
-      const body = await req.text();
-      const params = new URLSearchParams(body);
-      socketId = params.get("socket_id") as string;
-      channelName = params.get("channel_name") as string;
-    }
+    const body = await req.text();
+    const params = new URLSearchParams(body);
+    const socketId = params.get("socket_id") as string;
+    const channelName = params.get("channel_name") as string;
 
     console.log("[Pusher Auth Request]", { socketId, channelName, userId: session.user.id });
 

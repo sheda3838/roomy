@@ -24,7 +24,9 @@ import {
   Activity,
   User,
   Coffee,
-  Info
+  Info,
+  Briefcase,
+  GraduationCap
 } from "lucide-react";
 import RequestToJoinButton from "@/components/rooms/RequestToJoinButton";
 import Counter from "@/components/ui/Counter";
@@ -272,7 +274,7 @@ export default function MatchExperienceClient({
                   <div className="flex items-baseline justify-center">
                     <Counter
                       value={match.score}
-                      places={[10, 1]}
+                      places={match.score === 100 ? [100, 10, 1] : [10, 1]}
                       fontSize={60}
                       padding={4}
                       gap={2}
@@ -829,6 +831,25 @@ function renderComparisonTrack(factor: any) {
     );
   }
 
+  if (factor.id === "occupation") {
+    return (
+      <div className="grid grid-cols-2 gap-4 pt-1">
+        <div className="flex flex-col items-center bg-slate-50 border border-slate-200/50 rounded-xl p-3">
+          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Your Status</span>
+          <span className="text-xs font-black text-slate-700 capitalize">
+            {factor.rawUserValue || "Not Set"}
+          </span>
+        </div>
+        <div className="flex flex-col items-center bg-slate-50 border border-slate-200/50 rounded-xl p-3">
+          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Room Preference</span>
+          <span className="text-xs font-black text-slate-700 capitalize">
+            {factor.rawRoomValue === "any" ? "Any (Flexible)" : factor.rawRoomValue || "Not Set"}
+          </span>
+        </div>
+      </div>
+    );
+  }
+
   if (factor.id === "guestPolicy") {
     return (
       <div className="grid grid-cols-2 gap-4 pt-1">
@@ -1058,6 +1079,27 @@ function buildFactors(match: any) {
         ? "Your guest policy preferences match the room rules. You are both on the same page regarding daytime visitors and overnight stays."
         : "The room has different rules regarding guests (e.g. sleepovers, number of guests allowed) than your preferences. Discuss during visit.",
   });
+
+  // Occupation Status
+  if (match.lifestyle.occupation?.user) {
+    const isWorker = match.lifestyle.occupation.user === "worker";
+    factors.push({
+      id: "occupation",
+      icon: isWorker ? <Briefcase className="w-5 h-5 text-emerald-500" /> : <GraduationCap className="w-5 h-5 text-[rgb(248,150,60)]" />,
+      label: "Occupation Status",
+      scoreLabel: "Lifestyle Requirement",
+      roomValue: match.lifestyle.occupation.room === "any" ? "Flexible (Any)" : match.lifestyle.occupation.room,
+      status: (match.lifestyle.occupation.match === "neutral" ? "partial" : match.lifestyle.occupation.match) as "perfect" | "partial" | "conflict",
+      badgeLabel: match.lifestyle.occupation.match === "perfect" ? "Aligned" : match.lifestyle.occupation.match === "conflict" ? "Conflict" : "Flexible",
+      rawUserValue: match.lifestyle.occupation.user,
+      rawRoomValue: match.lifestyle.occupation.room,
+      narrative: match.lifestyle.occupation.match === "perfect"
+        ? `Your occupation status (${match.lifestyle.occupation.user}) perfectly matches the room's specific requirement.`
+        : match.lifestyle.occupation.match === "conflict"
+        ? `Conflict: The room prefers a ${match.lifestyle.occupation.room}, but your status is ${match.lifestyle.occupation.user}.`
+        : "The room has no strict occupation requirements, making your status a flexible fit.",
+    });
+  }
 
   // Sleep Schedule
   if (match.lifestyle.sleep?.user) {

@@ -43,13 +43,13 @@ export default function RequestActions({ requestId }: RequestActionsProps) {
           <Check className="w-4 h-4" /> Accepted
         </div>
         {connectionId && (
-          <Link
+          <a
             href={`/chat/${connectionId}`}
             className="flex items-center gap-1.5 px-4 py-2 rounded-full text-white text-xs font-bold transition-all hover:scale-105 shadow-md"
             style={{ background: "linear-gradient(135deg, rgb(46,219,244), rgb(34,142,222), rgb(29,93,185))" }}
           >
             <MessageSquare className="w-3.5 h-3.5" /> Start Chat
-          </Link>
+          </a>
         )}
       </div>
     );

@@ -121,7 +121,13 @@ export default function NotificationBell() {
       );
       setUnreadCount((c) => Math.max(0, c - 1));
     }
-    if (notif.link) router.push(notif.link);
+    if (notif.link) {
+      if (notif.link.startsWith("/chat/")) {
+        window.location.href = notif.link;
+      } else {
+        router.push(notif.link);
+      }
+    }
   };
 
   const handleMarkAll = async () => {

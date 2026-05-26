@@ -292,7 +292,7 @@ export default function EditRoomForm({ initialData, roomId }: { initialData: any
                 <div className="rounded-3xl overflow-hidden border border-slate-200 shadow-inner h-[320px] md:h-[380px] bg-slate-50">
                   <RoomLocationPicker
                     onChange={(pos) => setValue("coordinates", pos, { shouldValidate: true })}
-                    initialPosition={initialData.coordinates}
+                    defaultLocation={initialData.coordinates}
                   />
                 </div>
               </div>

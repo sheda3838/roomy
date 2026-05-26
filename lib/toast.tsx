@@ -1,16 +1,16 @@
 import { toast } from "sonner";
-import { motion } from "framer-motion";
+import { motion, Variants } from "framer-motion";
 import { X } from "lucide-react";
 
 // --- ANIMATION VARIANTS ---
-const successDoorVariants = {
+const successDoorVariants: Variants = {
   initial: { scaleX: 1 },
   animate: {
     scaleX: [1, 0.15, 0.15, 0.15, 1],
     transition: { duration: 3, ease: "easeInOut", times: [0, 0.15, 0.85, 1] }
   }
 };
-const successLightVariants = {
+const successLightVariants: Variants = {
   initial: { opacity: 0 },
   animate: {
     opacity: [0, 1, 1, 1, 0],
@@ -18,14 +18,14 @@ const successLightVariants = {
   }
 };
 
-const errorDoorVariants = {
+const errorDoorVariants: Variants = {
   initial: { scaleX: 0.15 },
   animate: {
     scaleX: [0.15, 1, 1, 1, 0.15],
     transition: { duration: 3, ease: "easeInOut", times: [0, 0.15, 0.85, 1] }
   }
 };
-const errorShakeVariants = {
+const errorShakeVariants: Variants = {
   initial: { x: 0 },
   animate: {
     x: [0, -3, 3, -3, 3, 0],
@@ -33,7 +33,7 @@ const errorShakeVariants = {
   }
 };
 
-const infoPulseVariants = {
+const infoPulseVariants: Variants = {
   initial: { scale: 0.8, opacity: 0 },
   animate: {
     scale: [0.8, 1.2, 1],

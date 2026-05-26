@@ -82,7 +82,7 @@ export function calculateRoomMatch(user: IUser, room: IRoom): MatchResult {
   // 1. Lifestyle Matching (Max 50 points)
   // ==========================================
   
-  // Cleanliness (Max 15 pts)
+  // Cleanliness (Max 10 pts)
   if (user.cleanlinessLevel) {
     const levels = { low: 1, medium: 2, high: 3 };
     const userClean = levels[user.cleanlinessLevel];
@@ -90,13 +90,24 @@ export function calculateRoomMatch(user: IUser, room: IRoom): MatchResult {
     const diff = Math.abs(userClean - roomClean);
     
     if (diff === 0) {
-      score += 15;
+      score += 10;
       reasons.push("Perfect cleanliness match");
     } else if (diff === 1) {
-      score += 5;
+      score += 4;
     }
   } else {
     // Neutral fallback
+    score += 4;
+  }
+
+  // Occupation (Max 5 pts)
+  if (room.occupationPreference && room.occupationPreference !== "any") {
+    if (user.roleType === room.occupationPreference) {
+      score += 5;
+      reasons.push(`Matches occupation requirement (${room.occupationPreference})`);
+    }
+  } else {
+    // Room accepts any, so we grant the points by default
     score += 5;
   }
 

@@ -201,7 +201,7 @@ export default function OnboardingPage() {
     }`;
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-[#f7f9ff] text-slate-900 p-4 relative overflow-hidden">
+    <div className="min-h-screen w-full flex items-center justify-center bg-[#f7f9ff] text-slate-900 p-4 pt-28 relative overflow-hidden">
       {/* Background decorations */}
       <div className="absolute top-0 -left-4 w-96 h-96 bg-[rgb(46,219,244)]/10 rounded-full filter blur-[128px] opacity-30 animate-pulse"></div>
       <div className="absolute bottom-0 -right-4 w-96 h-96 bg-[rgb(248,150,60)]/8 rounded-full filter blur-[128px] opacity-30 animate-pulse"></div>

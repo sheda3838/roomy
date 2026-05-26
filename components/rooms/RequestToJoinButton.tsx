@@ -50,18 +50,11 @@ export default function RequestToJoinButton({ roomId, isOwner }: { roomId: strin
   }
 
   return (
-    <div className="w-full space-y-4">
-      <textarea
-        placeholder="Add a short message introducing yourself (optional)"
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        maxLength={500}
-        className="w-full p-4 rounded-xl bg-zinc-900 border border-zinc-800 text-white placeholder:text-zinc-500 focus:outline-none focus:border-indigo-500 transition-colors resize-none h-24"
-      />
+    <div className="w-full">
       <button
         onClick={handleRequest}
         disabled={isSubmitting}
-        className="w-full flex items-center justify-center gap-2 py-4 rounded-xl bg-white hover:bg-zinc-200 text-zinc-950 font-bold transition-all disabled:opacity-50"
+        className="w-full flex items-center justify-center gap-2 py-4 rounded-xl bg-gradient-to-r from-[rgb(34,142,222)] to-[rgb(29,93,185)] hover:from-[rgb(29,93,185)] hover:to-[rgb(29,93,185)] text-white font-bold shadow-lg hover:shadow-[rgb(29,93,185)]/20 transition-all disabled:opacity-50"
       >
         {isSubmitting ? (
           <><Loader2 className="w-5 h-5 animate-spin" /> Sending...</>
@@ -70,7 +63,7 @@ export default function RequestToJoinButton({ roomId, isOwner }: { roomId: strin
         )}
       </button>
       {status === "error" && (
-        <p className="text-red-400 text-sm mt-2 text-center">{errorMsg}</p>
+        <p className="text-red-500 text-sm mt-3 text-center font-semibold">{errorMsg}</p>
       )}
     </div>
   );

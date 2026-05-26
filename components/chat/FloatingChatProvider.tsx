@@ -88,6 +88,7 @@ export default function FloatingChatProvider({ children }: { children: React.Rea
   const activeConnectionIdRef = useRef<string | null>(null);
   const isOpenRef = useRef(false);
   const typingTimers = useRef<Record<string, NodeJS.Timeout>>({});
+  const subscribedChannelsRef = useRef<Set<string>>(new Set());
 
   // Keep refs up-to-date for Pusher callbacks
   useEffect(() => {
@@ -108,7 +109,22 @@ export default function FloatingChatProvider({ children }: { children: React.Rea
     try {
       const res = await getChatConnections();
       if (res.success && res.connections) {
-        setConnections(res.connections);
+        setConnections((prev) => {
+          // Merge to avoid losing placeholders that might not be returned due to DB lag
+          const newConns = [...res.connections];
+          prev.forEach((pConn) => {
+            if (!newConns.some((nc) => nc._id === pConn._id)) {
+              newConns.push(pConn);
+            } else if (pConn.partner) {
+               // Ensure partner details aren't lost if the new one is missing it
+               const idx = newConns.findIndex(nc => nc._id === pConn._id);
+               if (!newConns[idx].partner) newConns[idx].partner = pConn.partner;
+            }
+          });
+          return newConns.sort(
+            (a, b) => new Date(b.lastActiveTime).getTime() - new Date(a.lastActiveTime).getTime()
+          );
+        });
       }
     } catch (err) {
       console.error("refreshConnections error:", err);
@@ -318,29 +334,43 @@ export default function FloatingChatProvider({ children }: { children: React.Rea
     }
   }, []);
 
-  // Subscribe to real-time events via Pusher
+  // Global user channel subscription
+  useEffect(() => {
+    if (!session?.user?.id) return;
+
+    const pusher = getPusherClient();
+    const userId = session.user.id;
+    const userChannelName = `user-${userId}`;
+    let userChannel = pusher.channel(userChannelName);
+    
+    if (!userChannel) {
+      userChannel = pusher.subscribe(userChannelName);
+    }
+
+    const handleConnectionCreated = () => {
+      refreshConnections();
+    };
+
+    userChannel.bind("connection:created", handleConnectionCreated);
+
+    return () => {
+      userChannel?.unbind("connection:created", handleConnectionCreated);
+    };
+  }, [session?.user?.id, refreshConnections]);
+
+  // Dynamic chat channel subscriptions
   useEffect(() => {
     if (!session?.user?.id) return;
 
     const pusher = getPusherClient();
     const userId = session.user.id;
 
-    // 1. Subscribe to user-specific channel (for notifications, new connections)
-    const userChannelName = `user-${userId}`;
-    const userChannel = pusher.subscribe(userChannelName);
-
-    userChannel.bind("connection:created", () => {
-      // Re-fetch all connections to add the new one automatically
-      refreshConnections();
-    });
-
-    // 2. Subscribe to each chat channel
-    const subscribedChannels: string[] = [];
-    
     connections.forEach((conn) => {
       const chatChannelName = `private-chat-${conn._id}`;
+      if (subscribedChannelsRef.current.has(chatChannelName)) return;
+
+      subscribedChannelsRef.current.add(chatChannelName);
       const chatChannel = pusher.subscribe(chatChannelName);
-      subscribedChannels.push(chatChannelName);
 
       // Listen for new messages
       chatChannel.bind("message:new", (newMsg: MessageType) => {
@@ -349,8 +379,7 @@ export default function FloatingChatProvider({ children }: { children: React.Rea
 
         // Append message to cached conversation list
         setMessages((prev) => {
-          const list = prev[newMsg.connectionId];
-          if (!list) return prev; // If not loaded/cached, don't append
+          const list = prev[newMsg.connectionId] || [];
           if (list.some((m) => m._id === newMsg._id)) return prev; // Prevent duplicate
 
           // Look for matching optimistic message to replace it
@@ -364,16 +393,9 @@ export default function FloatingChatProvider({ children }: { children: React.Rea
           if (tempIndex !== -1) {
             const updatedList = [...list];
             updatedList[tempIndex] = newMsg;
-            return {
-              ...prev,
-              [newMsg.connectionId]: updatedList,
-            };
+            return { ...prev, [newMsg.connectionId]: updatedList };
           }
-
-          return {
-            ...prev,
-            [newMsg.connectionId]: [...list, newMsg],
-          };
+          return { ...prev, [newMsg.connectionId]: [...list, newMsg] };
         });
 
         // Update connection lastMessage and unread count
@@ -398,31 +420,27 @@ export default function FloatingChatProvider({ children }: { children: React.Rea
             return c;
           });
 
-          // Sort connections by last message activity
           return updated.sort(
             (a, b) => new Date(b.lastActiveTime).getTime() - new Date(a.lastActiveTime).getTime()
           );
         });
 
-        // If the chat is active and panel open, mark as read on database
         if (activeId === newMsg.connectionId && panelOpen && newMsg.senderId !== userId) {
           apiMarkAsRead(newMsg.connectionId).catch((err) => console.error("Error marking read:", err));
         }
 
-        // Clear typing indicator for partner when they send a message
         setPartnerTyping((prev) => ({ ...prev, [newMsg.connectionId]: false }));
       });
 
       // Listen for typing events
       chatChannel.bind("client-typing", (data: { userId: string; isTyping: boolean }) => {
-        if (data.userId === userId) return; // Ignore own typing events
+        if (data.userId === userId) return;
 
         setPartnerTyping((prev) => ({
           ...prev,
           [conn._id]: data.isTyping,
         }));
 
-        // Reset timer to auto-clear typing state after 3.5s of inactivity
         if (typingTimers.current[conn._id]) {
           clearTimeout(typingTimers.current[conn._id]);
         }
@@ -435,19 +453,7 @@ export default function FloatingChatProvider({ children }: { children: React.Rea
       });
     });
 
-    // Clean up subscriptions
-    return () => {
-      userChannel.unbind("connection:created");
-      pusher.unsubscribe(userChannelName);
-
-      subscribedChannels.forEach((chan) => {
-        pusher.unsubscribe(chan);
-      });
-
-      // Clear all typing timers
-      Object.values(typingTimers.current).forEach(clearTimeout);
-    };
-  }, [session?.user?.id, connections, refreshConnections]);
+  }, [session?.user?.id, connections]);
 
   return (
     <FloatingChatContext.Provider

@@ -7,6 +7,7 @@ import RoomRequest from "@/models/RoomRequest";
 import Room from "@/models/Room";
 import Connection from "@/models/Connection";
 import { pusherServer } from "@/lib/pusher";
+import { createNotification } from "@/server/services/notificationService";
 
 export async function handleRequest(requestId: string, action: "accept" | "reject") {
   if (!requestId || !mongoose.Types.ObjectId.isValid(requestId)) {
@@ -50,7 +51,7 @@ export async function handleRequest(requestId: string, action: "accept" | "rejec
       await request.save();
 
       // Trigger pusher event for the requester
-      await pusherServer.trigger(`user-${requesterIdStr}`, "request:update", {
+      await pusherServer.trigger(`private-user-${requesterIdStr}`, "request:update", {
         requestId: request._id,
         status: "rejected",
         roomId: room._id,
@@ -103,22 +104,31 @@ export async function handleRequest(requestId: string, action: "accept" | "rejec
       await room.save();
 
       // d) Trigger pusher events
-      await pusherServer.trigger(`user-${requesterIdStr}`, "request:update", {
+      await pusherServer.trigger(`private-user-${requesterIdStr}`, "request:update", {
         requestId: request._id,
         status: "accepted",
         roomId: room._id,
       });
 
-      await pusherServer.trigger(`user-${userId}`, "connection:created", {
+      await pusherServer.trigger(`private-user-${userId}`, "connection:created", {
         connectionId: newConnection._id,
         partnerId: requesterIdStr,
         roomId: room._id,
       });
 
-      await pusherServer.trigger(`user-${requesterIdStr}`, "connection:created", {
+      await pusherServer.trigger(`private-user-${requesterIdStr}`, "connection:created", {
         connectionId: newConnection._id,
         partnerId: userId,
         roomId: room._id,
+      });
+
+      // e) Create notification for requester
+      await createNotification({
+        userId: requesterIdStr,
+        type: "request_accepted",
+        title: "Join Request Accepted! 🎉",
+        message: `Your request to join "${room.title}" has been accepted.`,
+        link: `/chat/${newConnection._id.toString()}`,
       });
 
       return { 

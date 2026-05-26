@@ -138,7 +138,7 @@ export async function handleRoommateRequestAction(requestId: string, action: "ac
         type: "request_accepted",
         title: "Roommate Request Accepted! 🎉",
         message: `You are now connected! Start a conversation.`,
-        link: `/messages`,
+        link: `/chat/${newConnection._id.toString()}`,
       });
 
       return { success: true, connectionId: newConnection._id.toString() };

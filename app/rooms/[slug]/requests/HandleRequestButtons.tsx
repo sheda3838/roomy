@@ -53,13 +53,13 @@ export default function HandleRequestButtons({
     return (
       <div className="flex flex-col gap-2 w-full">
         {connectionId ? (
-          <Link
+          <a
             href={`/chat/${connectionId}`}
             className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-white font-bold transition-all shadow-md roomy-gradient hover:scale-[1.02] active:scale-[0.98] cursor-pointer text-sm w-full md:w-auto"
           >
             <MessageSquare className="w-4 h-4" />
             Chat Now
-          </Link>
+          </a>
         ) : (
           <div className="text-emerald-600 font-semibold flex items-center gap-1.5 justify-center md:justify-end text-sm">
             <Check className="w-4 h-4" /> Accepted

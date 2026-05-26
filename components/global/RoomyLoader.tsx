@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { motion } from "framer-motion";
+import { motion, Variants } from "framer-motion";
 
 interface RoomyLoaderProps {
   fullScreen?: boolean;
@@ -14,7 +14,7 @@ export default function RoomyLoader({ fullScreen = false, text = "Loading..." }:
   // Loop Duration
   const DURATION = 3.5;
 
-  const characterVariants = {
+  const characterVariants: Variants = {
     initial: { x: 40, opacity: 0, rotate: 0 },
     animate: {
       x: [40, 160, 160, 160, 160, 160, 40],
@@ -29,7 +29,7 @@ export default function RoomyLoader({ fullScreen = false, text = "Loading..." }:
     },
   };
 
-  const shadowVariants = {
+  const shadowVariants: Variants = {
     initial: { scale: 0, opacity: 0, x: 40 },
     animate: {
       scale: [0, 1, 1, 0.8, 1, 0, 0],
@@ -44,7 +44,7 @@ export default function RoomyLoader({ fullScreen = false, text = "Loading..." }:
     },
   };
 
-  const doorVariants = {
+  const doorVariants: Variants = {
     initial: { scaleX: 1 },
     animate: {
       scaleX: [1, 1, 0.15, 0.15, 1, 1],
@@ -57,7 +57,7 @@ export default function RoomyLoader({ fullScreen = false, text = "Loading..." }:
     },
   };
 
-  const lightVariants = {
+  const lightVariants: Variants = {
     initial: { opacity: 0, scale: 0.8 },
     animate: {
       opacity: [0, 0, 1, 1, 0, 0],
