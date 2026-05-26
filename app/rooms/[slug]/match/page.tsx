@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 export default async function MatchExperiencePage({ params }: { params: Promise<{ slug: string }> }) {
   const session = await auth();

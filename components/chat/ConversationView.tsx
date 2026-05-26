@@ -23,6 +23,7 @@ export default function ConversationView({ connectionId }: ConversationViewProps
   } = useFloatingChat();
 
   const [inputValue, setInputValue] = useState("");
+  const [isSending, setIsSending] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -93,7 +94,12 @@ export default function ConversationView({ connectionId }: ConversationViewProps
     isTypingRef.current = false;
     sendTypingStatus(connectionId, false);
 
-    await sendMessage(connectionId, content);
+    setIsSending(true);
+    try {
+      await sendMessage(connectionId, content);
+    } finally {
+      setIsSending(false);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -196,10 +202,14 @@ export default function ConversationView({ connectionId }: ConversationViewProps
           </div>
           <button
             type="submit"
-            disabled={!inputValue.trim()}
+            disabled={!inputValue.trim() || isSending}
             className="w-9 h-9 shrink-0 rounded-xl roomy-gradient text-white flex items-center justify-center disabled:opacity-40 disabled:scale-100 disabled:cursor-not-allowed hover:scale-105 active:scale-95 transition-all shadow-md shadow-indigo-100"
           >
-            <Send className="w-4 h-4 ml-0.5" />
+            {isSending ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Send className="w-4 h-4 ml-0.5" />
+            )}
           </button>
         </form>
       </footer>

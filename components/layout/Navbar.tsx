@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
@@ -9,8 +10,17 @@ import NotificationBell from "@/components/layout/NotificationBell";
 
 export default function Navbar() {
   const { status } = useSession();
+  const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+
+  const isActive = (path: string) => {
+    if (!pathname) return false;
+    if (path === "/") return pathname === "/";
+    if (path === "/discover") return pathname.startsWith("/discover") || pathname.startsWith("/rooms") || pathname.startsWith("/people");
+    if (path === "/dashboard") return pathname.startsWith("/dashboard") || pathname.startsWith("/profile") || pathname.startsWith("/messages");
+    return pathname.startsWith(path);
+  };
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -37,15 +47,36 @@ export default function Navbar() {
         </Link>
 
         {/* Desktop Center Links */}
-        <nav className="hidden md:flex items-center gap-7">
-          <Link href="/" className="text-[13px] font-semibold text-zinc-500 hover:text-zinc-900 transition-colors">
+        <nav className="hidden md:flex items-center gap-2">
+          <Link 
+            href="/" 
+            className={`px-3 py-1.5 rounded-full text-[13px] transition-all duration-300 ${
+              isActive("/") 
+                ? "text-[rgb(29,93,185)] bg-[rgb(34,142,222)]/10 font-bold shadow-sm" 
+                : "text-zinc-500 font-semibold hover:text-zinc-900 hover:bg-zinc-100/80"
+            }`}
+          >
             Home
           </Link>
-          <Link href="/discover" className="text-[13px] font-semibold text-zinc-500 hover:text-zinc-900 transition-colors">
+          <Link 
+            href="/discover" 
+            className={`px-3 py-1.5 rounded-full text-[13px] transition-all duration-300 ${
+              isActive("/discover") 
+                ? "text-[rgb(29,93,185)] bg-[rgb(34,142,222)]/10 font-bold shadow-sm" 
+                : "text-zinc-500 font-semibold hover:text-zinc-900 hover:bg-zinc-100/80"
+            }`}
+          >
             Discover
           </Link>
           {isAuthenticated && (
-            <Link href="/dashboard" className="text-[13px] font-semibold text-zinc-500 hover:text-zinc-900 transition-colors">
+            <Link 
+              href="/dashboard" 
+              className={`px-3 py-1.5 rounded-full text-[13px] transition-all duration-300 ${
+                isActive("/dashboard") 
+                  ? "text-[rgb(29,93,185)] bg-[rgb(34,142,222)]/10 font-bold shadow-sm" 
+                  : "text-zinc-500 font-semibold hover:text-zinc-900 hover:bg-zinc-100/80"
+              }`}
+            >
               My Profile
             </Link>
           )}
@@ -103,14 +134,44 @@ export default function Navbar() {
           isMobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-3 pointer-events-none"
         }`}
       >
-        <div className="flex flex-col p-5 gap-4">
-          <Link href="/" className="text-[15px] font-semibold text-zinc-900" onClick={() => setIsMobileMenuOpen(false)}>Home</Link>
-          <Link href="/discover" className="text-[15px] font-semibold text-zinc-900" onClick={() => setIsMobileMenuOpen(false)}>Discover</Link>
+        <div className="flex flex-col p-5 gap-2">
+          <Link 
+            href="/" 
+            className={`px-4 py-3 rounded-2xl text-[15px] transition-all duration-300 ${
+              isActive("/") 
+                ? "text-[rgb(29,93,185)] bg-[rgb(34,142,222)]/10 font-bold" 
+                : "text-zinc-600 font-semibold hover:text-zinc-900 hover:bg-zinc-50"
+            }`}
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            Home
+          </Link>
+          <Link 
+            href="/discover" 
+            className={`px-4 py-3 rounded-2xl text-[15px] transition-all duration-300 ${
+              isActive("/discover") 
+                ? "text-[rgb(29,93,185)] bg-[rgb(34,142,222)]/10 font-bold" 
+                : "text-zinc-600 font-semibold hover:text-zinc-900 hover:bg-zinc-50"
+            }`}
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            Discover
+          </Link>
           {isAuthenticated && (
-            <Link href="/dashboard" className="text-[15px] font-semibold text-zinc-900" onClick={() => setIsMobileMenuOpen(false)}>My Profile</Link>
+            <Link 
+              href="/dashboard" 
+              className={`px-4 py-3 rounded-2xl text-[15px] transition-all duration-300 ${
+                isActive("/dashboard") 
+                  ? "text-[rgb(29,93,185)] bg-[rgb(34,142,222)]/10 font-bold" 
+                  : "text-zinc-600 font-semibold hover:text-zinc-900 hover:bg-zinc-50"
+              }`}
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              My Profile
+            </Link>
           )}
 
-          <div className="h-px bg-zinc-200/60" />
+          <div className="h-px bg-zinc-200/60 my-2" />
 
           {isAuthenticated ? (
             <>

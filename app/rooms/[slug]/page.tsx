@@ -33,7 +33,7 @@ const AMENITY_MAP: { [key: string]: { label: string; icon: any } } = {
   study_table: { label: "Personal study table", icon: BookOpen },
 };
 
-export const revalidate = 60; // ISR 60 seconds
+export const dynamic = "force-dynamic";
 
 export default async function RoomDetailsPage({ params }: { params: Promise<{ slug: string }> }) {
   const p = await params;

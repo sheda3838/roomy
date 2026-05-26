@@ -29,6 +29,7 @@ export async function getSuggestedRooms(limit: number = 20): Promise<{ error: st
 
     const roomsCursor = await Room.find({
       isActive: true,
+      ownerId: { $ne: session.user.id },
       $expr: { 
         $lt: [
           { $add: [{ $ifNull: ["$currentOccupants", 0] }, "$occupantsCount"] }, 

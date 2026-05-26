@@ -18,6 +18,8 @@ export interface GetRoomsOptions {
   page?: number;
   limit?: number;
   filters?: GetRoomsFilters;
+  excludeOwnerId?: string;
+  ownerId?: string;
 }
 
 export async function getRooms(options: GetRoomsOptions = {}) {
@@ -30,6 +32,16 @@ export async function getRooms(options: GetRoomsOptions = {}) {
 
     // 1. Build the MongoDB query object dynamically
     const query: any = { isActive: true };
+
+    if (options.ownerId) {
+      // Fetch only these rooms (e.g. for "My Rooms")
+      // Also bypass isActive: true if we want to show draft/inactive rooms to the owner?
+      // For now, let's just query by ownerId
+      query.ownerId = options.ownerId;
+      delete query.isActive; // Allow the user to see their own inactive rooms
+    } else if (options.excludeOwnerId) {
+      query.ownerId = { $ne: options.excludeOwnerId };
+    }
 
     if (filters.locationText) {
       query.locationText = { $regex: filters.locationText, $options: "i" };

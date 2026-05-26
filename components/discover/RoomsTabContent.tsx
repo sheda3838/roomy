@@ -1,4 +1,5 @@
 import { getRooms } from "@/server/actions/getRooms";
+import { auth } from "@/lib/auth";
 import RoomCard from "@/components/ui/RoomCard";
 import Link from "next/link";
 import { Search } from "lucide-react";
@@ -9,6 +10,8 @@ interface RoomsTabContentProps {
 }
 
 export default async function RoomsTabContent({ searchParams }: RoomsTabContentProps) {
+  const session = await auth();
+
   // Convert searchParams to filters
   const filters: any = {};
   if (searchParams.city) filters.locationText = searchParams.city;
@@ -21,7 +24,12 @@ export default async function RoomsTabContent({ searchParams }: RoomsTabContentP
   if (searchParams.drinkerAllowed === "false") filters.drinkerAllowed = false;
   if (searchParams.guestPolicy) filters.guestPolicy = searchParams.guestPolicy;
   
-  const result = await getRooms({ page: 1, limit: 20, filters });
+  const result = await getRooms({ 
+    page: 1, 
+    limit: 20, 
+    filters,
+    excludeOwnerId: session?.user?.id 
+  });
   const rooms = result.success ? result.rooms : [];
 
   return (

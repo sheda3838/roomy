@@ -12,6 +12,7 @@ import {
   Users,
   ArrowRight,
   Edit2,
+  Building,
 } from "lucide-react";
 import type { Metadata } from "next";
 import UserAvatar from "@/components/shared/UserAvatar";
@@ -167,7 +168,7 @@ export default async function DashboardPage() {
         </div>
 
         {/* CTA Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <Link
             href="/discover"
             className="group p-6 bg-white border border-slate-100 hover:border-[rgb(34,142,222)]/40 rounded-2xl transition-all hover:-translate-y-1 hover:shadow-lg hover:shadow-[rgb(34,142,222)]/10 shadow-sm"
@@ -195,6 +196,21 @@ export default async function DashboardPage() {
             </h3>
             <p className="text-sm text-slate-400 mt-1">
               List your room and find compatible flatmates fast.
+            </p>
+          </Link>
+
+          <Link
+            href="/dashboard/my-rooms"
+            className="group p-6 bg-white border border-slate-100 hover:border-emerald-500/40 rounded-2xl transition-all hover:-translate-y-1 hover:shadow-lg hover:shadow-emerald-500/10 shadow-sm"
+          >
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center mb-4 shadow-md group-hover:scale-110 transition-transform">
+              <Building className="h-5 w-5 text-white" />
+            </div>
+            <h3 className="font-bold text-slate-900 group-hover:text-emerald-600 transition-colors flex items-center gap-1.5">
+              My Rooms <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </h3>
+            <p className="text-sm text-slate-400 mt-1">
+              Manage the rooms you have posted on Roomy.
             </p>
           </Link>
         </div>

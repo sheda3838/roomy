@@ -42,10 +42,10 @@ export async function getSuggestedPeople(filters?: any) {
 
     const excludeIds = [currentUserId, ...connectedUserIds].map(id => new mongoose.Types.ObjectId(id));
 
-    // 3. Build query for active seekers
+    // 3. Build query for active seekers with visible profiles
     const query: any = {
       _id: { $nin: excludeIds },
-      isActiveSeeker: true, // Only show people looking for roommates
+      isActiveSeeker: true,            // Only show people looking for roommates
       isOnboardingComplete: true,
     };
 
@@ -62,10 +62,14 @@ export async function getSuggestedPeople(filters?: any) {
       }
     }
 
+    console.log("[getSuggestedPeople] query:", JSON.stringify(query));
+
     // 4. Fetch potential roommates
     const potentialRoommates = await User.find(query)
       .select("fullName profilePicture roleType gender cleanlinessLevel sleepType smoker guestPolicy budgetMin budgetMax preferredLocations")
       .lean();
+
+    console.log(`[getSuggestedPeople] found ${potentialRoommates.length} people:`, potentialRoommates.map((u: any) => `${u.fullName}`));
 
     // 5. Run Matching Algorithm and filter out low matches (optional threshold)
     const scoredPeople: SuggestedPerson[] = potentialRoommates.map(partner => {

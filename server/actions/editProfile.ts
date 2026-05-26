@@ -4,7 +4,6 @@ import { auth } from "@/lib/auth";
 import dbConnect from "@/lib/db";
 import User from "@/models/User";
 import { editProfileSchema, type EditProfileInput } from "@/server/validations/profile";
-import { revalidatePath } from "next/cache";
 
 export async function editProfile(data: EditProfileInput) {
   try {
@@ -38,9 +37,6 @@ export async function editProfile(data: EditProfileInput) {
     if (!updatedUser) {
       return { error: "User not found or update failed." };
     }
-
-    revalidatePath("/dashboard");
-    revalidatePath(`/people/${session.user.id}`);
 
     return { success: "Profile updated successfully!" };
   } catch (error: any) {

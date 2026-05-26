@@ -3,13 +3,15 @@ import DiscoverTabs from "@/components/discover/DiscoverTabs";
 import RoomsTabContent from "@/components/discover/RoomsTabContent";
 import PeopleTabContent from "@/components/discover/PeopleTabContent";
 import { Heart } from "lucide-react";
+import { Suspense } from "react";
+import { RoomsGridSkeleton, UsersGridSkeleton } from "@/components/ui/Skeletons";
 
 export const metadata: Metadata = {
   title: "Discover | Roomy",
   description: "Find your perfect room or roommate.",
 };
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 export default async function DiscoverPage(props: { searchParams?: Promise<{ [key: string]: string | string[] | undefined }> }) {
 
@@ -46,9 +48,13 @@ export default async function DiscoverPage(props: { searchParams?: Promise<{ [ke
       {/* Main Content Area */}
       <div className="max-w-[1400px] mx-auto px-4 py-8">
         {currentTab === "rooms" ? (
-          <RoomsTabContent searchParams={searchParams || {}} />
+          <Suspense fallback={<div className="flex flex-col md:flex-row gap-8 items-start"><div className="hidden md:block w-72 h-[600px] bg-white rounded-3xl animate-pulse"></div><div className="flex-1 w-full"><RoomsGridSkeleton /></div></div>}>
+            <RoomsTabContent searchParams={searchParams || {}} />
+          </Suspense>
         ) : (
-          <PeopleTabContent searchParams={searchParams || {}} />
+          <Suspense fallback={<div className="flex flex-col md:flex-row gap-8 items-start"><div className="hidden md:block w-72 h-[600px] bg-white rounded-3xl animate-pulse"></div><div className="flex-1 w-full"><UsersGridSkeleton /></div></div>}>
+            <PeopleTabContent searchParams={searchParams || {}} />
+          </Suspense>
         )}
       </div>
       
