@@ -43,12 +43,16 @@ export async function getRoomMatchDetails(slug: string) {
       smoker: {
         user: user.smoker,
         roomAllowed: room.smokerAllowed,
-        match: user.smoker && !room.smokerAllowed ? "conflict" : "perfect",
+        match: (user.smoker && !room.smokerAllowed) ? "conflict" 
+             : (!user.smoker && room.smokerAllowed) ? "partial" 
+             : "perfect",
       },
       drinker: {
         user: user.drinker,
         roomAllowed: room.drinkerAllowed,
-        match: user.drinker && !room.drinkerAllowed ? "conflict" : "perfect",
+        match: (user.drinker && !room.drinkerAllowed) ? "conflict"
+             : (!user.drinker && room.drinkerAllowed) ? "partial"
+             : "perfect",
       },
       guestPolicy: {
         user: user.guestPolicy,
@@ -63,6 +67,11 @@ export async function getRoomMatchDetails(slug: string) {
         user: user.roleType,
         room: room.occupationPreference,
         match: room.occupationPreference === "any" ? "neutral" : (user.roleType === room.occupationPreference ? "perfect" : "conflict"),
+      },
+      gender: {
+        user: user.gender,
+        room: room.genderPreference,
+        match: room.genderPreference === "any" ? "neutral" : (user.gender === room.genderPreference ? "perfect" : "conflict"),
       }
     };
 
@@ -100,9 +109,12 @@ export async function getRoomMatchDetails(slug: string) {
 
     if (lifestyle.cleanliness.match === "perfect") positiveSignals.push("Aligned on cleanliness expectations");
     if (lifestyle.smoker.match === "conflict") possibleConflicts.push("You smoke, but room does not allow smoking");
+    if (lifestyle.smoker.match === "partial") possibleConflicts.push("Room allows smoking, but you don't smoke");
     if (lifestyle.drinker.match === "conflict") possibleConflicts.push("You drink, but room does not allow drinking");
+    if (lifestyle.drinker.match === "partial") possibleConflicts.push("Room allows drinking, but you don't drink");
     if (lifestyle.guestPolicy.match === "perfect") positiveSignals.push("Perfect guest policy alignment");
     if (lifestyle.occupation.match === "perfect") positiveSignals.push(`Matches occupation requirement (${lifestyle.occupation.room})`);
+    if (lifestyle.gender.match === "perfect") positiveSignals.push(`Matches gender requirement (${lifestyle.gender.room})`);
 
     let matchLabel = "Moderate Match";
     if (baseMatch.score >= 80) matchLabel = "Strong Match";

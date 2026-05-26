@@ -93,11 +93,11 @@ export function calculateRoomMatch(user: IUser, room: IRoom): MatchResult {
       score += 10;
       reasons.push("Perfect cleanliness match");
     } else if (diff === 1) {
-      score += 4;
+      score += 5;
     }
   } else {
     // Neutral fallback
-    score += 4;
+    score += 5;
   }
 
   // Occupation (Max 5 pts)
@@ -115,11 +115,14 @@ export function calculateRoomMatch(user: IUser, room: IRoom): MatchResult {
   if (user.smoker !== undefined) {
     if (user.smoker && !room.smokerAllowed) {
       // User smokes, room doesn't allow -> strong penalty (0 pts added)
+    } else if (!user.smoker && room.smokerAllowed) {
+      score += 5; // Non-smoker in smoking room -> partial fit points
+      reasons.push("You are a non-smoker but the room allows smoking");
     } else if (!user.smoker && !room.smokerAllowed) {
       score += 10;
       reasons.push("Both prefer non-smoking");
     } else {
-      score += 10; // Neutral or smoker in allowed room
+      score += 10; // Smoker in allowed room
     }
   } else {
     score += 5;
@@ -128,12 +131,15 @@ export function calculateRoomMatch(user: IUser, room: IRoom): MatchResult {
   // Drinker (Max 10 pts)
   if (user.drinker !== undefined) {
     if (user.drinker && !room.drinkerAllowed) {
-      // Penalty
+      // Penalty (0 pts)
+    } else if (!user.drinker && room.drinkerAllowed) {
+      score += 5; // Non-drinker in drinking room -> partial fit points
+      reasons.push("You don't drink but the room allows drinking");
     } else if (!user.drinker && !room.drinkerAllowed) {
       score += 10;
       reasons.push("Both prefer no drinking");
     } else {
-      score += 10;
+      score += 10; // Drinker in allowed room
     }
   } else {
     score += 5;
@@ -161,6 +167,20 @@ export function calculateRoomMatch(user: IUser, room: IRoom): MatchResult {
     score += 5; // We don't have room sleep type directly, but if we did we'd match.
     // For now, we just give the points if they have a sleep type specified.
   }
+
+  // Gender Compatibility (Max 5 pts)
+  if (room.genderPreference && room.genderPreference !== "any") {
+    if (user.gender === room.genderPreference) {
+      score += 5;
+      reasons.push(`Matches gender requirement (${room.genderPreference})`);
+    } else {
+      reasons.push(`Gender mismatch`);
+    }
+  } else {
+    // Room accepts any gender, give full points
+    score += 5;
+  }
+
 
   // ==========================================
   // 2. Budget Matching (Max 25 points)
@@ -207,25 +227,11 @@ export function calculateRoomMatch(user: IUser, room: IRoom): MatchResult {
       score += 0;
     }
   } else {
-    // Neutral fallback if user hasn't set preferred locations
-    score += 10;
+    // No preferred locations specified, no points awarded
+    score += 0;
   }
 
-  // ==========================================
-  // 4. Bonus Signals (Max 5 points)
-  // ==========================================
-  // Freshness: created within last 7 days
-  const now = new Date();
-  const roomAgeDays = (now.getTime() - new Date(room.createdAt).getTime()) / (1000 * 60 * 60 * 24);
-  
-  if (roomAgeDays <= 7) {
-    score += 3; // Freshness boost
-  }
-  
-  // Active listing boost (implicit since we only query active rooms, but let's give a small baseline boost)
-  if (room.isActive) {
-    score += 2;
-  }
+
 
   // Cap score at 100
   score = Math.min(100, Math.round(score));

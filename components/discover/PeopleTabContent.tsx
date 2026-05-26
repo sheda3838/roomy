@@ -33,17 +33,17 @@ export default async function PeopleTabContent({ searchParams }: PeopleTabConten
             <p className="text-red-400">{error}</p>
           </div>
         ) : !people || people.length === 0 ? (
-          <div className="text-center py-20 border border-dashed border-zinc-800 rounded-3xl bg-zinc-950/50">
-            <div className="w-16 h-16 bg-zinc-900 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Search className="w-8 h-8 text-zinc-600" />
+          <div className="text-center py-20 border border-dashed border-slate-200 rounded-3xl bg-slate-50">
+            <div className="w-16 h-16 bg-white rounded-full shadow-sm flex items-center justify-center mx-auto mb-4 border border-slate-100">
+              <Search className="w-8 h-8 text-slate-400" />
             </div>
-            <h2 className="text-xl font-bold text-white mb-2">No active seekers found</h2>
-            <p className="text-zinc-500 max-w-md mx-auto mb-6">
+            <h2 className="text-xl font-bold text-slate-800 mb-2">No active seekers found</h2>
+            <p className="text-slate-500 max-w-md mx-auto mb-6">
               We couldn't find anyone matching your current filters.
             </p>
             <Link 
               href="/discover?tab=people" 
-              className="px-6 py-2 rounded-full bg-zinc-800 text-zinc-300 hover:bg-zinc-700 transition-colors"
+              className="px-6 py-2 rounded-full bg-slate-200 text-slate-700 hover:bg-slate-300 transition-colors font-medium inline-block"
             >
               Clear Filters
             </Link>

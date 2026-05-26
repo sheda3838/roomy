@@ -407,10 +407,12 @@ export default function MatchExperienceClient({
                           </p>
 
                           {/* Visual Match Bar comparison */}
-                          <div className="bg-white border border-slate-100 rounded-xl p-4 shadow-sm">
-                            <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-3">Alignment Comparison</h4>
-                            {renderComparisonTrack(factor)}
-                          </div>
+                          {factor.id !== "gender" && factor.id !== "sleep" && (
+                            <div className="bg-white border border-slate-100 rounded-xl p-4 shadow-sm">
+                              <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-3">Alignment Comparison</h4>
+                              {renderComparisonTrack(factor)}
+                            </div>
+                          )}
                         </div>
                       </motion.div>
                     )}
@@ -1036,12 +1038,19 @@ function buildFactors(match: any) {
     scoreLabel: "House Rule",
     roomValue: match.lifestyle.smoker.roomAllowed ? "Allowed" : "Not Allowed",
     status: match.lifestyle.smoker.match as "perfect" | "partial" | "conflict",
-    badgeLabel: match.lifestyle.smoker.match === "perfect" ? "Compatible" : "Conflict",
+    badgeLabel:
+      match.lifestyle.smoker.match === "perfect"
+        ? "Compatible"
+        : match.lifestyle.smoker.match === "partial"
+        ? "Partial Fit"
+        : "Conflict",
     rawUserValue: match.lifestyle.smoker.user,
     rawRoomValue: match.lifestyle.smoker.roomAllowed,
     narrative:
       match.lifestyle.smoker.match === "perfect"
         ? "Your smoking habits completely align with the room's policy. No smoke smell conflicts are expected."
+        : match.lifestyle.smoker.match === "partial"
+        ? "You are a non-smoker, but this room allows smoking. This might be a concern if you prefer a smoke-free environment."
         : "Conflict detected: You smoke, but this listing enforces a strict no-smoking policy. This is typically a firm boundary.",
   });
 
@@ -1053,12 +1062,19 @@ function buildFactors(match: any) {
     scoreLabel: "House Rule",
     roomValue: match.lifestyle.drinker.roomAllowed ? "Allowed" : "Not Allowed",
     status: match.lifestyle.drinker.match as "perfect" | "partial" | "conflict",
-    badgeLabel: match.lifestyle.drinker.match === "perfect" ? "Compatible" : "Conflict",
+    badgeLabel:
+      match.lifestyle.drinker.match === "perfect"
+        ? "Compatible"
+        : match.lifestyle.drinker.match === "partial"
+        ? "Partial Fit"
+        : "Conflict",
     rawUserValue: match.lifestyle.drinker.user,
     rawRoomValue: match.lifestyle.drinker.roomAllowed,
     narrative:
       match.lifestyle.drinker.match === "perfect"
         ? "Your drinking choices align perfectly with the house guidelines."
+        : match.lifestyle.drinker.match === "partial"
+        ? "You do not drink, but this room allows drinking. This could lead to a slight mismatch depending on your lifestyle preferences."
         : "Conflict detected: You drink, but this room does not allow alcohol. This rule conflict should be respected.",
   });
 
@@ -1098,6 +1114,26 @@ function buildFactors(match: any) {
         : match.lifestyle.occupation.match === "conflict"
         ? `Conflict: The room prefers a ${match.lifestyle.occupation.room}, but your status is ${match.lifestyle.occupation.user}.`
         : "The room has no strict occupation requirements, making your status a flexible fit.",
+    });
+  }
+
+  // Gender Compatibility
+  if (match.lifestyle.gender?.user) {
+    factors.push({
+      id: "gender",
+      icon: <User className="w-5 h-5 text-rose-400" />,
+      label: "Gender Preference",
+      scoreLabel: "Lifestyle Requirement",
+      roomValue: match.lifestyle.gender.room === "any" ? "Flexible (Any)" : match.lifestyle.gender.room,
+      status: (match.lifestyle.gender.match === "neutral" ? "perfect" : match.lifestyle.gender.match) as "perfect" | "partial" | "conflict",
+      badgeLabel: match.lifestyle.gender.match === "perfect" ? "Aligned" : match.lifestyle.gender.match === "conflict" ? "Conflict" : "Flexible",
+      rawUserValue: match.lifestyle.gender.user,
+      rawRoomValue: match.lifestyle.gender.room,
+      narrative: match.lifestyle.gender.match === "perfect"
+        ? `Your gender perfectly matches the room's specific requirement.`
+        : match.lifestyle.gender.match === "conflict"
+        ? `Conflict: The room prefers a ${match.lifestyle.gender.room}, but you are ${match.lifestyle.gender.user}.`
+        : "The room has no strict gender requirements, making you a perfect fit.",
     });
   }
 
