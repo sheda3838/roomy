@@ -72,6 +72,7 @@ export default async function MatchPage(props: { params: Promise<{ userId: strin
     reasons: matchResult.reasons,
     conflicts: matchResult.conflicts,
     facilityMatches: matchResult.facilityMatches,
+    locationMatches: matchResult.locationMatches,
   };
 
   return (

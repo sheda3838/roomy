@@ -10,82 +10,117 @@ export interface PeopleMatchResult {
     unmatched: string[];
     scorePercent: number;
   };
+  locationMatches?: {
+    matched: string[];
+    unmatched: string[];
+  };
 }
 
 /**
- * Calculates a compatibility score between two users based on lifestyle, budget, and role.
+ * Calculates a compatibility score between two users based on a strict 100-point absolute scale.
  */
 export function calculatePeopleMatch(userA: Partial<IUser>, userB: Partial<IUser>): PeopleMatchResult {
   let score = 0;
   const reasons: string[] = [];
   const conflicts: string[] = [];
 
-  const MAX_SCORE = 100;
-  let currentMaxPossible = 0;
+  // ==========================================
+  // 1. Lifestyle Matching (Max 55 points)
+  // ==========================================
 
-  // Helper to add score
-  const evaluate = (weight: number, isMatch: boolean, matchReason: string, conflictReason: string) => {
-    currentMaxPossible += weight;
-    if (isMatch) {
-      score += weight;
-      if (matchReason) reasons.push(matchReason);
-    } else {
-      if (conflictReason) conflicts.push(conflictReason);
-    }
-  };
-
-  // 1. Lifestyle - Cleanliness (Weight: 15)
+  // 1. Cleanliness (Max 10 pts)
   if (userA.cleanlinessLevel && userB.cleanlinessLevel) {
-    const isCleanMatch = userA.cleanlinessLevel === userB.cleanlinessLevel;
-    evaluate(
-      15, 
-      isCleanMatch, 
-      `Both prefer ${userA.cleanlinessLevel} cleanliness`, 
-      `Cleanliness mismatch (${userA.cleanlinessLevel} vs ${userB.cleanlinessLevel})`
-    );
-  }
-
-  // 2. Lifestyle - Sleep Type (Weight: 15)
-  if (userA.sleepType && userB.sleepType) {
-    evaluate(
-      15,
-      userA.sleepType === userB.sleepType,
-      userA.sleepType === "early" ? "Both are early birds" : "Both are night owls",
-      "Different sleep schedules"
-    );
-  }
-
-  // 3. Lifestyle - Smoker (Weight: 10)
-  if (userA.smoker !== undefined && userB.smoker !== undefined) {
-    // Both non-smokers is great. If both are smokers, it's also a match. 
-    // If one is and one isn't, it's a conflict.
-    evaluate(
-      10,
-      userA.smoker === userB.smoker,
-      userA.smoker ? "Both are comfortable with smoking" : "Both are non-smokers",
-      "Smoking preference mismatch"
-    );
-  }
-
-  // 4. Lifestyle - Guest Policy (Weight: 10)
-  if (userA.guestPolicy && userB.guestPolicy) {
-    evaluate(
-      10,
-      userA.guestPolicy === userB.guestPolicy,
-      `Similar guest policies (${userA.guestPolicy})`,
-      "Different preferences for having guests over"
-    );
-  }
-
-  // 5. Budget Overlap (Weight: 15)
-  if (userA.budgetMax && userB.budgetMax && userA.budgetMin !== undefined && userB.budgetMin !== undefined) {
-    // Check if budget ranges overlap at all
-    const overlaps = userA.budgetMin <= userB.budgetMax && userB.budgetMin <= userA.budgetMax;
+    const levels = { low: 1, medium: 2, high: 3 };
+    const aClean = levels[userA.cleanlinessLevel as keyof typeof levels] || 0;
+    const bClean = levels[userB.cleanlinessLevel as keyof typeof levels] || 0;
+    const diff = Math.abs(aClean - bClean);
     
-    // Check if they are highly aligned (within 20% of each other's max)
+    if (diff === 0) {
+      score += 10;
+      reasons.push(`Perfect cleanliness match (${userA.cleanlinessLevel})`);
+    } else if (diff === 1) {
+      score += 5;
+    } else {
+      conflicts.push(`Cleanliness conflict (${userA.cleanlinessLevel} vs ${userB.cleanlinessLevel})`);
+    }
+  }
+
+  // 2. Smoking (Max 10 pts)
+  if (userA.smoker !== undefined && userB.smoker !== undefined) {
+    if (userA.smoker === userB.smoker) {
+      score += 10;
+      reasons.push(userA.smoker ? "Both are smokers" : "Both prefer non-smoking");
+    } else {
+      conflicts.push("Smoking preference conflict");
+    }
+  }
+
+  // 3. Drinking (Max 10 pts)
+  if (userA.drinker !== undefined && userB.drinker !== undefined) {
+    if (userA.drinker === userB.drinker) {
+      score += 10;
+      reasons.push(userA.drinker ? "Both are drinkers" : "Both prefer no drinking");
+    } else {
+      conflicts.push("Drinking preference conflict");
+    }
+  }
+
+  // 4. Guest Policy (Max 10 pts)
+  if (userA.guestPolicy && userB.guestPolicy) {
+    const guestLevels = { no: 1, often: 2, regular: 3 };
+    const aGuest = guestLevels[userA.guestPolicy as keyof typeof guestLevels] || 0;
+    const bGuest = guestLevels[userB.guestPolicy as keyof typeof guestLevels] || 0;
+    const diff = Math.abs(aGuest - bGuest);
+    
+    if (diff === 0) {
+      score += 10;
+      reasons.push("Perfect guest policy match");
+    } else if (diff === 1) {
+      score += 5;
+    } else {
+      conflicts.push(`Guest policy conflict (${userA.guestPolicy} vs ${userB.guestPolicy})`);
+    }
+  }
+
+  // 5. Gender Match (Max 5 pts)
+  if (userA.gender && userB.gender) {
+    if (userA.gender === userB.gender) {
+      score += 5;
+      reasons.push("Aligned gender preference");
+    } else {
+      conflicts.push("Gender mismatch");
+    }
+  }
+
+  // 6. Sleep Schedule (Max 5 pts)
+  if (userA.sleepType && userB.sleepType) {
+    if (userA.sleepType === userB.sleepType) {
+      score += 5;
+      reasons.push("Aligned sleep schedule");
+    } else {
+      conflicts.push("Different sleep schedules");
+    }
+  }
+
+  // 7. Occupation/Role (Max 5 pts)
+  if (userA.roleType && userB.roleType) {
+    if (userA.roleType === userB.roleType) {
+      score += 5;
+      reasons.push("Matching occupation types");
+    } else {
+      conflicts.push("Different occupation types");
+    }
+  }
+
+  // ==========================================
+  // 2. Financial & Geography (Max 25 points)
+  // ==========================================
+
+  // 8. Budget Overlap (Max 15 pts)
+  if (userA.budgetMax && userB.budgetMax && userA.budgetMin !== undefined && userB.budgetMin !== undefined) {
+    const overlaps = userA.budgetMin <= userB.budgetMax && userB.budgetMin <= userA.budgetMax;
     const highlyAligned = overlaps && Math.abs(userA.budgetMax - userB.budgetMax) <= (userA.budgetMax * 0.2);
 
-    currentMaxPossible += 15;
     if (highlyAligned) {
       score += 15;
       reasons.push("Budgets are highly aligned");
@@ -97,27 +132,38 @@ export function calculatePeopleMatch(userA: Partial<IUser>, userB: Partial<IUser
     }
   }
 
-  // 6. Role Alignment (Weight: 10)
-  if (userA.roleType && userB.roleType) {
-    evaluate(
-      10,
-      userA.roleType === userB.roleType,
-      `Both are ${userA.roleType}s`,
-      "" // Not necessarily a conflict if a student lives with a worker, just no bonus points.
-    );
+  // 9. Location Match (Max 10 pts)
+  const locsA = userA.preferredLocations || [];
+  const locsB = userB.preferredLocations || [];
+  
+  const normalizeLoc = (str: string) => str.toLowerCase().replace(/[^a-z0-9]/g, "");
+  let matchedLocs: string[] = [];
+  let unmatchedLocs: string[] = [];
+  
+  let hasMatch = false;
+  
+  if (locsA.length > 0 && locsB.length > 0) {
+    for (const loc of locsA) {
+      const normLocA = normalizeLoc(loc);
+      if (locsB.some(l => normalizeLoc(l) === normLocA)) {
+        matchedLocs.push(loc);
+        hasMatch = true;
+      } else {
+        unmatchedLocs.push(loc);
+      }
+    }
   }
 
-  // 7. Gender Alignment (Weight: 5)
-  if (userA.gender && userB.gender) {
-    evaluate(
-      5,
-      userA.gender === userB.gender,
-      `Same gender preference`,
-      "Different genders"
-    );
+  if (hasMatch) {
+    score += 10;
+    reasons.push("Preferred geographic locations overlap");
+  } else {
+    conflicts.push("Looking for rooms in completely different areas or missing location preferences");
   }
 
-  // 8. Facilities Match (Weight: 20)
+  // ==========================================
+  // 3. Facilities (Max 20 points)
+  // ==========================================
   const facilitiesA = userA.preferredFacilities || [];
   const facilitiesB = userB.preferredFacilities || [];
   
@@ -127,9 +173,7 @@ export function calculatePeopleMatch(userA: Partial<IUser>, userB: Partial<IUser
   let facilityScorePercent = 0;
 
   if (allFacilities.size > 0) {
-    const unionCount = allFacilities.size;
     let matchCount = 0;
-
     for (const facility of allFacilities) {
       if (facilitiesA.includes(facility) && facilitiesB.includes(facility)) {
         matchCount++;
@@ -139,10 +183,9 @@ export function calculatePeopleMatch(userA: Partial<IUser>, userB: Partial<IUser
       }
     }
 
-    facilityScorePercent = Math.round((matchCount / unionCount) * 100);
-    const facilityPoints = (matchCount / unionCount) * 20;
-
-    currentMaxPossible += 20;
+    facilityScorePercent = Math.round((matchCount / allFacilities.size) * 100);
+    // +2 points for every shared facility
+    const facilityPoints = matchCount * 2;
     score += facilityPoints;
 
     if (facilityScorePercent === 100) {
@@ -156,13 +199,8 @@ export function calculatePeopleMatch(userA: Partial<IUser>, userB: Partial<IUser
     }
   }
 
-  // Normalize score to 100
-  let finalScore = 0;
-  if (currentMaxPossible > 0) {
-    finalScore = Math.round((score / currentMaxPossible) * MAX_SCORE);
-  } else {
-    finalScore = 50; // Default if no data to compare
-  }
+  // Cap absolute score at 100
+  let finalScore = Math.min(100, Math.round(score));
 
   return {
     userId: userB._id?.toString() || "",
@@ -173,6 +211,10 @@ export function calculatePeopleMatch(userA: Partial<IUser>, userB: Partial<IUser
       matched: matchedFacilities,
       unmatched: unmatchedFacilities,
       scorePercent: facilityScorePercent
-    } : undefined
+    } : undefined,
+    locationMatches: {
+      matched: matchedLocs,
+      unmatched: unmatchedLocs
+    }
   };
 }

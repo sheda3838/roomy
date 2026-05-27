@@ -45,6 +45,10 @@ interface UserCompatibilityClientProps {
       unmatched: string[];
       scorePercent: number;
     };
+    locationMatches?: {
+      matched: string[];
+      unmatched: string[];
+    };
   };
   connectionState: {
     isConnected: boolean;
@@ -144,30 +148,46 @@ export default function UserCompatibilityClient({
   const strokeOffset = circumference - (match.score / 100) * circumference;
 
   // Build roommate factors list
-  const factors = buildRoommateFactors(currentUser, targetUser, match.facilityMatches);
+  const factors = buildRoommateFactors(currentUser, targetUser, match.facilityMatches, match.locationMatches);
 
-  // Dynamic Dynamic Weighted Meters calculations
-  // 1. Lifestyle (Cleanliness, Sleep, Smoking, Guest Policy) = 50 points max
-  const cleanlinessMatch = currentUser.cleanlinessLevel === targetUser.cleanlinessLevel;
-  const sleepMatch = currentUser.sleepType === targetUser.sleepType;
-  const smokingMatch = currentUser.smoker === targetUser.smoker;
-  const guestMatch = currentUser.guestPolicy === targetUser.guestPolicy;
+  // 1. Lifestyle = 55 points max
+  // (Cleanliness 10, Sleep 5, Smoking 10, Drinking 10, Guest 10, Gender 5, Role 5)
+  const cleanLevels = { low: 1, medium: 2, high: 3 };
+  const aClean = cleanLevels[currentUser.cleanlinessLevel as keyof typeof cleanLevels] || 0;
+  const bClean = cleanLevels[targetUser.cleanlinessLevel as keyof typeof cleanLevels] || 0;
+  const cleanScore = Math.abs(aClean - bClean) === 0 ? 10 : Math.abs(aClean - bClean) === 1 ? 5 : 0;
 
-  const lifestyleScore = 
-    (cleanlinessMatch ? 15 : 0) +
-    (sleepMatch ? 15 : 0) +
-    (smokingMatch ? 10 : 0) +
-    (guestMatch ? 10 : 0);
-  const lifestylePercent = Math.round((lifestyleScore / 50) * 100);
+  const guestLevels = { no: 1, often: 2, regular: 3 };
+  const aGuest = guestLevels[currentUser.guestPolicy as keyof typeof guestLevels] || 0;
+  const bGuest = guestLevels[targetUser.guestPolicy as keyof typeof guestLevels] || 0;
+  const guestScore = Math.abs(aGuest - bGuest) === 0 ? 10 : Math.abs(aGuest - bGuest) === 1 ? 5 : 0;
 
-  // Gender Match
-  const genderMatch = currentUser.gender === targetUser.gender;
-  const genderPercent = genderMatch ? 100 : 0;
+  const sleepScore = currentUser.sleepType === targetUser.sleepType ? 5 : 0;
+  const smokingScore = currentUser.smoker === targetUser.smoker ? 10 : 0;
+  const drinkingScore = currentUser.drinker === targetUser.drinker ? 10 : 0;
+  const genderScore = currentUser.gender === targetUser.gender ? 5 : 0;
+  const roleScore = currentUser.roleType === targetUser.roleType ? 5 : 0;
 
-  // 2. Budget (Max overlap) = 15 points
+  const lifestyleScore = cleanScore + sleepScore + smokingScore + drinkingScore + guestScore + genderScore + roleScore;
+  const lifestylePercent = Math.round((lifestyleScore / 55) * 100);
+
+  // 2. Budget = 15 points
   const overlaps = currentUser.budgetMin <= targetUser.budgetMax && targetUser.budgetMin <= currentUser.budgetMax;
   const highlyAligned = overlaps && Math.abs(currentUser.budgetMax - targetUser.budgetMax) <= (currentUser.budgetMax * 0.2);
-  const budgetPercent = highlyAligned ? 100 : overlaps ? 70 : 20;
+  const budgetScore = highlyAligned ? 15 : overlaps ? 10 : 0;
+  const budgetPercent = Math.round((budgetScore / 15) * 100);
+
+  // 3. Location = 10 points
+  let locationScore = 0;
+  if (match.locationMatches && match.locationMatches.matched.length > 0) {
+    locationScore = 10;
+  }
+  const locationPercent = Math.round((locationScore / 10) * 100);
+
+  // 4. Facilities = 20 points max
+  // Note: match.facilityMatches.scorePercent is already a percentage, but to keep the weight visually accurate
+  // if they match 10 out of 10, scorePercent is 100, which is perfectly fine.
+  const facilitiesPercent = match.facilityMatches ? match.facilityMatches.scorePercent : 0;
 
   // 3. Role (Role type alignment) = 10 points
   const rolePercent = currentUser.roleType === targetUser.roleType ? 100 : 50;
@@ -589,15 +609,9 @@ export default function UserCompatibilityClient({
               color="from-[rgb(250,192,140)] to-[rgb(246,137,83)]"
             />
             <BreakdownMeter
-              label="Role Compatibility"
-              percent={rolePercent}
+              label="Location Proximity"
+              percent={locationPercent}
               weight="10% weight"
-              color="from-[rgb(239,62,43)] to-[rgb(248,150,60)]"
-            />
-            <BreakdownMeter
-              label="Gender Match"
-              percent={genderPercent}
-              weight="5% weight"
               color="from-[rgb(236,72,153)] to-[rgb(219,39,119)]"
             />
             {match.facilityMatches && (
@@ -988,6 +1002,30 @@ function renderComparisonTrack(factor: any) {
     );
   }
 
+  if (factor.id === "locations") {
+    const matched = factor.customData?.matched || [];
+    if (matched.length > 0) {
+      return (
+        <div className="pt-2">
+          <span className="text-[10px] text-emerald-600 font-bold uppercase tracking-wider block mb-2">Matched Locations</span>
+          <div className="flex flex-wrap gap-2">
+            {matched.map((loc: string, idx: number) => (
+              <div key={idx} className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 border border-emerald-100 rounded-full text-emerald-700 shadow-sm">
+                <MapPin className="w-3.5 h-3.5" />
+                <span className="text-xs font-bold">{loc}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+    return (
+      <div className="text-center py-2 text-xs font-semibold text-slate-400">
+        No overlapping locations.
+      </div>
+    );
+  }
+
   return (
     <div className="text-center py-2 text-xs font-semibold text-slate-400">
       Visual comparison not applicable for this factor.
@@ -1114,11 +1152,15 @@ function generateCompatibilityNarrative(score: number, user: any, partner: any) 
 
 // ─── FACTORS BUILDER ───
 
-function buildRoommateFactors(currentUser: any, targetUser: any, facilityMatches: any) {
+function buildRoommateFactors(currentUser: any, targetUser: any, facilityMatches: any, locationMatches: any) {
   const factors = [];
 
-  // Cleanliness
   const cleanlinessMatch = currentUser.cleanlinessLevel === targetUser.cleanlinessLevel;
+  const cleanLevels = { low: 1, medium: 2, high: 3 };
+  const aClean = cleanLevels[currentUser.cleanlinessLevel as keyof typeof cleanLevels] || 0;
+  const bClean = cleanLevels[targetUser.cleanlinessLevel as keyof typeof cleanLevels] || 0;
+  const cleanDiff = (!currentUser.cleanlinessLevel || !targetUser.cleanlinessLevel) ? -1 : Math.abs(aClean - bClean);
+  
   const cleanlinessLabels = {
     high: "Spotless (High)",
     medium: "Moderate (Medium)",
@@ -1130,8 +1172,8 @@ function buildRoommateFactors(currentUser: any, targetUser: any, facilityMatches
     label: "Cleanliness Expectation",
     scoreLabel: "Lifestyle Routine",
     targetValue: cleanlinessLabels[targetUser.cleanlinessLevel as "high" | "medium" | "low"] || "Moderate",
-    status: (cleanlinessMatch ? "perfect" : "partial") as "perfect" | "partial" | "conflict",
-    badgeLabel: cleanlinessMatch ? "Aligned" : "Differs",
+    status: cleanDiff === 0 ? "perfect" : cleanDiff === 1 ? "partial" : "conflict",
+    badgeLabel: cleanDiff === 0 ? "Aligned" : cleanDiff === 1 ? "Differs" : "Conflict",
     rawUserValue: currentUser.cleanlinessLevel,
     rawTargetValue: targetUser.cleanlinessLevel,
     narrative: cleanlinessMatch
@@ -1200,16 +1242,20 @@ function buildRoommateFactors(currentUser: any, targetUser: any, facilityMatches
       : "One of you drinks occasionally, while the other prefers an alcohol-free space. Make sure boundaries are understood.",
   });
 
-  // Guest Policy
   const guestMatch = currentUser.guestPolicy === targetUser.guestPolicy;
+  const guestLevels = { no: 1, often: 2, regular: 3 };
+  const aGuest = guestLevels[currentUser.guestPolicy as keyof typeof guestLevels] || 0;
+  const bGuest = guestLevels[targetUser.guestPolicy as keyof typeof guestLevels] || 0;
+  const guestDiff = (!currentUser.guestPolicy || !targetUser.guestPolicy) ? -1 : Math.abs(aGuest - bGuest);
+
   factors.push({
     id: "guestPolicy",
     icon: <Users className="w-5 h-5 text-indigo-500" />,
     label: "Guest Policy",
     scoreLabel: "Co-living Rules",
     targetValue: targetUser.guestPolicy || "Regular",
-    status: (guestMatch ? "perfect" : "partial") as "perfect" | "partial" | "conflict",
-    badgeLabel: guestMatch ? "Aligned" : "Differs",
+    status: guestDiff === 0 ? "perfect" : guestDiff === 1 ? "partial" : "conflict",
+    badgeLabel: guestDiff === 0 ? "Aligned" : guestDiff === 1 ? "Differs" : "Conflict",
     rawUserValue: currentUser.guestPolicy,
     rawTargetValue: targetUser.guestPolicy,
     narrative: guestMatch
@@ -1234,6 +1280,23 @@ function buildRoommateFactors(currentUser: any, targetUser: any, facilityMatches
     narrative: genderMatch
       ? "You share the same gender, which often provides mutual comfort and aligns with common co-living gender preferences."
       : "You are of different genders. While many co-live successfully, be sure you're both comfortable with a mixed-gender living arrangement.",
+  });
+
+  // Occupation/Role
+  const roleMatch = currentUser.roleType === targetUser.roleType;
+  factors.push({
+    id: "occupation",
+    icon: <Briefcase className="w-5 h-5 text-emerald-500" />,
+    label: "Occupation Status",
+    scoreLabel: "Lifestyle Requirement",
+    targetValue: targetUser.roleType ? targetUser.roleType.charAt(0).toUpperCase() + targetUser.roleType.slice(1) : "Not Set",
+    status: roleMatch ? "perfect" : "conflict",
+    badgeLabel: roleMatch ? "Aligned" : "Conflict",
+    rawUserValue: currentUser.roleType,
+    rawTargetValue: targetUser.roleType,
+    narrative: roleMatch
+      ? `You are both ${currentUser.roleType}s, which often aligns daily routines and financial perspectives.`
+      : `You are a ${currentUser.roleType || "Not set"} while they are a ${targetUser.roleType || "Not set"}. Different occupations can mean different waking hours or expectations.`,
   });
 
   // Facilities Preference
@@ -1265,6 +1328,30 @@ function buildRoommateFactors(currentUser: any, targetUser: any, facilityMatches
         : facilityMatches.scorePercent >= 50
         ? "You share most of the same facility requirements, making finding a shared space easier."
         : "You have significantly different facility expectations. Finding a place that satisfies both of your needs might be difficult.",
+    });
+  }
+
+  // Location Preference
+  if (locationMatches) {
+    const isPerfect = locationMatches.unmatched.length === 0 && locationMatches.matched.length > 0;
+    const hasOverlap = locationMatches.matched.length > 0;
+    
+    factors.push({
+      id: "locations",
+      icon: <MapPin className="w-5 h-5 text-red-500" />,
+      label: "Location Preferences",
+      scoreLabel: "Geography",
+      targetValue: targetUser.preferredLocations?.length > 0 ? targetUser.preferredLocations.join(", ") : "None specified",
+      status: (isPerfect ? "perfect" : hasOverlap ? "partial" : "conflict") as "perfect" | "partial" | "conflict",
+      badgeLabel: isPerfect ? "Perfect Match" : hasOverlap ? "Overlap" : "Mismatched",
+      rawUserValue: currentUser.preferredLocations?.join(", "),
+      rawTargetValue: targetUser.preferredLocations?.join(", "),
+      customData: {
+        matched: locationMatches.matched,
+      },
+      narrative: hasOverlap
+        ? `You both want to look for rooms in: ${locationMatches.matched.join(", ")}.`
+        : "You are looking to live in completely different areas. Commutes or preferences might clash.",
     });
   }
 

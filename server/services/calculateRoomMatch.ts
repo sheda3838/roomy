@@ -161,12 +161,7 @@ export function calculateRoomMatch(user: IUser, room: IRoom): MatchResult {
     score += 5;
   }
 
-  // Sleep Type Bonus (Max 5 pts)
-  // Just a bonus, no penalty for mismatch
-  if (user.sleepType) {
-    score += 5; // We don't have room sleep type directly, but if we did we'd match.
-    // For now, we just give the points if they have a sleep type specified.
-  }
+  // Sleep Type Bonus was removed from Room Matching based on new strict 100-pt alignment
 
   // Gender Compatibility (Max 5 pts)
   if (room.genderPreference && room.genderPreference !== "any") {
@@ -205,7 +200,7 @@ export function calculateRoomMatch(user: IUser, room: IRoom): MatchResult {
   }
 
   // ==========================================
-  // 3. Location Matching (Max 10 points)
+  // 3. Location Matching (Max 15 points)
   // ==========================================
   if (user.preferredLocations && user.preferredLocations.length > 0) {
     const roomLocNorm = normalizeString(room.locationText);
@@ -215,7 +210,7 @@ export function calculateRoomMatch(user: IUser, room: IRoom): MatchResult {
     for (const loc of user.preferredLocations) {
       const uLocNorm = normalizeString(loc);
       if (roomLocNorm === uLocNorm) {
-        score += 10;
+        score += 15;
         reasons.push(`Matches preferred location: ${loc}`);
         locationMatched = true;
         break;

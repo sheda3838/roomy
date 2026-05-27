@@ -32,13 +32,24 @@ export async function getRoomMatchDetails(slug: string) {
 
     // Structure granular data for the visual breakdown page
     
+    // Helper to calculate distance for graded policies
+    const getDistance = (val1: string, val2: string, map: Record<string, number>) => {
+      if (!val1 || !val2) return 0;
+      return Math.abs((map[val1] || 0) - (map[val2] || 0));
+    };
+
+    const cleanLevels = { low: 1, medium: 2, high: 3 };
+    const guestLevels = { no: 1, often: 2, regular: 3 };
+
     // 1. Lifestyle Breakdown
     const lifestyle = {
       cleanliness: {
         user: user.cleanlinessLevel,
         room: room.cleanlinessExpectation,
-        match: user.cleanlinessLevel === room.cleanlinessExpectation ? "perfect" 
-             : (user.cleanlinessLevel && room.cleanlinessExpectation) ? "partial" : "neutral",
+        match: !user.cleanlinessLevel || !room.cleanlinessExpectation ? "neutral"
+             : getDistance(user.cleanlinessLevel, room.cleanlinessExpectation, cleanLevels) === 0 ? "perfect"
+             : getDistance(user.cleanlinessLevel, room.cleanlinessExpectation, cleanLevels) === 1 ? "partial"
+             : "conflict",
       },
       smoker: {
         user: user.smoker,
@@ -57,7 +68,10 @@ export async function getRoomMatchDetails(slug: string) {
       guestPolicy: {
         user: user.guestPolicy,
         room: room.guestPolicy,
-        match: user.guestPolicy === room.guestPolicy ? "perfect" : "partial",
+        match: !user.guestPolicy || !room.guestPolicy ? "neutral"
+             : getDistance(user.guestPolicy, room.guestPolicy, guestLevels) === 0 ? "perfect"
+             : getDistance(user.guestPolicy, room.guestPolicy, guestLevels) === 1 ? "partial"
+             : "conflict",
       },
       sleep: {
         user: user.sleepType,

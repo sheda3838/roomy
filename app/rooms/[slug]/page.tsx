@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getRoomBySlug } from "@/server/actions/getRoomBySlug";
 import { auth } from "@/lib/auth";
@@ -171,8 +172,8 @@ export default async function RoomDetailsPage({ params }: { params: Promise<{ sl
           </div>
 
           {/* Owner Profile Card */}
-          <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[rgb(46,219,244)] to-[rgb(29,93,185)] p-[2px]">
+          <Link href={`/people/${ownerIdStr}`} className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow group">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[rgb(46,219,244)] to-[rgb(29,93,185)] p-[2px] group-hover:scale-105 transition-transform duration-300">
               <div className="w-full h-full rounded-[14px] bg-white overflow-hidden flex items-center justify-center">
                 <UserAvatar
                   src={room.ownerId?.profilePicture}
@@ -183,12 +184,12 @@ export default async function RoomDetailsPage({ params }: { params: Promise<{ sl
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-0.5">
-                <h3 className="font-bold text-lg text-slate-900">{room.ownerId?.fullName || "Verified Owner"}</h3>
+                <h3 className="font-bold text-lg text-slate-900 group-hover:text-[rgb(29,93,185)] transition-colors">{room.ownerId?.fullName || "Verified Owner"}</h3>
                 <Check className="w-3.5 h-3.5 text-emerald-500 bg-emerald-50 rounded-full p-0.5" />
               </div>
               <p className="text-xs font-medium text-slate-500 capitalize">{room.ownerId?.roleType || "Member"} • Joined recently</p>
             </div>
-          </div>
+          </Link>
 
           {/* Facilities Section */}
           {room.providedFacilities && room.providedFacilities.length > 0 && (

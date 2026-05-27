@@ -65,6 +65,7 @@ export default function MatchExperienceClient({
   // Cinematic scanner state
   const [isAnalyzing, setIsAnalyzing] = useState(true);
   const [progress, setProgress] = useState(0);
+  const [activeStage, setActiveStage] = useState(0);
   const [expandedFactor, setExpandedFactor] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -739,7 +740,7 @@ export default function MatchExperienceClient({
             <BreakdownMeter
               label="Location Proximity"
               percent={locationPercent}
-              weight="10% weight"
+              weight="15% weight"
               color="from-[rgb(239,62,43)] to-[rgb(248,150,60)]"
             />
             <BreakdownMeter
@@ -873,17 +874,18 @@ export default function MatchExperienceClient({
 
 function renderComparisonTrack(factor: any) {
   if (factor.id === "cleanliness") {
-    const levels = ["casual", "moderate", "spotless"];
-    const userIndex = levels.indexOf(factor.rawUserValue?.toLowerCase() || "");
-    const roomIndex = levels.indexOf(factor.rawRoomValue?.toLowerCase() || "");
+    const dbValues = ["low", "medium", "high"];
+    const displayLabels = ["Casual", "Moderate", "Spotless"];
+    const userIndex = dbValues.indexOf(factor.rawUserValue?.toLowerCase() || "");
+    const roomIndex = dbValues.indexOf(factor.rawRoomValue?.toLowerCase() || "");
     
     return (
       <div className="space-y-4 pt-1">
         <div className="relative h-2 bg-slate-100 rounded-full flex justify-between">
-          {levels.map((level, idx) => (
+          {displayLabels.map((label, idx) => (
             <div key={idx} className="relative flex flex-col items-center">
               <div className="w-2.5 h-2.5 rounded-full bg-slate-200 border-2 border-white -mt-0.5 relative z-10" />
-              <span className="text-[10px] text-slate-400 font-bold capitalize mt-2 absolute top-1.5 whitespace-nowrap">{level}</span>
+              <span className="text-[10px] text-slate-400 font-bold capitalize mt-2 absolute top-1.5 whitespace-nowrap">{label}</span>
             </div>
           ))}
 
@@ -1258,28 +1260,7 @@ function buildFactors(match: any) {
     });
   }
 
-  // Sleep Schedule
-  if (match.lifestyle.sleep?.user) {
-    const isNightOwl = match.lifestyle.sleep.user === "night_owl";
-    factors.push({
-      id: "sleep",
-      icon: isNightOwl ? (
-        <Moon className="w-5 h-5 text-indigo-400" />
-      ) : (
-        <Sun className="w-5 h-5 text-amber-400" />
-      ),
-      label: "Sleep Schedule",
-      scoreLabel: "Bio-Clock Alignment",
-      roomValue: match.lifestyle.sleep.room || "Flexible",
-      status: "perfect" as const,
-      badgeLabel: "Noted",
-      rawUserValue: match.lifestyle.sleep.user,
-      rawRoomValue: match.lifestyle.sleep.room,
-      narrative: isNightOwl
-        ? "As a Night Owl, you tend to stay active later. Be sure to discuss noise levels and quiet hours with any early risers."
-        : "As an Early Bird, you prefer quiet, bright mornings. Coordinate schedule offsets to avoid bathroom bottle-necks.",
-    });
-  }
+  // Sleep Schedule was removed from Room Matching based on new strict 100-pt alignment
 
   return factors;
 }
