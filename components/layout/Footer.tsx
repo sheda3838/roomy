@@ -21,7 +21,7 @@ export default function Footer() {
                 FAQ
               </Link>
               <Link href="/#how-it-works" className="text-sm font-medium text-slate-500 hover:text-[rgb(34,142,222)] transition-colors">
-                How It Works
+                How Roomy Works?
               </Link>
               <Link href="/#about" className="text-sm font-medium text-slate-500 hover:text-[rgb(34,142,222)] transition-colors">
                 About

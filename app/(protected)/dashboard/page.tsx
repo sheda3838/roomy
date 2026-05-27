@@ -23,6 +23,8 @@ export const metadata: Metadata = {
   title: "Dashboard | Roomy",
 };
 
+export const dynamic = "force-dynamic";
+
 function fmt(val?: string) {
   if (!val) return "—";
   return val.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
@@ -159,6 +161,26 @@ export default async function DashboardPage() {
                       className="text-xs px-2.5 py-1 bg-[rgb(29,93,185)]/8 border border-[rgb(34,142,222)]/20 text-[rgb(29,93,185)] rounded-full"
                     >
                       {loc}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Preferred Facilities */}
+            {user.isActiveSeeker && user.preferredFacilities?.length > 0 && (
+              <div className="pt-2">
+                <div className="flex items-center gap-1.5 mb-2">
+                  <CheckCircle className="h-4 w-4 text-[rgb(34,142,222)]" />
+                  <span className="text-xs font-semibold text-slate-400">Preferred Facilities</span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {user.preferredFacilities.map((fac) => (
+                    <span
+                      key={fac}
+                      className="text-xs px-2.5 py-1 bg-purple-500/10 border border-purple-500/20 text-purple-700 font-semibold rounded-full capitalize"
+                    >
+                      {fmt(fac)}
                     </span>
                   ))}
                 </div>

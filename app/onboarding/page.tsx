@@ -29,6 +29,7 @@ import { uploadImage } from "@/server/actions/uploadImage";
 import { type OnboardingInput } from "@/server/validations/onboarding";
 import LocationSelect from "@/components/shared/LocationSelect";
 import { cn } from "@/lib/utils";
+import { FACILITIES_LIST } from "@/constants/facilities";
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -49,6 +50,7 @@ export default function OnboardingPage() {
     guestPolicy: undefined as any,
     isActiveSeeker: undefined as any,
     preferredLocations: [],
+    preferredFacilities: [],
     budgetMin: undefined,
     budgetMax: undefined,
     profilePicture: undefined,
@@ -531,6 +533,49 @@ export default function OnboardingPage() {
                           theme="light"
                         />
                       </div>
+
+                      {/* Preferred Facilities selector */}
+                      <div className="pt-2">
+                        <label className="block text-sm font-semibold text-slate-700 mb-2">
+                          Preferred Facilities
+                        </label>
+                        <p className="text-xs text-slate-500 mb-4">
+                          Choose facilities based on your realistic budget expectations. Rooms with more facilities may cost more.
+                        </p>
+                        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                          {FACILITIES_LIST.map((item) => {
+                            const currentFacilities = formData.preferredFacilities || [];
+                            const isSelected = currentFacilities.includes(item.id);
+                            const Icon = item.icon;
+                            return (
+                              <button
+                                type="button"
+                                key={item.id}
+                                onClick={() => {
+                                  const updated = isSelected
+                                    ? currentFacilities.filter((id) => id !== item.id)
+                                    : [...currentFacilities, item.id];
+                                  updateField("preferredFacilities", updated);
+                                }}
+                                className={cn(
+                                  "p-3 rounded-2xl border transition-all duration-300 cursor-pointer flex flex-col items-center justify-center gap-2 text-center select-none hover:shadow-md",
+                                  isSelected
+                                    ? "bg-[rgb(34,142,222)]/8 border-[rgb(34,142,222)] text-[rgb(29,93,185)] shadow-[0_4px_20px_rgba(34,142,222,0.15)]"
+                                    : "bg-white border-slate-200 text-slate-400 hover:border-slate-300 hover:text-slate-600"
+                                )}
+                              >
+                                <div className={cn(
+                                  "w-8 h-8 rounded-xl flex items-center justify-center transition-colors",
+                                  isSelected ? "bg-[rgb(34,142,222)]/20" : "bg-slate-50 text-slate-400"
+                                )}>
+                                  <Icon className="w-4 h-4" />
+                                </div>
+                                <span className="text-[11px] font-bold leading-tight">{item.label}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
                     </motion.div>
                   )}
                 </motion.div>
@@ -553,8 +598,8 @@ export default function OnboardingPage() {
                     </p>
                   </div>
 
-                  <div className="w-full max-w-sm mx-auto">
-                    <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-slate-200 border-dashed rounded-3xl cursor-pointer bg-slate-50 hover:bg-slate-100/50 transition-all hover:border-[rgb(34,142,222)]/50 shadow-inner group overflow-hidden relative">
+                  <div className="w-56 h-56 mx-auto">
+                    <label className="flex flex-col items-center justify-center w-full h-full border-2 border-slate-200 border-dashed rounded-3xl cursor-pointer bg-slate-50 hover:bg-slate-100/50 transition-all hover:border-[rgb(34,142,222)]/50 shadow-inner group overflow-hidden relative">
                       {image ? (
                         <>
                           <img src={image.url} alt="Profile" className={cn("w-full h-full object-cover", image.isUploading && "opacity-50")} />

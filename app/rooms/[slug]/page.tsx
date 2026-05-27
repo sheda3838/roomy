@@ -4,6 +4,7 @@ import { getRoomBySlug } from "@/server/actions/getRoomBySlug";
 import { auth } from "@/lib/auth";
 import { MapPin, Users, User, Check, Brush, Map as MapIcon, Bath, Wifi, Droplets, Sun, Moon, Cigarette, Wine, Wind, Flame, Car, Dumbbell, Shirt, CheckCircle, BookOpen, ShieldAlert } from "lucide-react";
 import RoomLocationViewerWrapper from "@/components/maps/RoomLocationViewerWrapper";
+import { FACILITIES_LIST } from "@/constants/facilities";
 import RoomImageGallery from "@/components/rooms/RoomImageGallery";
 import RoomActionBottomBar from "@/components/rooms/RoomActionBottomBar";
 import UserAvatar from "@/components/shared/UserAvatar";
@@ -24,14 +25,6 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
-const AMENITY_MAP: { [key: string]: { label: string; icon: any } } = {
-  washroom: { label: "Attached washroom", icon: Bath },
-  ac: { label: "Air conditioning", icon: Wind },
-  kitchen: { label: "Kitchen access", icon: Flame },
-  parking: { label: "Parking", icon: Car },
-  laundry: { label: "Laundry", icon: Shirt },
-  study_table: { label: "Personal study table", icon: BookOpen },
-};
 
 export const dynamic = "force-dynamic";
 
@@ -197,18 +190,18 @@ export default async function RoomDetailsPage({ params }: { params: Promise<{ sl
             </div>
           </div>
 
-          {/* Amenities Section */}
-          {room.amenities && room.amenities.length > 0 && (
+          {/* Facilities Section */}
+          {room.providedFacilities && room.providedFacilities.length > 0 && (
             <div className="space-y-4">
-              <h3 className="font-serif text-2xl tracking-tight text-slate-900">Amenities</h3>
+              <h3 className="font-serif text-2xl tracking-tight text-slate-900">Facilities</h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                {room.amenities.map((amenity: string) => {
-                  const item = AMENITY_MAP[amenity];
+                {room.providedFacilities.map((facilityId: string) => {
+                  const item = FACILITIES_LIST.find(f => f.id === facilityId);
                   if (!item) return null;
                   const Icon = item.icon;
                   return (
                     <div
-                      key={amenity}
+                      key={facilityId}
                       className="flex items-center gap-3 p-4 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-[rgb(34,142,222)]/25 transition-all duration-300"
                     >
                       <div className="w-9 h-9 rounded-xl bg-slate-50 flex items-center justify-center text-[rgb(29,93,185)] shrink-0">

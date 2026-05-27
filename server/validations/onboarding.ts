@@ -29,6 +29,7 @@ export const onboardingSchema = z
     preferredLocations: z
       .array(z.string().min(1, "Location name cannot be empty"))
       .default([]),
+    preferredFacilities: z.array(z.string()).default([]),
     budgetMin: z.coerce.number().min(0, "Budget cannot be negative").optional(),
     budgetMax: z.coerce.number().min(0, "Budget cannot be negative").optional(),
     profilePicture: z.string().optional(),

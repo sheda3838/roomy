@@ -22,9 +22,11 @@ import {
   Heart,
   ShieldCheck,
   CheckCircle2,
-  Clock
+  Clock,
+  Sparkles
 } from "lucide-react";
 import UserAvatar from "@/components/shared/UserAvatar";
+import { FACILITIES_LIST } from "@/constants/facilities";
 
 // Dynamic metadata based on user
 export async function generateMetadata({ params }: { params: Promise<{ userId: string }> }): Promise<Metadata> {
@@ -282,6 +284,39 @@ export default async function UserDetailsPage({ params }: { params: Promise<{ us
                 </div>
               </div>
             </div>
+
+            {/* Preferred Facilities Section */}
+            {targetUser.preferredFacilities && targetUser.preferredFacilities.length > 0 && (
+              <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm p-6 md:p-8 space-y-6">
+                <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
+                  <div className="w-8 h-8 rounded-lg bg-[rgb(46,219,244)]/10 flex items-center justify-center">
+                    <Sparkles className="w-4 h-4 text-[rgb(34,142,222)]" />
+                  </div>
+                  <h2 className="font-serif text-2xl tracking-tight text-slate-900">
+                    Preferred Facilities
+                  </h2>
+                </div>
+                
+                <div className="flex flex-wrap gap-2.5">
+                  {targetUser.preferredFacilities.map((facilityId: string) => {
+                    const item = FACILITIES_LIST.find((f) => f.id === facilityId);
+                    if (!item) return null;
+                    const Icon = item.icon;
+                    return (
+                      <div
+                        key={facilityId}
+                        className="flex items-center gap-2 px-3.5 py-2 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-slate-700 shadow-sm hover:border-[rgb(34,142,222)]/25 transition-all"
+                      >
+                        <div className="w-5 h-5 rounded-md bg-white border border-slate-100 flex items-center justify-center shrink-0">
+                          <Icon className="w-3 h-3 text-[rgb(29,93,185)]" />
+                        </div>
+                        {item.label}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
           </div>
 

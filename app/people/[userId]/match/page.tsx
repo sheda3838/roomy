@@ -71,6 +71,7 @@ export default async function MatchPage(props: { params: Promise<{ userId: strin
          : matchResult.score >= 45 ? "Moderate Match" : "Poor Match",
     reasons: matchResult.reasons,
     conflicts: matchResult.conflicts,
+    facilityMatches: matchResult.facilityMatches,
   };
 
   return (

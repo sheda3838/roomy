@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import dbConnect from "@/lib/db";
 import User from "@/models/User";
 import { onboardingSchema, type OnboardingInput } from "@/server/validations/onboarding";
+import { revalidatePath } from "next/cache";
 
 
 export async function completeOnboarding(data: OnboardingInput) {
@@ -41,6 +42,7 @@ export async function completeOnboarding(data: OnboardingInput) {
         preferredLocations: validatedData.preferredLocations,
         budgetMin: validatedData.budgetMin,
         budgetMax: validatedData.budgetMax,
+        preferredFacilities: validatedData.preferredFacilities,
         profilePicture: validatedData.profilePicture || session.user.image, // fallback to existing session image if present
         isOnboardingComplete: true,
       },
@@ -50,6 +52,9 @@ export async function completeOnboarding(data: OnboardingInput) {
     if (!updatedUser) {
       return { error: "User account could not be found." };
     }
+
+    revalidatePath("/dashboard");
+    revalidatePath("/dashboard/edit");
 
     return { success: "Onboarding completed successfully!" };
   } catch (error: any) {

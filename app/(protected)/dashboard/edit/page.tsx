@@ -9,6 +9,8 @@ export const metadata: Metadata = {
   title: "Edit Profile | Roomy",
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function EditProfilePage() {
   const session = await auth();
 
@@ -32,6 +34,7 @@ export default async function EditProfilePage() {
     budgetMin: userDoc.budgetMin,
     budgetMax: userDoc.budgetMax,
     preferredLocations: userDoc.preferredLocations || [],
+    preferredFacilities: userDoc.preferredFacilities || [],
     profilePicture: userDoc.profilePicture || "",
   };
 

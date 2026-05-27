@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import RequestToJoinButton from "@/components/rooms/RequestToJoinButton";
 import Counter from "@/components/ui/Counter";
+import CompatibilityExplanationModal from "@/components/shared/CompatibilityExplanationModal";
 
 interface MatchExperienceClientProps {
   room: any;
@@ -39,6 +40,11 @@ interface MatchExperienceClientProps {
     lifestyle: any;
     budget: any;
     location: any;
+    facilities?: {
+      matched: string[];
+      missing: string[];
+      earnedPoints: number;
+    };
     positiveSignals: string[];
     possibleConflicts: string[];
   };
@@ -59,8 +65,8 @@ export default function MatchExperienceClient({
   // Cinematic scanner state
   const [isAnalyzing, setIsAnalyzing] = useState(true);
   const [progress, setProgress] = useState(0);
-  const [activeStage, setActiveStage] = useState(0);
   const [expandedFactor, setExpandedFactor] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Analysis stages messages
   const stages = [
@@ -146,8 +152,13 @@ export default function MatchExperienceClient({
     : 30;
 
   const lifestyleMatches = factors.filter((f) => f.status === "perfect").length;
-  const lifestylePercent = Math.round((lifestyleMatches / factors.length) * 100);
+  const lifestylePercent = Math.round((lifestyleMatches / Math.max(1, factors.length)) * 100);
   const locationPercent = match.location.isMatched ? 100 : 30;
+
+  const facilitiesRequested = (match.facilities?.matched.length || 0) + (match.facilities?.missing.length || 0);
+  const facilitiesPercent = facilitiesRequested > 0
+    ? Math.round(((match.facilities?.matched.length || 0) / facilitiesRequested) * 100)
+    : 100;
 
   const toggleFactor = (name: string) => {
     setExpandedFactor(expandedFactor === name ? null : name);
@@ -348,9 +359,19 @@ export default function MatchExperienceClient({
             <h2 className="font-serif text-2xl tracking-tight text-slate-900">
               Interactive Factor Analysis
             </h2>
-            <span className="text-xs text-slate-400 font-semibold ml-auto flex items-center gap-1">
+            <span className="text-xs text-slate-400 font-semibold ml-auto hidden sm:flex items-center gap-1">
               <Info className="w-3.5 h-3.5" /> Click any row to expand details
             </span>
+          </div>
+
+          {/* CTA Button */}
+          <div className="mb-6">
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[rgb(34,142,222)]/10 hover:bg-[rgb(34,142,222)]/20 text-[rgb(29,93,185)] font-bold text-xs shadow-sm transition-all border border-[rgb(34,142,222)]/20"
+            >
+              <Activity className="w-3.5 h-3.5" /> Understand Compatibility
+            </button>
           </div>
 
           <div className="space-y-3">
@@ -599,6 +620,95 @@ export default function MatchExperienceClient({
                 )}
               </AnimatePresence>
             </div>
+
+            {/* Facilities Row */}
+            {match.facilities && facilitiesRequested > 0 && (
+              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden transition-all hover:shadow-md">
+                <button
+                  onClick={() => toggleFactor("facilities")}
+                  className="w-full text-left p-5 flex items-center gap-4 cursor-pointer focus:outline-none"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center shrink-0">
+                    <CheckCircle2 className="w-5 h-5 text-purple-600" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-bold text-slate-950">Preferred Facilities</span>
+                      <span className="text-xs font-semibold text-slate-400">Amenities</span>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-0.5 truncate">
+                      Matched: <span className="font-semibold text-slate-800">{match.facilities.matched.length} of {facilitiesRequested}</span>
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-4 shrink-0">
+                    {match.facilities.matched.length === facilitiesRequested ? (
+                      <StatusBadge status="perfect" label="All Found" />
+                    ) : match.facilities.matched.length > 0 ? (
+                      <StatusBadge status="partial" label="Partial Match" />
+                    ) : (
+                      <StatusBadge status="conflict" label="None Found" />
+                    )}
+                    <ChevronDown
+                      className={`w-4 h-4 text-slate-400 transition-transform duration-300 ${
+                        expandedFactor === "facilities" ? "rotate-180" : ""
+                      }`}
+                    />
+                  </div>
+                </button>
+
+                <AnimatePresence initial={false}>
+                  {expandedFactor === "facilities" && (
+                    <motion.div
+                      initial={{ height: 0 }}
+                      animate={{ height: "auto" }}
+                      exit={{ height: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="overflow-hidden border-t border-slate-100 bg-slate-50/50"
+                    >
+                      <div className="p-5 space-y-4">
+                        <p className="text-xs font-medium text-slate-600 leading-relaxed bg-white border border-slate-100 rounded-xl p-3.5 shadow-sm">
+                          {match.facilities.matched.length === facilitiesRequested
+                            ? "Excellent! This room provides all the specific facilities you requested."
+                            : match.facilities.matched.length > 0
+                            ? `The room offers ${match.facilities.matched.length} out of ${facilitiesRequested} of your preferred facilities. Check the missing ones to see if they are dealbreakers.`
+                            : "Unfortunately, none of the facilities you specifically requested are provided in this room."}
+                        </p>
+
+                        <div className="bg-white border border-slate-100 rounded-xl p-4 shadow-sm flex flex-col gap-3">
+                          <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Facility Breakdown</h4>
+                          
+                          {match.facilities.matched.length > 0 && (
+                            <div>
+                              <span className="text-[10px] text-emerald-600 font-bold uppercase tracking-widest block mb-2">Matched</span>
+                              <div className="flex flex-wrap gap-1.5">
+                                {match.facilities.matched.map((fac, idx) => (
+                                  <span key={idx} className="px-2 py-1 rounded-md bg-emerald-50 border border-emerald-100 text-[11px] font-bold text-emerald-700 capitalize flex items-center gap-1">
+                                    <CheckCircle2 className="w-3 h-3" /> {fac.replace(/_/g, " ")}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {match.facilities.missing.length > 0 && (
+                            <div className={match.facilities.matched.length > 0 ? "pt-2 border-t border-slate-100 mt-1" : ""}>
+                              <span className="text-[10px] text-red-500 font-bold uppercase tracking-widest block mb-2">Missing</span>
+                              <div className="flex flex-wrap gap-1.5">
+                                {match.facilities.missing.map((fac, idx) => (
+                                  <span key={idx} className="px-2 py-1 rounded-md bg-red-50 border border-red-100 text-[11px] font-bold text-red-700 capitalize flex items-center gap-1">
+                                    <XCircle className="w-3 h-3" /> {fac.replace(/_/g, " ")}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            )}
           </div>
         </section>
 
@@ -613,24 +723,30 @@ export default function MatchExperienceClient({
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <BreakdownMeter
               label="Lifestyle Compatibility"
               percent={lifestylePercent}
-              weight="50% weight"
+              weight="55% weight"
               color="from-[rgb(46,219,244)] to-[rgb(29,93,185)]"
             />
             <BreakdownMeter
               label="Financial Alignment"
               percent={budgetPercent}
-              weight="30% weight"
+              weight="15% weight"
               color="from-[rgb(250,192,140)] to-[rgb(246,137,83)]"
             />
             <BreakdownMeter
               label="Location Proximity"
               percent={locationPercent}
-              weight="20% weight"
+              weight="10% weight"
               color="from-[rgb(239,62,43)] to-[rgb(248,150,60)]"
+            />
+            <BreakdownMeter
+              label="Facilities Profile"
+              percent={facilitiesPercent}
+              weight="20% weight"
+              color="from-purple-400 to-purple-600"
             />
           </div>
         </section>
@@ -744,6 +860,11 @@ export default function MatchExperienceClient({
           </div>
         </section>
       </div>
+      
+      <CompatibilityExplanationModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+      />
     </div>
   );
 }

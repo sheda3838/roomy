@@ -50,7 +50,7 @@ export const baseRoomSchema = z.object({
   occupationPreference: z.enum(["student", "worker", "any"], {
     message: "Please select occupation preference.",
   }),
-  amenities: z.array(z.string()).default([]),
+  providedFacilities: z.array(z.string()).default([]),
 });
 
 export const createRoomSchema = baseRoomSchema.superRefine((data, ctx) => {

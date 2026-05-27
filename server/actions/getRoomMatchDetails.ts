@@ -96,7 +96,26 @@ export async function getRoomMatchDetails(slug: string) {
       ),
     };
 
-    // 4. Generate positive and negative signals explicitly for UI
+    // 4. Facilities Breakdown
+    const facilities = {
+      matched: [] as string[],
+      missing: [] as string[],
+      earnedPoints: 0,
+    };
+    
+    if (user.preferredFacilities && user.preferredFacilities.length > 0) {
+      const roomFacilities = room.providedFacilities || [];
+      for (const facility of user.preferredFacilities) {
+        if (roomFacilities.includes(facility)) {
+          facilities.matched.push(facility);
+          facilities.earnedPoints += 2;
+        } else {
+          facilities.missing.push(facility);
+        }
+      }
+    }
+
+    // 5. Generate positive and negative signals explicitly for UI
     const positiveSignals = [];
     const possibleConflicts = [];
 
@@ -106,6 +125,9 @@ export async function getRoomMatchDetails(slug: string) {
 
     if (location.isMatched) positiveSignals.push("In your preferred location");
     else if (location.userPreferred.length > 0) possibleConflicts.push("Outside your preferred locations");
+
+    if (facilities.matched.length > 0) positiveSignals.push(`Matches ${facilities.matched.length} requested facilities`);
+    if (facilities.missing.length > 0) possibleConflicts.push(`Missing ${facilities.missing.length} requested facilities`);
 
     if (lifestyle.cleanliness.match === "perfect") positiveSignals.push("Aligned on cleanliness expectations");
     if (lifestyle.smoker.match === "conflict") possibleConflicts.push("You smoke, but room does not allow smoking");
@@ -130,6 +152,7 @@ export async function getRoomMatchDetails(slug: string) {
         lifestyle,
         budget,
         location,
+        facilities,
         positiveSignals,
         possibleConflicts,
       }

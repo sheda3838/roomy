@@ -38,17 +38,17 @@ export default async function RoomsTabContent({ searchParams }: RoomsTabContentP
       
       <div className="flex-1 w-full">
         {rooms.length === 0 ? (
-          <div className="text-center py-20 border border-dashed border-zinc-800 rounded-3xl bg-zinc-950/50">
-            <div className="w-16 h-16 bg-zinc-900 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Search className="w-8 h-8 text-zinc-600" />
+          <div className="text-center py-20 border border-dashed border-slate-200 rounded-3xl bg-slate-50">
+            <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
+              <Search className="w-8 h-8 text-slate-400" />
             </div>
-            <h2 className="text-xl font-bold text-white mb-2">No rooms found</h2>
-            <p className="text-zinc-500 max-w-sm mx-auto mb-6">
+            <h2 className="text-xl font-bold text-slate-900 mb-2">No rooms found</h2>
+            <p className="text-slate-500 max-w-sm mx-auto mb-6">
               We couldn't find any rooms matching your current filters.
             </p>
             <Link 
               href="/discover?tab=rooms" 
-              className="px-6 py-2 rounded-full bg-zinc-800 text-zinc-300 hover:bg-zinc-700 transition-colors"
+              className="px-6 py-2 rounded-full bg-[rgb(34,142,222)] text-white hover:bg-[rgb(29,93,185)] transition-colors inline-block font-semibold shadow-sm"
             >
               Clear Filters
             </Link>

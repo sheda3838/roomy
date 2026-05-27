@@ -29,6 +29,8 @@ import {
 } from "lucide-react";
 import { sendRoommateRequest } from "@/server/actions/handleRoommateRequest";
 import Counter from "@/components/ui/Counter";
+import { FACILITIES_LIST } from "@/constants/facilities";
+import CompatibilityExplanationModal from "@/components/shared/CompatibilityExplanationModal";
 
 interface UserCompatibilityClientProps {
   currentUser: any;
@@ -38,6 +40,11 @@ interface UserCompatibilityClientProps {
     label: string;
     reasons: string[];
     conflicts: string[];
+    facilityMatches?: {
+      matched: string[];
+      unmatched: string[];
+      scorePercent: number;
+    };
   };
   connectionState: {
     isConnected: boolean;
@@ -62,6 +69,7 @@ export default function UserCompatibilityClient({
   const [progress, setProgress] = useState(0);
   const [activeStage, setActiveStage] = useState(0);
   const [expandedFactor, setExpandedFactor] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const toggleFactor = (id: string) => {
     setExpandedFactor(expandedFactor === id ? null : id);
@@ -136,21 +144,25 @@ export default function UserCompatibilityClient({
   const strokeOffset = circumference - (match.score / 100) * circumference;
 
   // Build roommate factors list
-  const factors = buildRoommateFactors(currentUser, targetUser);
+  const factors = buildRoommateFactors(currentUser, targetUser, match.facilityMatches);
 
   // Dynamic Dynamic Weighted Meters calculations
-  // 1. Lifestyle (Cleanliness, Sleep, Smoking, Guest Policy) = 75 points max
+  // 1. Lifestyle (Cleanliness, Sleep, Smoking, Guest Policy) = 50 points max
   const cleanlinessMatch = currentUser.cleanlinessLevel === targetUser.cleanlinessLevel;
   const sleepMatch = currentUser.sleepType === targetUser.sleepType;
   const smokingMatch = currentUser.smoker === targetUser.smoker;
   const guestMatch = currentUser.guestPolicy === targetUser.guestPolicy;
 
   const lifestyleScore = 
-    (cleanlinessMatch ? 25 : 10) +
-    (sleepMatch ? 20 : 5) +
-    (smokingMatch ? 15 : 0) +
-    (guestMatch ? 15 : 5);
-  const lifestylePercent = Math.round((lifestyleScore / 75) * 100);
+    (cleanlinessMatch ? 15 : 0) +
+    (sleepMatch ? 15 : 0) +
+    (smokingMatch ? 10 : 0) +
+    (guestMatch ? 10 : 0);
+  const lifestylePercent = Math.round((lifestyleScore / 50) * 100);
+
+  // Gender Match
+  const genderMatch = currentUser.gender === targetUser.gender;
+  const genderPercent = genderMatch ? 100 : 0;
 
   // 2. Budget (Max overlap) = 15 points
   const overlaps = currentUser.budgetMin <= targetUser.budgetMax && targetUser.budgetMin <= currentUser.budgetMax;
@@ -300,7 +312,7 @@ export default function UserCompatibilityClient({
                   <div className="flex items-baseline justify-center">
                     <Counter
                       value={match.score}
-                      places={[10, 1]}
+                      places={match.score === 100 ? [100, 10, 1] : [10, 1]}
                       fontSize={60}
                       padding={4}
                       gap={2}
@@ -379,9 +391,19 @@ export default function UserCompatibilityClient({
             <h2 className="font-serif text-2xl tracking-tight text-slate-900">
               Interactive Factor Analysis
             </h2>
-            <span className="text-xs text-slate-400 font-semibold ml-auto flex items-center gap-1">
+            <span className="text-xs text-slate-400 font-semibold ml-auto hidden sm:flex items-center gap-1">
               <Info className="w-3.5 h-3.5" /> Click any row to expand details
             </span>
+          </div>
+
+          {/* CTA Button */}
+          <div className="mb-6">
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[rgb(34,142,222)]/10 hover:bg-[rgb(34,142,222)]/20 text-[rgb(29,93,185)] font-bold text-xs shadow-sm transition-all border border-[rgb(34,142,222)]/20"
+            >
+              <Activity className="w-3.5 h-3.5" /> Understand Compatibility
+            </button>
           </div>
 
           <div className="space-y-3">
@@ -557,7 +579,7 @@ export default function UserCompatibilityClient({
             <BreakdownMeter
               label="Lifestyle Compatibility"
               percent={lifestylePercent}
-              weight="75% weight"
+              weight="50% weight"
               color="from-[rgb(46,219,244)] to-[rgb(29,93,185)]"
             />
             <BreakdownMeter
@@ -572,6 +594,20 @@ export default function UserCompatibilityClient({
               weight="10% weight"
               color="from-[rgb(239,62,43)] to-[rgb(248,150,60)]"
             />
+            <BreakdownMeter
+              label="Gender Match"
+              percent={genderPercent}
+              weight="5% weight"
+              color="from-[rgb(236,72,153)] to-[rgb(219,39,119)]"
+            />
+            {match.facilityMatches && (
+              <BreakdownMeter
+                label="Facility Preferences"
+                percent={match.facilityMatches.scorePercent}
+                weight="20% weight"
+                color="from-[rgb(46,219,244)] to-[rgb(34,142,222)]"
+              />
+            )}
           </div>
         </section>
 
@@ -695,6 +731,11 @@ export default function UserCompatibilityClient({
           </div>
         </section>
       </div>
+      
+      <CompatibilityExplanationModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+      />
     </div>
   );
 }
@@ -864,21 +905,85 @@ function renderComparisonTrack(factor: any) {
     );
   }
 
-  if (factor.id === "guestPolicy") {
+  if (factor.id === "guestPolicy" || factor.id === "gender") {
     return (
       <div className="grid grid-cols-2 gap-4 pt-1">
         <div className="flex flex-col items-center bg-slate-50 border border-slate-200/50 rounded-xl p-3">
-          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Your Rule</span>
+          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Your {factor.id === "gender" ? "Gender" : "Rule"}</span>
           <span className="text-xs font-black text-slate-700 capitalize">
             {factor.rawUserValue || "Not Set"}
           </span>
         </div>
         <div className="flex flex-col items-center bg-slate-50 border border-slate-200/50 rounded-xl p-3">
-          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Their Rule</span>
+          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Their {factor.id === "gender" ? "Gender" : "Rule"}</span>
           <span className="text-xs font-black text-slate-700 capitalize">
             {factor.rawTargetValue || "Not Set"}
           </span>
         </div>
+      </div>
+    );
+  }
+
+  if (factor.id === "facilities") {
+    const { matched, userOnly, targetOnly } = factor.customData;
+    return (
+      <div className="pt-2 space-y-3">
+        {matched.length > 0 && (
+          <div className="space-y-2">
+            <span className="text-[10px] text-emerald-600 font-bold uppercase tracking-wider block">Both Selected (Matches)</span>
+            <div className="flex flex-wrap gap-2">
+              {matched.map((facilityId: string) => {
+                const item = FACILITIES_LIST.find(f => f.id === facilityId);
+                if (!item) return null;
+                const Icon = item.icon;
+                return (
+                  <div key={facilityId} className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 border border-emerald-100 rounded-full text-emerald-700 shadow-sm">
+                    <Icon className="w-3.5 h-3.5" />
+                    <span className="text-xs font-bold">{item.label}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+        
+        {userOnly.length > 0 && (
+          <div className="space-y-2">
+            <span className="text-[10px] text-amber-600 font-bold uppercase tracking-wider block">You Selected (They Didn't)</span>
+            <div className="flex flex-wrap gap-2">
+              {userOnly.map((facilityId: string) => {
+                const item = FACILITIES_LIST.find(f => f.id === facilityId);
+                if (!item) return null;
+                const Icon = item.icon;
+                return (
+                  <div key={facilityId} className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 border border-amber-200 rounded-full text-amber-700 shadow-sm opacity-80">
+                    <Icon className="w-3.5 h-3.5" />
+                    <span className="text-xs font-bold line-through">{item.label}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {targetOnly.length > 0 && (
+          <div className="space-y-2">
+            <span className="text-[10px] text-orange-600 font-bold uppercase tracking-wider block">They Selected (You Didn't)</span>
+            <div className="flex flex-wrap gap-2">
+              {targetOnly.map((facilityId: string) => {
+                const item = FACILITIES_LIST.find(f => f.id === facilityId);
+                if (!item) return null;
+                const Icon = item.icon;
+                return (
+                  <div key={facilityId} className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-50 border border-orange-200 rounded-full text-orange-700 shadow-sm opacity-80">
+                    <Icon className="w-3.5 h-3.5" />
+                    <span className="text-xs font-bold line-through">{item.label}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -1009,7 +1114,7 @@ function generateCompatibilityNarrative(score: number, user: any, partner: any) 
 
 // ─── FACTORS BUILDER ───
 
-function buildRoommateFactors(currentUser: any, targetUser: any) {
+function buildRoommateFactors(currentUser: any, targetUser: any, facilityMatches: any) {
   const factors = [];
 
   // Cleanliness
@@ -1113,6 +1218,55 @@ function buildRoommateFactors(currentUser: any, targetUser: any) {
           targetUser.guestPolicy || "regular"
         }. Make sure to agree on sleepover policies.`,
   });
+
+  // Gender Preference
+  const genderMatch = currentUser.gender === targetUser.gender;
+  factors.push({
+    id: "gender",
+    icon: <Users className="w-5 h-5 text-pink-500" />,
+    label: "Gender Match",
+    scoreLabel: "Co-living Dynamic",
+    targetValue: targetUser.gender ? targetUser.gender.charAt(0).toUpperCase() + targetUser.gender.slice(1) : "Any",
+    status: (genderMatch ? "perfect" : "conflict") as "perfect" | "partial" | "conflict",
+    badgeLabel: genderMatch ? "Aligned" : "Conflict",
+    rawUserValue: currentUser.gender,
+    rawTargetValue: targetUser.gender,
+    narrative: genderMatch
+      ? "You share the same gender, which often provides mutual comfort and aligns with common co-living gender preferences."
+      : "You are of different genders. While many co-live successfully, be sure you're both comfortable with a mixed-gender living arrangement.",
+  });
+
+  // Facilities Preference
+  if (facilityMatches) {
+    const isPerfect = facilityMatches.scorePercent === 100;
+    
+    const userFacilities = currentUser.preferredFacilities || [];
+    const targetFacilities = targetUser.preferredFacilities || [];
+    const userOnly = userFacilities.filter((f: string) => !targetFacilities.includes(f));
+    const targetOnly = targetFacilities.filter((f: string) => !userFacilities.includes(f));
+
+    factors.push({
+      id: "facilities",
+      icon: <CheckCircle2 className="w-5 h-5 text-teal-500" />,
+      label: "Facility Preferences",
+      scoreLabel: "Living Conditions",
+      targetValue: targetFacilities.length > 0 ? `${targetFacilities.length} Selected` : "None",
+      status: (isPerfect ? "perfect" : facilityMatches.scorePercent >= 50 ? "partial" : "conflict") as "perfect" | "partial" | "conflict",
+      badgeLabel: isPerfect ? "Perfect Match" : facilityMatches.scorePercent >= 50 ? "Strong Match" : "Mismatched",
+      rawUserValue: null,
+      rawTargetValue: null,
+      customData: {
+        matched: facilityMatches.matched,
+        userOnly,
+        targetOnly,
+      },
+      narrative: isPerfect
+        ? "You have perfectly aligned facility expectations for your future home!"
+        : facilityMatches.scorePercent >= 50
+        ? "You share most of the same facility requirements, making finding a shared space easier."
+        : "You have significantly different facility expectations. Finding a place that satisfies both of your needs might be difficult.",
+    });
+  }
 
   return factors;
 }

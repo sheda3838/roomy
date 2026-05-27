@@ -27,6 +27,7 @@ export interface IUser extends Document {
   // Preferences
   isActiveSeeker: boolean;
   preferredLocations: string[];
+  preferredFacilities: string[];
   budgetMin?: number;
   budgetMax?: number;
 
@@ -78,6 +79,7 @@ const UserSchema = new Schema<IUser>(
     // Preferences
     isActiveSeeker: { type: Boolean, default: false, required: true },
     preferredLocations: { type: [String], default: [] },
+    preferredFacilities: { type: [String], default: [] },
     budgetMin: { type: Number },
     budgetMax: { type: Number },
 

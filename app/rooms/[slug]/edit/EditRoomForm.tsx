@@ -43,6 +43,7 @@ import { editRoomSchema, type EditRoomInput } from "@/server/validations/room";
 import { editRoom } from "@/server/actions/editRoom";
 import { uploadImage } from "@/server/actions/uploadImage";
 import { showErrorToast, showSuccessToast } from "@/lib/toast";
+import { FACILITIES_LIST } from "@/constants/facilities";
 
 const RoomLocationPicker = dynamic(
   () => import("@/components/maps/RoomLocationPicker"),
@@ -56,14 +57,6 @@ const RoomLocationPicker = dynamic(
   }
 );
 
-const AMENITIES_LIST = [
-  { id: "washroom", label: "Attached washroom", icon: Bath },
-  { id: "ac", label: "Air conditioning", icon: Wind },
-  { id: "kitchen", label: "Kitchen access", icon: Flame },
-  { id: "parking", label: "Parking", icon: Car },
-  { id: "laundry", label: "Laundry", icon: Shirt },
-  { id: "study_table", label: "Personal study table", icon: BookOpen },
-];
 
 export default function EditRoomForm({ initialData, roomId }: { initialData: any, roomId: string }) {
   const router = useRouter();
@@ -96,7 +89,7 @@ export default function EditRoomForm({ initialData, roomId }: { initialData: any
       drinkerAllowed: initialData.drinkerAllowed,
       guestPolicy: initialData.guestPolicy,
       genderPreference: initialData.genderPreference,
-      amenities: initialData.amenities || [],
+      providedFacilities: initialData.providedFacilities || [],
     },
   });
 
@@ -299,31 +292,31 @@ export default function EditRoomForm({ initialData, roomId }: { initialData: any
             </div>
           </div>
 
-          {/* Card 3: Amenities */}
+          {/* Card 3: Facilities */}
           <div className="bg-white/80 border border-slate-200/50 backdrop-blur-xl rounded-3xl p-6 md:p-8 space-y-6 shadow-xl">
             <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2.5 border-b border-slate-100 pb-4">
-              <Sliders className="h-5 w-5 text-[rgb(34,142,222)]" /> Features & Amenities
+              <Sliders className="h-5 w-5 text-[rgb(34,142,222)]" /> Facilities
             </h2>
 
             <Controller
               control={control}
-              name="amenities"
+              name="providedFacilities"
               render={({ field }) => {
                 const selected = field.value || [];
-                const toggleAmenity = (id: string) => {
+                const toggleFacility = (id: string) => {
                   field.onChange(selected.includes(id) ? selected.filter((v: string) => v !== id) : [...selected, id]);
                 };
 
                 return (
-                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
-                    {AMENITIES_LIST.map((item) => {
+                  <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
+                    {FACILITIES_LIST.map((item) => {
                       const isSelected = selected.includes(item.id);
                       const Icon = item.icon;
                       return (
                         <button
                           type="button"
                           key={item.id}
-                          onClick={() => toggleAmenity(item.id)}
+                          onClick={() => toggleFacility(item.id)}
                           className={cn(
                             "p-2 py-3 rounded-2xl border transition-all duration-300 cursor-pointer flex flex-col items-center justify-center gap-2 text-center select-none hover:shadow-md",
                             isSelected

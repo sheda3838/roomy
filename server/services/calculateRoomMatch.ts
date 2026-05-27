@@ -183,21 +183,21 @@ export function calculateRoomMatch(user: IUser, room: IRoom): MatchResult {
 
 
   // ==========================================
-  // 2. Budget Matching (Max 25 points)
+  // 2. Budget Matching (Max 15 points)
   // ==========================================
   const bMin = user.budgetMin || 0;
   const bMax = user.budgetMax || 1000000; // Arbitrary high fallback
 
   if (room.rentAmount >= bMin && room.rentAmount <= bMax) {
-    score += 25;
+    score += 15;
     reasons.push("Within your budget");
   } else if (room.rentAmount > bMax && room.rentAmount <= bMax * 1.15) {
     // Slightly over budget (15%)
-    score += 10;
+    score += 5;
     reasons.push("Slightly over your budget max");
   } else if (room.rentAmount < bMin) {
     // Under budget min
-    score += 15;
+    score += 10;
     reasons.push("Below your budget range");
   } else {
     // Way over budget (0 pts)
@@ -205,7 +205,7 @@ export function calculateRoomMatch(user: IUser, room: IRoom): MatchResult {
   }
 
   // ==========================================
-  // 3. Location Matching (Max 20 points)
+  // 3. Location Matching (Max 10 points)
   // ==========================================
   if (user.preferredLocations && user.preferredLocations.length > 0) {
     const roomLocNorm = normalizeString(room.locationText);
@@ -215,20 +215,25 @@ export function calculateRoomMatch(user: IUser, room: IRoom): MatchResult {
     for (const loc of user.preferredLocations) {
       const uLocNorm = normalizeString(loc);
       if (roomLocNorm === uLocNorm) {
-        score += 20;
+        score += 10;
         reasons.push(`Matches preferred location: ${loc}`);
         locationMatched = true;
         break;
       }
     }
+  }
+
+  // ==========================================
+  // 4. Facilities Matching (Max 20 points)
+  // ==========================================
+  if (user.preferredFacilities && user.preferredFacilities.length > 0) {
+    const roomFacilities = room.providedFacilities || [];
     
-    if (!locationMatched) {
-      // Fallback score for no location match
-      score += 0;
+    for (const facility of user.preferredFacilities) {
+      if (roomFacilities.includes(facility)) {
+        score += 2; // +2 for each matched requested facility
+      }
     }
-  } else {
-    // No preferred locations specified, no points awarded
-    score += 0;
   }
 
 
