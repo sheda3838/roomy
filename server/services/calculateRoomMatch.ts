@@ -221,14 +221,21 @@ export function calculateRoomMatch(user: IUser, room: IRoom): MatchResult {
   // ==========================================
   // 4. Facilities Matching (Max 20 points)
   // ==========================================
-  if (user.preferredFacilities && user.preferredFacilities.length > 0) {
+  if (!user.preferredFacilities || user.preferredFacilities.length === 0) {
+    score += 20;
+    reasons.push("Flexible on facilities (none specified)");
+  } else {
     const roomFacilities = room.providedFacilities || [];
+    let matchCount = 0;
     
     for (const facility of user.preferredFacilities) {
       if (roomFacilities.includes(facility)) {
-        score += 2; // +2 for each matched requested facility
+        matchCount++;
       }
     }
+    
+    const facilityPoints = Math.round((matchCount / user.preferredFacilities.length) * 20);
+    score += facilityPoints;
   }
 
 

@@ -429,12 +429,10 @@ export default function MatchExperienceClient({
                           </p>
 
                           {/* Visual Match Bar comparison */}
-                          {factor.id !== "gender" && factor.id !== "sleep" && (
-                            <div className="bg-white border border-slate-100 rounded-xl p-4 shadow-sm">
-                              <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-3">Alignment Comparison</h4>
-                              {renderComparisonTrack(factor)}
-                            </div>
-                          )}
+                          <div className="bg-white border border-slate-100 rounded-xl p-4 shadow-sm">
+                            <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-3">Alignment Comparison</h4>
+                            {renderComparisonTrack(factor)}
+                          </div>
                         </div>
                       </motion.div>
                     )}
@@ -873,63 +871,32 @@ export default function MatchExperienceClient({
 // ─── ACCORDION EXPANSION COMPARISON TRACK RENDERER ───
 
 function renderComparisonTrack(factor: any) {
-  if (factor.id === "cleanliness") {
-    const dbValues = ["low", "medium", "high"];
-    const displayLabels = ["Casual", "Moderate", "Spotless"];
-    const userIndex = dbValues.indexOf(factor.rawUserValue?.toLowerCase() || "");
-    const roomIndex = dbValues.indexOf(factor.rawRoomValue?.toLowerCase() || "");
-    
-    return (
-      <div className="space-y-4 pt-1">
-        <div className="relative h-2 bg-slate-100 rounded-full flex justify-between">
-          {displayLabels.map((label, idx) => (
-            <div key={idx} className="relative flex flex-col items-center">
-              <div className="w-2.5 h-2.5 rounded-full bg-slate-200 border-2 border-white -mt-0.5 relative z-10" />
-              <span className="text-[10px] text-slate-400 font-bold capitalize mt-2 absolute top-1.5 whitespace-nowrap">{label}</span>
-            </div>
-          ))}
+  if (
+    factor.id === "cleanliness" ||
+    factor.id === "occupation" ||
+    factor.id === "guestPolicy" ||
+    factor.id === "gender"
+  ) {
+    let label = "Preference";
+    if (factor.id === "cleanliness") label = "Standard";
+    if (factor.id === "occupation") label = "Status";
+    if (factor.id === "guestPolicy") label = "Policy";
+    if (factor.id === "gender") label = "Gender";
 
-          {/* Markers */}
-          {userIndex === roomIndex ? (
-            userIndex !== -1 && (
-              <div
-                className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-white border-2 border-[rgb(29,93,185)] shadow-md flex items-center justify-center z-20 transition-all duration-500"
-                style={{ left: `${userIndex * 50}%` }}
-              >
-                <div className="w-2.5 h-2.5 rounded-full bg-[rgb(29,93,185)]" />
-                <span className="absolute -top-6 text-[9px] font-bold text-[rgb(29,93,185)] bg-[rgb(34,142,222)]/10 px-1.5 py-0.5 rounded border border-[rgb(34,142,222)]/20 whitespace-nowrap">
-                  You & Room
-                </span>
-              </div>
-            )
-          ) : (
-            <>
-              {userIndex !== -1 && (
-                <div
-                  className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-white border-2 border-[rgb(29,93,185)] shadow-md flex items-center justify-center z-20 transition-all duration-500"
-                  style={{ left: `${userIndex * 50}%` }}
-                >
-                  <div className="w-2 h-2 rounded-full bg-[rgb(29,93,185)]" />
-                  <span className="absolute -top-6 text-[9px] font-bold text-[rgb(29,93,185)] bg-[rgb(34,142,222)]/10 px-1.5 py-0.5 rounded border border-[rgb(34,142,222)]/20 whitespace-nowrap">
-                    You
-                  </span>
-                </div>
-              )}
-              {roomIndex !== -1 && (
-                <div
-                  className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-white border-2 border-[rgb(246,137,83)] shadow-md flex items-center justify-center z-20 transition-all duration-500"
-                  style={{ left: `${roomIndex * 50}%` }}
-                >
-                  <div className="w-2 h-2 rounded-full bg-[rgb(246,137,83)]" />
-                  <span className="absolute -top-6 text-[9px] font-bold text-[rgb(246,137,83)] bg-[rgb(250,192,140)]/20 px-1.5 py-0.5 rounded border border-[rgb(246,137,83)]/25 whitespace-nowrap">
-                    Room
-                  </span>
-                </div>
-              )}
-            </>
-          )}
+    return (
+      <div className="grid grid-cols-2 gap-4 pt-1">
+        <div className="flex flex-col items-center bg-slate-50 border border-slate-200/50 rounded-xl p-3">
+          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Your {label}</span>
+          <span className="text-xs font-black text-slate-700 capitalize text-center">
+            {factor.rawUserValue ? factor.rawUserValue.replace("_", " ") : "Not Set"}
+          </span>
         </div>
-        <div className="h-4" /> {/* spacers */}
+        <div className="flex flex-col items-center bg-slate-50 border border-slate-200/50 rounded-xl p-3">
+          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Room {label}</span>
+          <span className="text-xs font-black text-slate-700 capitalize text-center">
+            {factor.rawRoomValue === "any" ? "Any (Flexible)" : factor.rawRoomValue ? factor.rawRoomValue.replace("_", " ") : "Not Set"}
+          </span>
+        </div>
       </div>
     );
   }
@@ -956,43 +923,7 @@ function renderComparisonTrack(factor: any) {
     );
   }
 
-  if (factor.id === "occupation") {
-    return (
-      <div className="grid grid-cols-2 gap-4 pt-1">
-        <div className="flex flex-col items-center bg-slate-50 border border-slate-200/50 rounded-xl p-3">
-          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Your Status</span>
-          <span className="text-xs font-black text-slate-700 capitalize">
-            {factor.rawUserValue || "Not Set"}
-          </span>
-        </div>
-        <div className="flex flex-col items-center bg-slate-50 border border-slate-200/50 rounded-xl p-3">
-          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Room Preference</span>
-          <span className="text-xs font-black text-slate-700 capitalize">
-            {factor.rawRoomValue === "any" ? "Any (Flexible)" : factor.rawRoomValue || "Not Set"}
-          </span>
-        </div>
-      </div>
-    );
-  }
 
-  if (factor.id === "guestPolicy") {
-    return (
-      <div className="grid grid-cols-2 gap-4 pt-1">
-        <div className="flex flex-col items-center bg-slate-50 border border-slate-200/50 rounded-xl p-3">
-          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Your Preference</span>
-          <span className="text-xs font-black text-slate-700 capitalize">
-            {factor.rawUserValue || "Not Set"}
-          </span>
-        </div>
-        <div className="flex flex-col items-center bg-slate-50 border border-slate-200/50 rounded-xl p-3">
-          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Room Policy</span>
-          <span className="text-xs font-black text-slate-700 capitalize">
-            {factor.rawRoomValue || "Not Set"}
-          </span>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="text-center py-2 text-xs font-semibold text-slate-400">

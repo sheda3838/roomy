@@ -757,133 +757,7 @@ export default function UserCompatibilityClient({
 // ─── STAGE DETAILS ACCORDION COMPARISON TRACKS ───
 
 function renderComparisonTrack(factor: any) {
-  if (factor.id === "cleanliness") {
-    const levels = ["low", "medium", "high"];
-    const userIndex = levels.indexOf(factor.rawUserValue?.toLowerCase() || "");
-    const targetIndex = levels.indexOf(factor.rawTargetValue?.toLowerCase() || "");
 
-    const labels = ["casual", "moderate", "spotless"];
-
-    return (
-      <div className="space-y-4 pt-1">
-        <div className="relative h-2 bg-slate-100 rounded-full flex justify-between">
-          {levels.map((level, idx) => (
-            <div key={idx} className="relative flex flex-col items-center">
-              <div className="w-2.5 h-2.5 rounded-full bg-slate-200 border-2 border-white -mt-0.5 relative z-10" />
-              <span className="text-[10px] text-slate-400 font-bold capitalize mt-2 absolute top-1.5 whitespace-nowrap">
-                {labels[idx]}
-              </span>
-            </div>
-          ))}
-
-          {/* Markers */}
-          {userIndex === targetIndex ? (
-            userIndex !== -1 && (
-              <div
-                className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-white border-2 border-[rgb(29,93,185)] shadow-md flex items-center justify-center z-20 transition-all duration-500"
-                style={{ left: `${userIndex * 50}%` }}
-              >
-                <div className="w-2.5 h-2.5 rounded-full bg-[rgb(29,93,185)]" />
-                <span className="absolute -top-6 text-[9px] font-bold text-[rgb(29,93,185)] bg-[rgb(34,142,222)]/10 px-1.5 py-0.5 rounded border border-[rgb(34,142,222)]/20 whitespace-nowrap">
-                  You & Them
-                </span>
-              </div>
-            )
-          ) : (
-            <>
-              {userIndex !== -1 && (
-                <div
-                  className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-white border-2 border-[rgb(29,93,185)] shadow-md flex items-center justify-center z-20 transition-all duration-500"
-                  style={{ left: `${userIndex * 50}%` }}
-                >
-                  <div className="w-2 h-2 rounded-full bg-[rgb(29,93,185)]" />
-                  <span className="absolute -top-6 text-[9px] font-bold text-[rgb(29,93,185)] bg-[rgb(34,142,222)]/10 px-1.5 py-0.5 rounded border border-[rgb(34,142,222)]/20 whitespace-nowrap">
-                    You
-                  </span>
-                </div>
-              )}
-              {targetIndex !== -1 && (
-                <div
-                  className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-white border-2 border-[rgb(246,137,83)] shadow-md flex items-center justify-center z-20 transition-all duration-500"
-                  style={{ left: `${targetIndex * 50}%` }}
-                >
-                  <div className="w-2 h-2 rounded-full bg-[rgb(246,137,83)]" />
-                  <span className="absolute -top-6 text-[9px] font-bold text-[rgb(246,137,83)] bg-[rgb(250,192,140)]/20 px-1.5 py-0.5 rounded border border-[rgb(246,137,83)]/25 whitespace-nowrap">
-                    Them
-                  </span>
-                </div>
-              )}
-            </>
-          )}
-        </div>
-        <div className="h-4" />
-      </div>
-    );
-  }
-
-  if (factor.id === "sleep") {
-    const levels = ["early", "night_owl"];
-    const userIndex = levels.indexOf(factor.rawUserValue?.toLowerCase() || "");
-    const targetIndex = levels.indexOf(factor.rawTargetValue?.toLowerCase() || "");
-
-    const labels = ["Early Bird", "Night Owl"];
-
-    return (
-      <div className="space-y-4 pt-1">
-        <div className="relative h-2 bg-slate-100 rounded-full flex justify-between">
-          {levels.map((level, idx) => (
-            <div key={idx} className="relative flex flex-col items-center">
-              <div className="w-2.5 h-2.5 rounded-full bg-slate-200 border-2 border-white -mt-0.5 relative z-10" />
-              <span className="text-[10px] text-slate-400 font-bold capitalize mt-2 absolute top-1.5 whitespace-nowrap">
-                {labels[idx]}
-              </span>
-            </div>
-          ))}
-
-          {/* Markers */}
-          {userIndex === targetIndex ? (
-            userIndex !== -1 && (
-              <div
-                className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-white border-2 border-[rgb(29,93,185)] shadow-md flex items-center justify-center z-20 transition-all duration-500"
-                style={{ left: `${userIndex * 100}%` }}
-              >
-                <div className="w-2.5 h-2.5 rounded-full bg-[rgb(29,93,185)]" />
-                <span className="absolute -top-6 text-[9px] font-bold text-[rgb(29,93,185)] bg-[rgb(34,142,222)]/10 px-1.5 py-0.5 rounded border border-[rgb(34,142,222)]/20 whitespace-nowrap">
-                  You & Them
-                </span>
-              </div>
-            )
-          ) : (
-            <>
-              {userIndex !== -1 && (
-                <div
-                  className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-white border-2 border-[rgb(29,93,185)] shadow-md flex items-center justify-center z-20 transition-all duration-500"
-                  style={{ left: `${userIndex * 100}%` }}
-                >
-                  <div className="w-2 h-2 rounded-full bg-[rgb(29,93,185)]" />
-                  <span className="absolute -top-6 text-[9px] font-bold text-[rgb(29,93,185)] bg-[rgb(34,142,222)]/10 px-1.5 py-0.5 rounded border border-[rgb(34,142,222)]/20 whitespace-nowrap">
-                    You
-                  </span>
-                </div>
-              )}
-              {targetIndex !== -1 && (
-                <div
-                  className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-white border-2 border-[rgb(246,137,83)] shadow-md flex items-center justify-center z-20 transition-all duration-500"
-                  style={{ left: `${targetIndex * 100}%` }}
-                >
-                  <div className="w-2 h-2 rounded-full bg-[rgb(246,137,83)]" />
-                  <span className="absolute -top-6 text-[9px] font-bold text-[rgb(246,137,83)] bg-[rgb(250,192,140)]/20 px-1.5 py-0.5 rounded border border-[rgb(246,137,83)]/25 whitespace-nowrap">
-                    Them
-                  </span>
-                </div>
-              )}
-            </>
-          )}
-        </div>
-        <div className="h-4" />
-      </div>
-    );
-  }
 
   if (factor.id === "smoker" || factor.id === "drinker") {
     const userBool = !!factor.rawUserValue;
@@ -919,19 +793,32 @@ function renderComparisonTrack(factor: any) {
     );
   }
 
-  if (factor.id === "guestPolicy" || factor.id === "gender") {
+  if (
+    factor.id === "guestPolicy" || 
+    factor.id === "gender" || 
+    factor.id === "cleanliness" || 
+    factor.id === "sleep" ||
+    factor.id === "occupation"
+  ) {
+    let label = "Preference";
+    if (factor.id === "gender") label = "Gender";
+    if (factor.id === "guestPolicy") label = "Rule";
+    if (factor.id === "cleanliness") label = "Standard";
+    if (factor.id === "sleep") label = "Schedule";
+    if (factor.id === "occupation") label = "Status";
+
     return (
       <div className="grid grid-cols-2 gap-4 pt-1">
         <div className="flex flex-col items-center bg-slate-50 border border-slate-200/50 rounded-xl p-3">
-          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Your {factor.id === "gender" ? "Gender" : "Rule"}</span>
-          <span className="text-xs font-black text-slate-700 capitalize">
-            {factor.rawUserValue || "Not Set"}
+          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Your {label}</span>
+          <span className="text-xs font-black text-slate-700 capitalize text-center">
+            {factor.rawUserValue ? factor.rawUserValue.replace("_", " ") : "Not Set"}
           </span>
         </div>
         <div className="flex flex-col items-center bg-slate-50 border border-slate-200/50 rounded-xl p-3">
-          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Their {factor.id === "gender" ? "Gender" : "Rule"}</span>
-          <span className="text-xs font-black text-slate-700 capitalize">
-            {factor.rawTargetValue || "Not Set"}
+          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Their {label}</span>
+          <span className="text-xs font-black text-slate-700 capitalize text-center">
+            {factor.rawTargetValue ? factor.rawTargetValue.replace("_", " ") : "Not Set"}
           </span>
         </div>
       </div>

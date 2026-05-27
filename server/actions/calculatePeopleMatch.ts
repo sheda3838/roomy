@@ -172,7 +172,11 @@ export function calculatePeopleMatch(userA: Partial<IUser>, userB: Partial<IUser
   let unmatchedFacilities: string[] = [];
   let facilityScorePercent = 0;
 
-  if (allFacilities.size > 0) {
+  if (allFacilities.size === 0) {
+    score += 20;
+    facilityScorePercent = 100;
+    reasons.push("Flexible on facilities (none specified)");
+  } else {
     let matchCount = 0;
     for (const facility of allFacilities) {
       if (facilitiesA.includes(facility) && facilitiesB.includes(facility)) {
@@ -184,8 +188,8 @@ export function calculatePeopleMatch(userA: Partial<IUser>, userB: Partial<IUser
     }
 
     facilityScorePercent = Math.round((matchCount / allFacilities.size) * 100);
-    // +2 points for every shared facility
-    const facilityPoints = matchCount * 2;
+    // Percentage based 20 points max
+    const facilityPoints = Math.round((matchCount / allFacilities.size) * 20);
     score += facilityPoints;
 
     if (facilityScorePercent === 100) {
