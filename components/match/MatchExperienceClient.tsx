@@ -38,9 +38,9 @@ interface MatchExperienceClientProps {
   match: {
     score: number;
     label: string;
-    lifestyle: unknown;
-    budget: unknown;
-    location: unknown;
+    lifestyle: any;
+    budget: any;
+    location: any;
     facilities?: {
       matched: string[];
       missing: string[];
@@ -871,7 +871,7 @@ export default function MatchExperienceClient({
 
 // ─── ACCORDION EXPANSION COMPARISON TRACK RENDERER ───
 
-function renderComparisonTrack(factor: unknown) {
+function renderComparisonTrack(factor: any) {
   if (
     factor.id === "cleanliness" ||
     factor.id === "occupation" ||
@@ -998,7 +998,7 @@ function BreakdownMeter({
 
 // ─── COMPATIBILITY NARRATIVE BRIEF GENERATOR ───
 
-function generateCompatibilityNarrative(match: unknown, room: IRoom) {
+function generateCompatibilityNarrative(match: any, room: IRoom) {
   const parts = [];
 
   // Match Label and Score
@@ -1058,7 +1058,7 @@ function generateCompatibilityNarrative(match: unknown, room: IRoom) {
 
 // ─── FACTORS BUILDER ───
 
-function buildFactors(match: unknown) {
+function buildFactors(match: any) {
   const factors = [];
 
   // Cleanliness expectation

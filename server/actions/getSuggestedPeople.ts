@@ -44,7 +44,7 @@ export async function getSuggestedPeople(filters?: unknown) {
     const excludeIds = [currentUserId, ...connectedUserIds].map(id => new mongoose.Types.ObjectId(id));
 
     // 3. Build query for active seekers with visible profiles
-    const query: unknown = {
+    const query: any = {
       _id: { $nin: excludeIds },
       isActiveSeeker: true,            // Only show people looking for roommates
       isOnboardingComplete: true,
@@ -70,7 +70,7 @@ export async function getSuggestedPeople(filters?: unknown) {
       .select("fullName profilePicture roleType gender cleanlinessLevel sleepType smoker guestPolicy budgetMin budgetMax preferredLocations")
       .lean();
 
-    console.log(`[getSuggestedPeople] found ${potentialRoommates.length} people:`, potentialRoommates.map((u: unknown) => `${u.fullName}`));
+    console.log(`[getSuggestedPeople] found ${potentialRoommates.length} people:`, potentialRoommates.map((u: any) => `${u.fullName}`));
 
     // 5. Run Matching Algorithm and filter out low matches (optional threshold)
     const scoredPeople: SuggestedPerson[] = potentialRoommates.map(partner => {
@@ -94,7 +94,7 @@ export async function getSuggestedPeople(filters?: unknown) {
 
     return { success: true, people: JSON.parse(JSON.stringify(scoredPeople)) };
 
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error("getSuggestedPeople error:", error);
     return { error: "Failed to fetch suggested people." };
   }

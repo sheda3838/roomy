@@ -32,7 +32,7 @@ export async function getRooms(options: GetRoomsOptions = {}) {
     await dbConnect();
 
     // 1. Build the MongoDB query object dynamically
-    const query: unknown = { isActive: true };
+    const query: any = { isActive: true };
 
     if (options.ownerId) {
       // Fetch only these rooms (e.g. for "My Rooms")
@@ -100,7 +100,7 @@ export async function getRooms(options: GetRoomsOptions = {}) {
         totalPages: Math.ceil(totalRooms / limit),
       },
     };
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error("getRooms Server Action error:", error);
     return { error: (error instanceof Error ? error.message : String(error)) || "An unexpected error occurred while fetching rooms." };
   }

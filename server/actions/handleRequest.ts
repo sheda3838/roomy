@@ -69,7 +69,7 @@ export async function handleRequest(requestId: string, action: "accept" | "rejec
       }
 
       // Check if user is already an occupant
-      const isAlreadyOccupant = room.occupantIds.some((id: unknown) => id.toString() === requesterIdStr);
+      const isAlreadyOccupant = room.occupantIds.some((id: any) => id.toString() === requesterIdStr);
       if (isAlreadyOccupant) {
         return { error: "User is already an occupant of this room." };
       }
@@ -85,7 +85,7 @@ export async function handleRequest(requestId: string, action: "accept" | "rejec
           users: [new mongoose.Types.ObjectId(userId), new mongoose.Types.ObjectId(requesterIdStr)],
           roomId: room._id,
         });
-      } catch (err: unknown) {
+      } catch (err: any) {
         if (err.code === 11000) {
           newConnection = await Connection.findOne({
             roomId: room._id,
@@ -139,7 +139,7 @@ export async function handleRequest(requestId: string, action: "accept" | "rejec
     }
 
     return { error: "Invalid action." };
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error("handleRequest Server Action error:", error);
     
     // Catch unique constraint error on Connection (E11000)
