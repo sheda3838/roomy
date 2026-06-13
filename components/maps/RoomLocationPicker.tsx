@@ -66,7 +66,7 @@ function SearchField({ setPosition, onChange }: {
 
     map.addControl(searchControl);
 
-    const handleLocation = (result: unknown) => {
+    const handleLocation = (result: any) => {
       if (result && result.location) {
         const pos = L.latLng(result.location.y, result.location.x);
         setPosition(pos);
