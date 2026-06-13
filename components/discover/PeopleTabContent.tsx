@@ -1,3 +1,4 @@
+import { IUser, IRoom } from "@/types";
 import { getSuggestedPeople } from "@/server/actions/getSuggestedPeople";
 import RoommateCard from "@/components/people/RoommateCard";
 import Link from "next/link";
@@ -10,7 +11,7 @@ interface PeopleTabContentProps {
 
 export default async function PeopleTabContent({ searchParams }: PeopleTabContentProps) {
   // Extract filters from URL
-  const filters: any = {};
+  const filters: Record<string, any> = {};
   if (searchParams.roleType) filters.roleType = searchParams.roleType;
   if (searchParams.gender) filters.gender = searchParams.gender;
   if (searchParams.smoker === "true") filters.smoker = true;

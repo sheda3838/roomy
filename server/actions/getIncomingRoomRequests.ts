@@ -1,4 +1,5 @@
 "use server";
+import { IUser, IRoom } from "@/types";
 
 import { auth } from "@/lib/auth";
 import dbConnect from "@/lib/db";
@@ -23,7 +24,7 @@ export async function getIncomingRoomRequests() {
 
     if (!ownedRooms.length) return { success: true, requests: [] };
 
-    const roomIds = ownedRooms.map((r: any) => r._id);
+    const roomIds = ownedRooms.map((r: unknown) => r._id);
 
     const requests = await RoomRequest.find({
       roomId: { $in: roomIds },
@@ -38,15 +39,15 @@ export async function getIncomingRoomRequests() {
       .lean();
 
     // Attach room info to each request
-    const roomMap = Object.fromEntries(ownedRooms.map((r: any) => [r._id.toString(), r]));
+    const roomMap = Object.fromEntries(ownedRooms.map((r: unknown) => [r._id.toString(), r]));
 
-    const enriched = requests.map((req: any) => ({
+    const enriched = requests.map((req: unknown) => ({
       ...req,
       room: roomMap[req.roomId.toString()] ?? null,
     }));
 
     return { success: true, requests: JSON.parse(JSON.stringify(enriched)) };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("getIncomingRoomRequests error:", error);
     return { error: "Failed to fetch room requests." };
   }

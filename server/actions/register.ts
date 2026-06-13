@@ -63,8 +63,8 @@ export async function registerUser(formData: {
     return { 
       success: "Registration successful! A verification email has been sent to your address." 
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Registration Server Action error:", error);
-    return { error: error.message || "An unexpected error occurred during registration." };
+    return { error: (error instanceof Error ? error.message : String(error)) || "An unexpected error occurred during registration." };
   }
 }

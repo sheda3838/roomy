@@ -1,4 +1,5 @@
 "use client";
+import { IUser, IRoom } from "@/types";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -46,7 +47,7 @@ export default function RequestToJoinButton({ roomId, isOwner, compatibilityScor
         setStatus("success");
         toast.success("Request sent successfully!");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setStatus("error");
       setErrorMsg(err.message || "Failed to send request.");
     } finally {

@@ -1,4 +1,5 @@
 "use client";
+import { IUser, IRoom } from "@/types";
 
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { MapPin, ChevronDown, Check, X } from "lucide-react";
@@ -8,7 +9,7 @@ import { cn } from "@/lib/utils";
 
 interface LocationSelectProps {
   value: string | string[];
-  onChange: (value: any) => void;
+  onChange: (value: any) => void; // Using any here to accommodate existing usages like handleCityChange which expects string
   multiple?: boolean;
   placeholder?: string;
   theme?: "light" | "dark";

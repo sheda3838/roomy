@@ -49,8 +49,8 @@ export async function sendVerificationEmail(email: string, token: string) {
     });
 
     return { success: true, data: info };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Failed to send verification email via Nodemailer:", error);
-    return { success: false, error: error.message };
+    return { success: false, error: (error instanceof Error ? error.message : String(error)) };
   }
 }

@@ -43,8 +43,8 @@ export async function verifyEmailToken(token: string) {
     await VerificationToken.deleteOne({ token });
 
     return { success: "Email verified successfully!" };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("verifyEmailToken Server Action error:", error);
-    return { error: error.message || "An unexpected error occurred during verification." };
+    return { error: (error instanceof Error ? error.message : String(error)) || "An unexpected error occurred during verification." };
   }
 }

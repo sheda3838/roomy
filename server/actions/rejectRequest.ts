@@ -57,8 +57,8 @@ export async function rejectRequest(requestId: string) {
     });
 
     return { success: "Join request rejected successfully." };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("rejectRequest Server Action error:", error);
-    return { error: error.message || "An unexpected error occurred while resolving the request." };
+    return { error: (error instanceof Error ? error.message : String(error)) || "An unexpected error occurred while resolving the request." };
   }
 }

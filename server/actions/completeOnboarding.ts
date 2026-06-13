@@ -57,8 +57,8 @@ export async function completeOnboarding(data: OnboardingInput) {
     revalidatePath("/dashboard/edit");
 
     return { success: "Onboarding completed successfully!" };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("completeOnboarding Server Action error:", error);
-    return { error: error.message || "An unexpected error occurred during onboarding." };
+    return { error: (error instanceof Error ? error.message : String(error)) || "An unexpected error occurred during onboarding." };
   }
 }

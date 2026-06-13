@@ -373,10 +373,10 @@ async function seed() {
 
   // --- MESSAGES ---
   console.log("Creating Messages...");
-  const messagesData: any[] = [];
+  const messagesData: unknown[] = [];
   const baseTime = new Date();
 
-  function addChat(connectionId: any, senderId: any, receiverId: any, msgs: string[]) {
+  function addChat(connectionId: unknown, senderId: unknown, receiverId: unknown, msgs: string[]) {
     msgs.forEach((content, index) => {
       const isSender = index % 2 === 0;
       messagesData.push({

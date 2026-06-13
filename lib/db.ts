@@ -11,12 +11,14 @@ interface MongooseCache {
   promise: Promise<typeof mongoose> | null;
 }
 
-// Declare a global variable to store the cache in development mode.
-// We use a global namespace typing extension or cast it on global.
-let cached = (global as any).mongoose as MongooseCache;
+declare global {
+  var mongoose: MongooseCache | undefined;
+}
+
+let cached = global.mongoose as MongooseCache;
 
 if (!cached) {
-  cached = (global as any).mongoose = { conn: null, promise: null };
+  cached = global.mongoose = { conn: null, promise: null };
 }
 
 async function dbConnect() {

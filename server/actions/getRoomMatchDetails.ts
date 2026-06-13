@@ -171,8 +171,8 @@ export async function getRoomMatchDetails(slug: string) {
         possibleConflicts,
       }
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("getRoomMatchDetails error:", error);
-    return { error: error.message || "Failed to calculate match details." };
+    return { error: (error instanceof Error ? error.message : String(error)) || "Failed to calculate match details." };
   }
 }

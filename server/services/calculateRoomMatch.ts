@@ -206,13 +206,11 @@ export function calculateRoomMatch(user: IUser, room: IRoom): MatchResult {
     const roomLocNorm = normalizeString(room.locationText);
     
     // Check for exact matches after normalization
-    let locationMatched = false;
     for (const loc of user.preferredLocations) {
       const uLocNorm = normalizeString(loc);
       if (roomLocNorm === uLocNorm) {
         score += 15;
         reasons.push(`Matches preferred location: ${loc}`);
-        locationMatched = true;
         break;
       }
     }

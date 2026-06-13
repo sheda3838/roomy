@@ -95,8 +95,8 @@ export async function sendJoinRequest(roomId: string, message?: string) {
       } 
     };
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("sendJoinRequest Server Action error:", error);
-    return { error: error.message || "An unexpected error occurred while sending the join request." };
+    return { error: (error instanceof Error ? error.message : String(error)) || "An unexpected error occurred while sending the join request." };
   }
 }

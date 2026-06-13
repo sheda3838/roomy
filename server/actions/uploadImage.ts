@@ -24,7 +24,7 @@ export async function uploadImage(formData: FormData) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       const uploadStream = cloudinary.uploader.upload_stream(
         { folder: "roomy_rooms" },
         (error, result) => {
@@ -41,8 +41,11 @@ export async function uploadImage(formData: FormData) {
       passThrough.end(buffer);
       passThrough.pipe(uploadStream);
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Upload Image Server Action Error:", error);
-    return { error: error.message || "An unexpected error occurred during upload." };
+    if (error instanceof Error) {
+      return { error: error.message };
+    }
+    return { error: "An unexpected error occurred during upload." };
   }
 }

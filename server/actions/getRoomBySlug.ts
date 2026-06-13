@@ -33,8 +33,8 @@ export async function getRoomBySlug(slug: string) {
       success: true,
       room: JSON.parse(JSON.stringify(room.toObject())),
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("getRoomBySlug Server Action error:", error);
-    return { error: error.message || "An unexpected error occurred while fetching the room details." };
+    return { error: (error instanceof Error ? error.message : String(error)) || "An unexpected error occurred while fetching the room details." };
   }
 }

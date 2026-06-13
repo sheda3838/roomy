@@ -1,4 +1,5 @@
 "use client";
+import { IUser, IRoom } from "@/types";
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -34,8 +35,8 @@ import CompatibilityExplanationModal from "@/components/shared/CompatibilityExpl
 import { toast } from "sonner";
 
 interface UserCompatibilityClientProps {
-  currentUser: any;
-  targetUser: any;
+  currentUser: IUser;
+  targetUser: IUser;
   match: {
     score: number;
     label: string;
@@ -810,7 +811,7 @@ export default function UserCompatibilityClient({
 
 // ─── STAGE DETAILS ACCORDION COMPARISON TRACKS ───
 
-function renderComparisonTrack(factor: any) {
+function renderComparisonTrack(factor: unknown) {
 
 
   if (factor.id === "smoker" || factor.id === "drinker") {
@@ -1039,7 +1040,7 @@ function BreakdownMeter({
 
 // ─── COMPATIBILITY NARRATIVE BRIEF GENERATOR ───
 
-function generateCompatibilityNarrative(score: number, user: any, partner: any) {
+function generateCompatibilityNarrative(score: number, user: IUser, partner: IUser) {
   const parts = [];
 
   // Match Level
@@ -1093,7 +1094,7 @@ function generateCompatibilityNarrative(score: number, user: any, partner: any) 
 
 // ─── FACTORS BUILDER ───
 
-function buildRoommateFactors(currentUser: any, targetUser: any, facilityMatches: any, locationMatches: any) {
+function buildRoommateFactors(currentUser: IUser, targetUser: IUser, facilityMatches: unknown, locationMatches: unknown) {
   const factors = [];
 
   const cleanlinessMatch = currentUser.cleanlinessLevel === targetUser.cleanlinessLevel;

@@ -43,8 +43,8 @@ export async function editProfile(data: EditProfileInput) {
     revalidatePath("/dashboard/edit");
 
     return { success: "Profile updated successfully!" };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("editProfile error:", error);
-    return { error: error.message || "An unexpected error occurred" };
+    return { error: (error instanceof Error ? error.message : String(error)) || "An unexpected error occurred" };
   }
 }

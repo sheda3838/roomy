@@ -1,4 +1,5 @@
 "use server";
+import { IUser, IRoom } from "@/types";
 
 import mongoose from "mongoose";
 import { auth } from "@/lib/auth";
@@ -41,7 +42,7 @@ export async function validateChatAccess(connectionId: string) {
 
     // Identify the partner
     let partnerId = connection.users.find(
-      (id: any) => id && id.toString().toLowerCase() !== userId.toLowerCase()
+      (id: unknown) => id && id.toString().toLowerCase() !== userId.toLowerCase()
     );
     if (!partnerId && connection.users.length > 0) {
       // Fallback for self-chats (testing)
@@ -59,7 +60,7 @@ export async function validateChatAccess(connectionId: string) {
       partner: partner ? JSON.parse(JSON.stringify(partner)) : null,
       userId 
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("validateChatAccess error:", error);
     return { error: "An unexpected error occurred validating chat access." };
   }
@@ -82,7 +83,7 @@ export async function getMessages(connectionId: string) {
       messages: JSON.parse(JSON.stringify(messages)),
       partner: access.partner 
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("getMessages error:", error);
     return { error: "Failed to fetch messages." };
   }
@@ -131,7 +132,7 @@ export async function sendMessage(connectionId: string, content: string) {
     }
 
     return { success: true, message: messageData };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("sendMessage error:", error);
     return { error: "Failed to send message." };
   }
@@ -170,8 +171,8 @@ export async function getChatConnections() {
 
     // 2. Extract partner IDs and fetch users in a single batch query
     const partnerIds = connections
-      .map((conn: any) => {
-        let pId = conn.users.find((id: any) => id && id.toString().toLowerCase() !== userId.toLowerCase());
+      .map((conn: unknown) => {
+        let pId = conn.users.find((id: unknown) => id && id.toString().toLowerCase() !== userId.toLowerCase());
         if (!pId && conn.users.length > 0) pId = conn.users[0];
         return pId;
       })
@@ -181,7 +182,7 @@ export async function getChatConnections() {
       .select("fullName profilePicture roleType")
       .lean();
 
-    const partnerMap = new Map(partners.map((p: any) => [p._id.toString(), p]));
+    const partnerMap = new Map(partners.map((p: unknown) => [p._id.toString(), p]));
 
     // 3. Fetch last messages in a single aggregation pipeline
     const lastMessages = await Message.aggregate([
@@ -195,7 +196,7 @@ export async function getChatConnections() {
       },
     ]);
 
-    const lastMessageMap = new Map(lastMessages.map((m: any) => [m._id.toString(), m.lastMsg]));
+    const lastMessageMap = new Map(lastMessages.map((m: unknown) => [m._id.toString(), m.lastMsg]));
 
     // 4. Fetch unread counts in a single aggregation pipeline
     const unreadCounts = await Message.aggregate([
@@ -214,12 +215,12 @@ export async function getChatConnections() {
       },
     ]);
 
-    const unreadCountMap = new Map(unreadCounts.map((u: any) => [u._id.toString(), u.count]));
+    const unreadCountMap = new Map(unreadCounts.map((u: unknown) => [u._id.toString(), u.count]));
 
     // 5. Format the connections list
-    const formatted = connections.map((conn: any) => {
+    const formatted = connections.map((conn: unknown) => {
       let partnerId = conn.users.find(
-        (id: any) => id && id.toString().toLowerCase() !== userId.toLowerCase()
+        (id: unknown) => id && id.toString().toLowerCase() !== userId.toLowerCase()
       );
       if (!partnerId && conn.users.length > 0) {
         partnerId = conn.users[0];
@@ -257,7 +258,7 @@ export async function getChatConnections() {
     });
 
     // Sort by last active time descending (most recent first)
-    formatted.sort((a: any, b: any) => {
+    formatted.sort((a: unknown, b: unknown) => {
       return new Date(b.lastActiveTime).getTime() - new Date(a.lastActiveTime).getTime();
     });
 
@@ -265,7 +266,7 @@ export async function getChatConnections() {
       success: true, 
       connections: JSON.parse(JSON.stringify(formatted)) 
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("getChatConnections error:", error);
     return { error: "Failed to fetch chat connections." };
   }
@@ -309,7 +310,7 @@ export async function markAsRead(connectionId: string) {
     }
 
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("markAsRead error:", error);
     return { error: "Failed to mark messages as read." };
   }
@@ -338,7 +339,7 @@ export async function sendTypingStatus(connectionId: string, isTyping: boolean) 
     });
 
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("sendTypingStatus error:", error);
     return { error: "Failed to trigger typing status event." };
   }

@@ -56,8 +56,8 @@ export async function joinRoom(roomId: string) {
     await room.save(); // pre-save hook will update occupantsCount automatically
 
     return { success: "You have joined the room successfully!" };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("joinRoom Server Action error:", error);
-    return { error: error.message || "An unexpected error occurred while joining the room." };
+    return { error: (error instanceof Error ? error.message : String(error)) || "An unexpected error occurred while joining the room." };
   }
 }

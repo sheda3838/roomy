@@ -1,4 +1,5 @@
 "use server";
+import { IUser, IRoom } from "@/types";
 
 import dbConnect from "@/lib/db";
 import Room from "@/models/Room";
@@ -31,7 +32,7 @@ export async function getRooms(options: GetRoomsOptions = {}) {
     await dbConnect();
 
     // 1. Build the MongoDB query object dynamically
-    const query: any = { isActive: true };
+    const query: unknown = { isActive: true };
 
     if (options.ownerId) {
       // Fetch only these rooms (e.g. for "My Rooms")
@@ -99,8 +100,8 @@ export async function getRooms(options: GetRoomsOptions = {}) {
         totalPages: Math.ceil(totalRooms / limit),
       },
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("getRooms Server Action error:", error);
-    return { error: error.message || "An unexpected error occurred while fetching rooms." };
+    return { error: (error instanceof Error ? error.message : String(error)) || "An unexpected error occurred while fetching rooms." };
   }
 }

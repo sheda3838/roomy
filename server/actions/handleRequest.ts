@@ -1,4 +1,5 @@
 "use server";
+import { IUser, IRoom } from "@/types";
 
 import mongoose from "mongoose";
 import { auth } from "@/lib/auth";
@@ -68,7 +69,7 @@ export async function handleRequest(requestId: string, action: "accept" | "rejec
       }
 
       // Check if user is already an occupant
-      const isAlreadyOccupant = room.occupantIds.some((id: any) => id.toString() === requesterIdStr);
+      const isAlreadyOccupant = room.occupantIds.some((id: unknown) => id.toString() === requesterIdStr);
       if (isAlreadyOccupant) {
         return { error: "User is already an occupant of this room." };
       }
@@ -84,7 +85,7 @@ export async function handleRequest(requestId: string, action: "accept" | "rejec
           users: [new mongoose.Types.ObjectId(userId), new mongoose.Types.ObjectId(requesterIdStr)],
           roomId: room._id,
         });
-      } catch (err: any) {
+      } catch (err: unknown) {
         if (err.code === 11000) {
           newConnection = await Connection.findOne({
             roomId: room._id,
@@ -138,7 +139,7 @@ export async function handleRequest(requestId: string, action: "accept" | "rejec
     }
 
     return { error: "Invalid action." };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("handleRequest Server Action error:", error);
     
     // Catch unique constraint error on Connection (E11000)
@@ -146,6 +147,6 @@ export async function handleRequest(requestId: string, action: "accept" | "rejec
        return { error: "A connection already exists between you and this user for this room." };
     }
     
-    return { error: error.message || "An unexpected error occurred while handling the request." };
+    return { error: (error instanceof Error ? error.message : String(error)) || "An unexpected error occurred while handling the request." };
   }
 }

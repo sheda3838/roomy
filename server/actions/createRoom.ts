@@ -66,8 +66,8 @@ export async function createRoom(data: CreateRoomInput) {
         slug: newRoom.slug,
       }
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("createRoom Server Action error:", error);
-    return { error: error.message || "An unexpected error occurred while creating the room." };
+    return { error: (error instanceof Error ? error.message : String(error)) || "An unexpected error occurred while creating the room." };
   }
 }

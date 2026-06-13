@@ -33,7 +33,7 @@ export async function removeConnection(connectionId: string) {
     revalidatePath("/messages");
 
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("removeConnection error:", error);
     return { error: "Failed to remove connection." };
   }

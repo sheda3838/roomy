@@ -68,9 +68,9 @@ export async function sendRoommateRequest(receiverId: string, message?: string) 
     });
 
     return { success: true, request: JSON.parse(JSON.stringify(request)) };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("sendRoommateRequest error:", error);
-    return { error: error.message || "Failed to send roommate request." };
+    return { error: (error instanceof Error ? error.message : String(error)) || "Failed to send roommate request." };
   }
 }
 
@@ -145,8 +145,8 @@ export async function handleRoommateRequestAction(requestId: string, action: "ac
     }
 
     return { error: "Invalid action." };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("handleRoommateRequestAction error:", error);
-    return { error: error.message || "Failed to process request." };
+    return { error: (error instanceof Error ? error.message : String(error)) || "Failed to process request." };
   }
 }

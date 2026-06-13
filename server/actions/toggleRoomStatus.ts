@@ -33,8 +33,8 @@ export async function toggleRoomStatus(roomSlug: string) {
       success: true, 
       isActive: room.isActive 
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("toggleRoomStatus Error:", error);
-    return { error: error.message || "Failed to change room status." };
+    return { error: (error instanceof Error ? error.message : String(error)) || "Failed to change room status." };
   }
 }

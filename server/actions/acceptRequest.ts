@@ -72,8 +72,8 @@ export async function acceptRequest(requestId: string) {
     });
 
     return { success: "Join request accepted successfully! Applicant added as occupant." };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("acceptRequest Server Action error:", error);
-    return { error: error.message || "An unexpected error occurred while resolving the request." };
+    return { error: (error instanceof Error ? error.message : String(error)) || "An unexpected error occurred while resolving the request." };
   }
 }

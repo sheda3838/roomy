@@ -29,7 +29,7 @@ export async function markAsRead(notificationId: string) {
     if (!result) return { error: "Notification not found." };
 
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("markAsRead error:", error);
     return { error: "Failed to mark notification as read." };
   }
@@ -51,7 +51,7 @@ export async function markAllAsRead() {
     );
 
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("markAllAsRead error:", error);
     return { error: "Failed to mark notifications as read." };
   }

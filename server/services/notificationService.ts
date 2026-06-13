@@ -1,3 +1,4 @@
+"use server";
 import dbConnect from "@/lib/db";
 import Notification, { NotificationType } from "@/models/Notification";
 import { pusherServer } from "@/lib/pusher";
@@ -16,8 +17,7 @@ interface CreateNotificationInput {
  * 2. Fires a real-time Pusher event on `private-user-{userId}`.
  *
  * This is intentionally a plain async function (not a Server Action)
- * so it can be imported inside other Server Actions without "use server"
- * directive conflicts when called from within the same server context.
+ * so it can be imported inside other Server Actions without  * directive conflicts when called from within the same server context.
  */
 export async function createNotification(input: CreateNotificationInput) {
   try {
@@ -47,8 +47,8 @@ export async function createNotification(input: CreateNotificationInput) {
       .catch((err) => console.error("[Pusher] Failed to trigger notification:", err));
 
     return { success: true, notification: payload };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[notificationService] createNotification error:", error);
-    return { error: error.message || "Failed to create notification." };
+    return { error: (error instanceof Error ? error.message : String(error)) || "Failed to create notification." };
   }
 }

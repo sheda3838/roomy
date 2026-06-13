@@ -62,8 +62,8 @@ export async function getSuggestedRooms(limit: number = 20): Promise<{ error: st
       success: true,
       matches: topMatches,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("getSuggestedRooms Server Action error:", error);
-    return { error: error.message || "Failed to fetch suggested rooms." };
+    return { error: (error instanceof Error ? error.message : String(error)) || "Failed to fetch suggested rooms." };
   }
 }

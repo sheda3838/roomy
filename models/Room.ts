@@ -97,7 +97,7 @@ const RoomSchema = new Schema<IRoom>(
 );
 
 // Auto-sync occupantsCount when occupantIds modifications occur on document save
-RoomSchema.pre("save", function (this: any) {
+RoomSchema.pre("save", function (this: unknown) {
   if (this.isModified("occupantIds")) {
     this.occupantsCount = this.occupantIds.length;
   }

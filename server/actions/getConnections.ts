@@ -1,4 +1,5 @@
 "use server";
+import { IUser, IRoom } from "@/types";
 
 import { auth } from "@/lib/auth";
 import dbConnect from "@/lib/db";
@@ -35,9 +36,9 @@ export async function getConnections() {
 
     // 2. Map through connections and format the data, fetching the partner's details
     const formattedConnections = await Promise.all(
-      connections.map(async (conn: any) => {
+      connections.map(async (conn: unknown) => {
         // Find the partner's ID (the user in the array who is NOT the current user)
-        const partnerId = conn.users.find((id: any) => id.toString() !== userId);
+        const partnerId = conn.users.find((id: unknown) => id.toString() !== userId);
         
         let partner = null;
         if (partnerId) {
@@ -71,7 +72,7 @@ export async function getConnections() {
       success: true, 
       connections: JSON.parse(JSON.stringify(formattedConnections)) 
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("getConnections Server Action error:", error);
     return { error: "Failed to fetch connections." };
   }

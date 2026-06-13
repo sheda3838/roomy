@@ -1,4 +1,5 @@
 "use server";
+import { IUser, IRoom } from "@/types";
 
 import mongoose from "mongoose";
 import { auth } from "@/lib/auth";
@@ -52,7 +53,7 @@ export async function editRoom(roomId: string, data: EditRoomInput) {
     }
 
     // 5. Update fields
-    const fieldsToUpdate: any = { ...validatedData };
+    const fieldsToUpdate: unknown = { ...validatedData };
 
     // Regenerate slug if title changes
     if (validatedData.title && validatedData.title !== room.title) {
@@ -86,8 +87,8 @@ export async function editRoom(roomId: string, data: EditRoomInput) {
         slug: updatedRoom.slug,
       } 
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("editRoom Server Action error:", error);
-    return { error: error.message || "An unexpected error occurred while modifying the room." };
+    return { error: (error instanceof Error ? error.message : String(error)) || "An unexpected error occurred while modifying the room." };
   }
 }

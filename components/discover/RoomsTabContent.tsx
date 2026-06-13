@@ -1,3 +1,4 @@
+import { IUser, IRoom } from "@/types";
 import { getRooms } from "@/server/actions/getRooms";
 import { auth } from "@/lib/auth";
 import RoomCard from "@/components/ui/RoomCard";
@@ -13,7 +14,7 @@ export default async function RoomsTabContent({ searchParams }: RoomsTabContentP
   const session = await auth();
 
   // Convert searchParams to filters
-  const filters: any = {};
+  const filters: Record<string, any> = {};
   if (searchParams.city) filters.locationText = searchParams.city;
   if (searchParams.maxPrice) filters.rentMax = Number(searchParams.maxPrice);
   if (searchParams.gender) filters.genderPreference = searchParams.gender;
@@ -55,7 +56,7 @@ export default async function RoomsTabContent({ searchParams }: RoomsTabContentP
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-            {rooms.map((room: any) => (
+            {rooms.map((room: IRoom) => (
               <RoomCard key={room._id} room={room} />
             ))}
           </div>

@@ -1,4 +1,5 @@
 "use client";
+import { IUser, IRoom } from "@/types";
 
 import { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from "react-leaflet";
@@ -65,7 +66,7 @@ function SearchField({ setPosition, onChange }: {
 
     map.addControl(searchControl);
 
-    const handleLocation = (result: any) => {
+    const handleLocation = (result: unknown) => {
       if (result && result.location) {
         const pos = L.latLng(result.location.y, result.location.x);
         setPosition(pos);

@@ -50,7 +50,7 @@ export async function getNotifications(options?: {
       pageSize: PAGE_SIZE,
       hasMore: skip + notifications.length < total,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("getNotifications error:", error);
     return { error: "Failed to fetch notifications." };
   }

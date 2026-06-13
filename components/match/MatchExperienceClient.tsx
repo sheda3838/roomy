@@ -1,4 +1,5 @@
 "use client";
+import { IUser, IRoom } from "@/types";
 
 import { useState, useEffect, ReactNode } from "react";
 import Link from "next/link";
@@ -33,13 +34,13 @@ import Counter from "@/components/ui/Counter";
 import CompatibilityExplanationModal from "@/components/shared/CompatibilityExplanationModal";
 
 interface MatchExperienceClientProps {
-  room: any;
+  room: IRoom;
   match: {
     score: number;
     label: string;
-    lifestyle: any;
-    budget: any;
-    location: any;
+    lifestyle: unknown;
+    budget: unknown;
+    location: unknown;
     facilities?: {
       matched: string[];
       missing: string[];
@@ -870,7 +871,7 @@ export default function MatchExperienceClient({
 
 // ─── ACCORDION EXPANSION COMPARISON TRACK RENDERER ───
 
-function renderComparisonTrack(factor: any) {
+function renderComparisonTrack(factor: unknown) {
   if (
     factor.id === "cleanliness" ||
     factor.id === "occupation" ||
@@ -997,7 +998,7 @@ function BreakdownMeter({
 
 // ─── COMPATIBILITY NARRATIVE BRIEF GENERATOR ───
 
-function generateCompatibilityNarrative(match: any, room: any) {
+function generateCompatibilityNarrative(match: unknown, room: IRoom) {
   const parts = [];
 
   // Match Label and Score
@@ -1057,7 +1058,7 @@ function generateCompatibilityNarrative(match: any, room: any) {
 
 // ─── FACTORS BUILDER ───
 
-function buildFactors(match: any) {
+function buildFactors(match: unknown) {
   const factors = [];
 
   // Cleanliness expectation

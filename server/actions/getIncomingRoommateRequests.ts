@@ -22,7 +22,7 @@ export async function getIncomingRoommateRequests() {
       .lean();
 
     return { success: true, requests: JSON.parse(JSON.stringify(requests)) };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("getIncomingRoommateRequests error:", error);
     return { error: "Failed to fetch requests." };
   }
