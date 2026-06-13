@@ -1,4 +1,4 @@
-import { auth } from "@/lib/auth";
+import { auth, signOut } from "@/lib/auth";
 import dbConnect from "@/lib/db";
 import User, { IUser } from "@/models/User";
 import { redirect } from "next/navigation";
@@ -43,7 +43,9 @@ export default async function DashboardPage() {
   await dbConnect();
   const userDoc = await User.findById(session.user.id).lean() as IUser | null;
 
-  if (!userDoc) redirect("/login");
+  if (!userDoc) {
+    redirect("/login?error=ghost_session");
+  }
 
   const user = userDoc;
   const displayName = user.fullName || session.user.name || "Roomy User";
@@ -223,6 +225,7 @@ export default async function DashboardPage() {
 
           <Link
             href="/dashboard/my-rooms"
+            data-testid="my-rooms-button"
             className="group p-6 bg-white border border-slate-100 hover:border-emerald-500/40 rounded-2xl transition-all hover:-translate-y-1 hover:shadow-lg hover:shadow-emerald-500/10 shadow-sm"
           >
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center mb-4 shadow-md group-hover:scale-110 transition-transform">

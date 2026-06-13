@@ -15,6 +15,7 @@ export default function RoommateCard({ person }: RoommateCardProps) {
   return (
     <Link
       href={`/people/${user._id}`}
+      data-testid="user-card"
       className="group relative flex flex-col p-6 rounded-[28px] bg-white/70 backdrop-blur-md border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.02)] hover:border-[rgb(34,142,222)]/40 hover:shadow-[0_20px_50px_rgba(29,93,185,0.08)] transition-all duration-500 overflow-hidden hover:-translate-y-1.5"
     >
       {/* Subtle brand hover background glow */}

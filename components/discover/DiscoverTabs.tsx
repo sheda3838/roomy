@@ -31,6 +31,7 @@ export default function DiscoverTabs() {
       </Link>
       <Link
         href={createTabUrl("people")}
+        data-testid="people-tab"
         className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-full text-sm font-semibold transition-all relative z-10 ${
           currentTab === "people"
             ? "text-white"

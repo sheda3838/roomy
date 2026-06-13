@@ -1,16 +1,27 @@
 "use client";
 
-import { useState } from "react";
-import { signIn } from "next-auth/react";
+import { useState, useEffect } from "react";
+import { signIn, signOut } from "next-auth/react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import { showErrorToast, showSuccessToast } from "@/lib/toast";
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
+  
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (searchParams.get("error") === "ghost_session") {
+      signOut({ redirect: false });
+      showErrorToast("Session Expired", "Please log in again.");
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,7 +39,7 @@ export default function LoginPage() {
         setLoading(false);
       } else {
         showSuccessToast("Welcome Back!", "Successfully signed into Roomy.");
-        router.push("/dashboard");
+        router.push(callbackUrl);
         router.refresh();
       }
     } catch (err) {
@@ -38,7 +49,7 @@ export default function LoginPage() {
   };
 
   const handleGoogleSignIn = () => {
-    signIn("google", { callbackUrl: "/dashboard" });
+    signIn("google", { callbackUrl });
   };
 
   return (
@@ -86,6 +97,7 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
                 className="roomy-input"
+                data-testid="email-input"
               />
             </div>
 
@@ -103,6 +115,7 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 className="roomy-input"
+                data-testid="password-input"
               />
             </div>
 
@@ -110,6 +123,7 @@ export default function LoginPage() {
               type="submit"
               disabled={loading}
               className="roomy-btn-primary mt-2"
+              data-testid="login-button"
             >
               {loading ? "Signing in…" : "Sign in"}
             </button>
@@ -141,5 +155,13 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
+      <LoginContent />
+    </Suspense>
   );
 }

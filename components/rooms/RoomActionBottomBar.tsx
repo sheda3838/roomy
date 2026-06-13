@@ -62,6 +62,7 @@ export default function RoomActionBottomBar({ roomSlug, isOwner, isActive = true
                 </Link>
                 <Link
                   href={`/rooms/${roomSlug}/edit`}
+                  data-testid="edit-room-button"
                   className="flex-1 flex items-center justify-center gap-2 py-3 px-2 sm:px-4 rounded-2xl bg-white text-[rgb(34,142,222)] hover:bg-slate-50 border border-[rgb(34,142,222)]/20 text-xs sm:text-sm font-bold transition-all shadow-sm"
                 >
                   <Edit2 className="w-4 h-4" />

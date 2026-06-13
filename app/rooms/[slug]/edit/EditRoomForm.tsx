@@ -316,6 +316,7 @@ export default function EditRoomForm({ initialData, roomId }: { initialData: any
                         <button
                           type="button"
                           key={item.id}
+                          data-testid={`facility-${item.id}`}
                           onClick={() => toggleFacility(item.id)}
                           className={cn(
                             "p-2 py-3 rounded-2xl border transition-all duration-300 cursor-pointer flex flex-col items-center justify-center gap-2 text-center select-none hover:shadow-md",
@@ -633,6 +634,7 @@ export default function EditRoomForm({ initialData, roomId }: { initialData: any
             </Link>
             <button
               type="submit"
+              data-testid="save-room-button"
               disabled={
                 isSubmitting || 
                 images.some((i) => i.isUploading) || 

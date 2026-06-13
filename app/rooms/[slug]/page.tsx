@@ -203,6 +203,7 @@ export default async function RoomDetailsPage({ params }: { params: Promise<{ sl
                   return (
                     <div
                       key={facilityId}
+                      data-testid={`room-facility-${facilityId}`}
                       className="flex items-center gap-3 p-4 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-[rgb(34,142,222)]/25 transition-all duration-300"
                     >
                       <div className="w-9 h-9 rounded-xl bg-slate-50 flex items-center justify-center text-[rgb(29,93,185)] shrink-0">

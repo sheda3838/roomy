@@ -329,6 +329,7 @@ export default async function UserDetailsPage({ params }: { params: Promise<{ us
             
             <Link
               href={`/people/${targetUser._id}/match`}
+              data-testid="compatibility-button"
               className="inline-flex items-center gap-2 px-10 py-4 rounded-full bg-gradient-to-r from-[rgb(34,142,222)] to-[rgb(29,93,185)] hover:from-[rgb(29,93,185)] hover:to-[rgb(29,93,185)] text-[15px] font-bold text-white shadow-lg shadow-[rgb(29,93,185)]/20 transition-all hover:scale-[1.03] active:scale-[0.98]"
             >
               <Heart className="w-5 h-5" /> Check Compatibility

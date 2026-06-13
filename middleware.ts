@@ -28,7 +28,9 @@ export default auth((req) => {
   if (!isLoggedIn) {
     // Prevent access to protected dashboards, onboarding, or verification states
     if (!isPublicRoute && !isVerifyEmailRoute && !isOnboardingRoute && !isVerifyEmailConfirmRoute) {
-      return NextResponse.redirect(new URL("/login", nextUrl));
+      const loginUrl = new URL("/login", nextUrl);
+      loginUrl.searchParams.set("callbackUrl", nextUrl.pathname + nextUrl.search);
+      return NextResponse.redirect(loginUrl);
     }
     return NextResponse.next();
   }
@@ -62,7 +64,7 @@ export default auth((req) => {
   if (
     isOnboardingRoute || 
     isVerifyEmailRoute || 
-    nextUrl.pathname === "/login" || 
+    (nextUrl.pathname === "/login" && nextUrl.searchParams.get("error") !== "ghost_session") || 
     nextUrl.pathname === "/register"
   ) {
     return NextResponse.redirect(new URL("/dashboard", nextUrl));

@@ -19,7 +19,7 @@ export default async function DiscoverPage(props: { searchParams?: Promise<{ [ke
   const currentTab = searchParams?.tab === "people" ? "people" : "rooms";
 
   return (
-    <div className="min-h-screen bg-[#f7f9ff] text-slate-900">
+    <div className="min-h-screen bg-[#f7f9ff] text-slate-900" data-testid="discover-page">
       
       {/* Hero Section */}
       <div className="relative pt-28 pb-12 px-4 overflow-hidden border-b border-slate-100 bg-white">

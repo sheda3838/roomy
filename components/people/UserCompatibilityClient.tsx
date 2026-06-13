@@ -329,7 +329,7 @@ export default function UserCompatibilityClient({
                 
                 {/* Double Layer Glassmorphic Circle */}
                 <div className="absolute inset-3 rounded-full bg-white/95 backdrop-blur-2xl border border-white shadow-inner flex flex-col items-center justify-center z-10">
-                  <div className="flex items-baseline justify-center">
+                  <div className="flex items-baseline justify-center" data-testid="compatibility-score">
                     <Counter
                       value={match.score}
                       places={match.score === 100 ? [100, 10, 1] : [10, 1]}
@@ -723,6 +723,7 @@ export default function UserCompatibilityClient({
                   <button
                     onClick={handleConnect}
                     disabled={isSubmitting}
+                    data-testid="connect-button"
                     className="w-full flex items-center justify-center gap-2 py-4 rounded-xl bg-gradient-to-r from-[rgb(34,142,222)] to-[rgb(29,93,185)] hover:from-[rgb(29,93,185)] hover:to-[rgb(29,93,185)] text-white font-bold text-sm shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
                   >
                     {isSubmitting ? (
