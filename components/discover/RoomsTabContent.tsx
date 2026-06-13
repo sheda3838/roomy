@@ -56,7 +56,7 @@ export default async function RoomsTabContent({ searchParams }: RoomsTabContentP
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-            {rooms.map((room: IRoom) => (
+            {rooms.map((room: any) => (
               <RoomCard key={room._id} room={room} />
             ))}
           </div>

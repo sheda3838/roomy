@@ -1,5 +1,5 @@
 export interface IUser {
-  _id: unknown;
+  _id: string;
   fullName: string;
   email: string;
   password?: string;
@@ -34,7 +34,7 @@ export interface IUser {
 }
 
 export interface IRoom {
-  _id: unknown;
+  _id: string;
   ownerId: unknown | IUser;
   title: string;
   description: string;
@@ -64,7 +64,7 @@ export interface IMatchResult {
 }
 
 export interface IConnection {
-  _id: unknown;
+  _id: string;
   sender: unknown | IUser;
   receiver: unknown | IUser;
   status: "pending" | "accepted" | "rejected";
@@ -75,7 +75,7 @@ export interface IConnection {
 }
 
 export interface IJoinRequest {
-  _id: unknown;
+  _id: string;
   roomId: unknown | IRoom;
   userId: unknown | IUser;
   status: "pending" | "accepted" | "rejected" | "withdrawn";

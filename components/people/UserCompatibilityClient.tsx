@@ -1094,8 +1094,23 @@ function generateCompatibilityNarrative(score: number, user: IUser, partner: IUs
 
 // ─── FACTORS BUILDER ───
 
-function buildRoommateFactors(currentUser: IUser, targetUser: IUser, facilityMatches: unknown, locationMatches: unknown) {
-  const factors = [];
+type FactorStatus = "perfect" | "partial" | "conflict";
+interface RoommateFactor {
+  id: string;
+  icon: React.ReactNode;
+  label: string;
+  scoreLabel: string;
+  targetValue: string;
+  status: FactorStatus;
+  badgeLabel: string;
+  rawUserValue: unknown;
+  rawTargetValue: unknown;
+  narrative: string;
+  customData?: any;
+}
+
+function buildRoommateFactors(currentUser: IUser, targetUser: IUser, facilityMatches: any, locationMatches: any) {
+  const factors: RoommateFactor[] = [];
 
   const cleanlinessMatch = currentUser.cleanlinessLevel === targetUser.cleanlinessLevel;
   const cleanLevels = { low: 1, medium: 2, high: 3 };
