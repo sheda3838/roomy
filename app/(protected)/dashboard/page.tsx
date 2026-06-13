@@ -66,7 +66,7 @@ export default async function DashboardPage() {
       <main className="flex-1 max-w-4xl w-full mx-auto px-4 pt-28 pb-10 relative z-10 space-y-8">
 
         {/* Welcome Banner */}
-        <div className="flex items-start justify-between gap-4 p-6 bg-gradient-to-r from-[rgb(46,219,244)]/10 to-[rgb(29,93,185)]/10 border border-[rgb(34,142,222)]/20 rounded-2xl">
+        <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 p-6 bg-gradient-to-r from-[rgb(46,219,244)]/10 to-[rgb(29,93,185)]/10 border border-[rgb(34,142,222)]/20 rounded-2xl">
           <div className="flex items-start gap-4">
             <CheckCircle className="h-6 w-6 text-[rgb(34,142,222)] flex-shrink-0 mt-0.5" />
             <div>
@@ -78,7 +78,7 @@ export default async function DashboardPage() {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2 mt-2 md:mt-0">
             <ConnectionsModal connections={connections} />
             <Link
               href="/dashboard/edit"

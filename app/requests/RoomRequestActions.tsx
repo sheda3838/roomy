@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Check, X, Loader2 } from "lucide-react";
+import { Check, X, Loader2, MessageSquare } from "lucide-react";
 import { handleRequest } from "@/server/actions/handleRequest";
 
 interface RoomRequestActionsProps {
@@ -17,6 +17,7 @@ export default function RoomRequestActions({
 }: RoomRequestActionsProps) {
   const [loading, setLoading] = useState(false);
   const [resolved, setResolved] = useState<"accepted" | "rejected" | null>(null);
+  const [connectionId, setConnectionId] = useState<string | null>(null);
   const [error, setError] = useState("");
 
   const handleAccept = async () => {
@@ -26,6 +27,9 @@ export default function RoomRequestActions({
     const res = await handleRequest(requestId, "accept");
     if (res.success || res.connectionId) {
       setResolved("accepted");
+      if (res.connectionId) {
+        setConnectionId(res.connectionId);
+      }
     } else {
       setError(res.error || "Failed to accept");
     }
@@ -46,8 +50,19 @@ export default function RoomRequestActions({
 
   if (resolved === "accepted") {
     return (
-      <div className="flex items-center gap-1.5 text-sm font-semibold text-emerald-600 bg-emerald-50 border border-emerald-100 rounded-full px-3 py-1.5">
-        <Check className="w-4 h-4" /> Accepted
+      <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 text-sm font-semibold text-emerald-600 bg-emerald-50 border border-emerald-100 rounded-full px-3 py-1.5">
+          <Check className="w-4 h-4" /> Accepted
+        </div>
+        {connectionId && (
+          <a
+            href={`/chat/${connectionId}`}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-full text-white text-xs font-bold transition-all hover:scale-105 shadow-md"
+            style={{ background: "linear-gradient(135deg, rgb(46,219,244), rgb(34,142,222), rgb(29,93,185))" }}
+          >
+            <MessageSquare className="w-3.5 h-3.5" /> Start Chat
+          </a>
+        )}
       </div>
     );
   }

@@ -9,6 +9,7 @@ import { FACILITIES_LIST } from "@/constants/facilities";
 import RoomImageGallery from "@/components/rooms/RoomImageGallery";
 import RoomActionBottomBar from "@/components/rooms/RoomActionBottomBar";
 import UserAvatar from "@/components/shared/UserAvatar";
+import BackButton from "@/components/shared/BackButton";
 
 // Metadata generation for SEO
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -54,6 +55,9 @@ export default async function RoomDetailsPage({ params }: { params: Promise<{ sl
 
       <div className="relative max-w-[1200px] mx-auto px-6 lg:px-10 pt-28 pb-10 lg:pt-32 lg:pb-12">
         
+        {/* Navigation back */}
+        <BackButton label="Go Back" fallbackUrl="/discover?tab=rooms" />
+
         {/* Inactive Badge */}
         {!room.isActive && (
           <div className="bg-amber-100 border border-amber-200 px-4 py-3 rounded-2xl mb-8 flex items-center justify-center gap-2 text-amber-800 font-semibold text-sm">

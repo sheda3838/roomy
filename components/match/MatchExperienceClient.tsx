@@ -849,7 +849,7 @@ export default function MatchExperienceClient({
                   Send a connection request to the owner. They will review your profile and match details to ensure a good fit.
                 </p>
                 <div className="w-full max-w-sm bg-slate-50 rounded-2xl border border-slate-200/60 p-5 shadow-inner">
-                  <RequestToJoinButton roomId={room._id} isOwner={false} />
+                  <RequestToJoinButton roomId={room._id} isOwner={false} compatibilityScore={match.score} />
                 </div>
                 <p className="text-xs text-slate-400 font-bold mt-5 flex items-center gap-1.5 justify-center">
                   <ShieldCheck className="w-3.5 h-3.5 text-slate-400" /> Secure, private co-living matchmaking

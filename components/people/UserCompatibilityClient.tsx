@@ -31,6 +31,7 @@ import { sendRoommateRequest } from "@/server/actions/handleRoommateRequest";
 import Counter from "@/components/ui/Counter";
 import { FACILITIES_LIST } from "@/constants/facilities";
 import CompatibilityExplanationModal from "@/components/shared/CompatibilityExplanationModal";
+import { toast } from "sonner";
 
 interface UserCompatibilityClientProps {
   currentUser: any;
@@ -74,6 +75,7 @@ export default function UserCompatibilityClient({
   const [activeStage, setActiveStage] = useState(0);
   const [expandedFactor, setExpandedFactor] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showWarningModal, setShowWarningModal] = useState(false);
 
   const toggleFactor = (id: string) => {
     setExpandedFactor(expandedFactor === id ? null : id);
@@ -196,16 +198,26 @@ export default function UserCompatibilityClient({
   const compatibilityNarrative = generateCompatibilityNarrative(match.score, currentUser, targetUser);
 
   // Send request action handler
-  const handleConnect = async () => {
+  const handleConnectClick = () => {
+    if (match.score < 50) {
+      setShowWarningModal(true);
+    } else {
+      executeConnect();
+    }
+  };
+
+  const executeConnect = async () => {
     setIsSubmitting(true);
     setRequestError("");
     try {
       const res = await sendRoommateRequest(
         targetUser._id,
-        `Hi ${targetUser.fullName}, I saw we have a great compatibility score of ${match.score}%! Would you like to connect?`
+        `Hi ${targetUser.fullName}, I saw we have a compatibility score of ${match.score}%. Would you like to connect?`
       );
       if (res.success) {
         setHasPendingRequest(true);
+        setShowWarningModal(false);
+        toast.success("Connection request sent successfully!");
       } else {
         setRequestError(res.error || "Failed to send request.");
       }
@@ -721,7 +733,7 @@ export default function UserCompatibilityClient({
                 </p>
                 <div className="w-full max-w-xs">
                   <button
-                    onClick={handleConnect}
+                    onClick={handleConnectClick}
                     disabled={isSubmitting}
                     data-testid="connect-button"
                     className="w-full flex items-center justify-center gap-2 py-4 rounded-xl bg-gradient-to-r from-[rgb(34,142,222)] to-[rgb(29,93,185)] hover:from-[rgb(29,93,185)] hover:to-[rgb(29,93,185)] text-white font-bold text-sm shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
@@ -751,6 +763,47 @@ export default function UserCompatibilityClient({
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
       />
+
+      {/* LOW COMPATIBILITY WARNING MODAL */}
+      <AnimatePresence>
+        {showWarningModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-[24px] shadow-2xl p-6 md:p-8 max-w-sm w-full border border-amber-200/50 relative overflow-hidden"
+            >
+              <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-amber-400 to-orange-500" />
+              <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center mb-5 mx-auto">
+                <AlertTriangle className="w-6 h-6 text-amber-600" />
+              </div>
+              <h3 className="text-xl font-bold text-center text-slate-900 mb-2">
+                Low Compatibility Warning
+              </h3>
+              <p className="text-sm text-center font-semibold text-slate-500 mb-6 leading-relaxed">
+                You have significant lifestyle differences with {targetUser.fullName}. Are you sure you want to send a connection request anyway?
+              </p>
+              
+              <div className="flex flex-col gap-2">
+                <button
+                  onClick={() => setShowWarningModal(false)}
+                  className="w-full py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={executeConnect}
+                  disabled={isSubmitting}
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm transition-colors disabled:opacity-50 shadow-sm"
+                >
+                  {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Send Anyway"}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
