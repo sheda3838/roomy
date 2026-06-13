@@ -1,6 +1,10 @@
 import dotenv from "dotenv";
 import path from "path";
 import bcrypt from "bcryptjs";
+import dns from "dns";
+
+// Force Node to use Google DNS to fix ENOTFOUND _mongodb._tcp issues with Atlas
+dns.setServers(['8.8.8.8', '8.8.4.4']);
 
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
