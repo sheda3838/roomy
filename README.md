@@ -131,19 +131,19 @@ Roomy is built on a modern, **Server-First Architecture** leveraging the Next.js
 ## Screenshots
 
 ### Home Page
-> */images/home-page.png*
+![Home Page](./images/home-page.png)
 
 ### Discover Rooms
-> */images/discover-rooms.png*
+![Discover Rooms](./images/discover-rooms.png)
 
 ### Compatibility View
-> */images/compatibility-view.png*
+![Compatibility View](./images/compatibilty-view.png)
 
 ### Chat System
-> */images/chat-system.png*
+![Chat System](./images/chat-system.png)
 
 ### Profile
-> */images/profile.png*
+![Profile](./images/my-profile.png)
 
 ---
 
