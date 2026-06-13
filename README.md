@@ -19,13 +19,13 @@
 
 <br />
 
-## 📖 About Roomy
+## About Roomy
 
 Roomy is a roommate and room discovery platform designed to help users find compatible roommates and suitable accommodations based on lifestyle preferences, budget, location preferences, room facilities, and living habits.
 
 The project was inspired by a real-world problem experienced by the founder while searching for accommodation and roommates. The goal is to reduce mismatches and improve shared living experiences through **compatibility-based matching** rather than simple room listings.
 
-### ✨ Key Highlights
+### Key Highlights
 - **Compatibility-Based Matching:** Advanced algorithm that calculates lifestyle and habit alignment.
 - **Room Discovery:** Search for the perfect room using smart filtering.
 - **Roommate Discovery:** Find people who share your values and living habits.
@@ -35,7 +35,7 @@ The project was inspired by a real-world problem experienced by the founder whil
 
 ---
 
-## 🚨 The Problem
+## The Problem
 
 * **Superficial Listings:** Traditional room listing platforms only focus on the physical room attributes (rent, location, size).
 * **Ignoring the Human Element:** They completely ignore roommate compatibility, which is often the most critical factor in shared living.
@@ -44,43 +44,43 @@ The project was inspired by a real-world problem experienced by the founder whil
 
 ---
 
-## 🚀 Features
+## Features
 
-### 🔐 Authentication
+### Authentication
 * **Google Authentication:** Seamless sign-in using Auth.js.
 * **Secure Sessions:** JWT-based secure session management.
 * **Protected Routes:** Middleware-protected application states.
 
-### 👤 User Profiles
+### User Profiles
 * **Lifestyle Preferences:** Configurable habits (sleep schedule, cleanliness, smoking, etc.).
 * **Budget Preferences:** Min and max budget ranges.
 * **Preferred Locations:** Multi-select desired neighborhoods/cities.
 * **Facility Preferences:** Must-have amenities.
 * **Profile Management:** Easily activate or deactivate seeker status.
 
-### 🏠 Room Discovery
+### Room Discovery
 * **Room Listings:** Detailed view of available accommodations.
 * **Filters:** Drill down by rent, location, and capacity.
 * **Facility Matching:** Highlight rooms that have exactly what you need.
 * **Compatibility Scoring:** See how well you match with the current occupants of a room.
 
-### 🤝 Roommate Discovery
+### Roommate Discovery
 * **User Discovery:** Browse other users actively seeking housing.
 * **Compatibility Calculation:** Instant percentage match based on profiles.
 * **Connection Requests:** Send and manage requests to connect with potential roommates.
 
-### 💬 Messaging
+### Messaging
 * **Real-Time Chat:** Instant messaging powered by Pusher.
 * **Connection-Based Messaging:** Chat unlocks only after a successful connection request.
 
-### ⚙️ Room Management
+### Room Management
 * **Create Room:** List a new room with photos, details, and rules.
 * **Edit Room:** Update details as needed.
 * **Deactivate Room:** Unlist a room when it's full or no longer available.
 
 ---
 
-## 🧠 Compatibility Scoring System
+## Compatibility Scoring System
 
 Roomy uses a proprietary, weighted scoring model out of 100 to determine how well two users—or a user and a room—match. 
 
@@ -102,7 +102,7 @@ The engine evaluates several key dimensions:
 
 ---
 
-## 💻 Tech Stack
+## Tech Stack
 
 | Category | Technologies |
 | :--- | :--- |
@@ -116,7 +116,7 @@ The engine evaluates several key dimensions:
 
 ---
 
-## 🏗️ System Architecture
+## System Architecture
 
 Roomy is built on a modern, **Server-First Architecture** leveraging the Next.js App Router:
 
@@ -128,26 +128,26 @@ Roomy is built on a modern, **Server-First Architecture** leveraging the Next.js
 
 ---
 
-## 📸 Screenshots
+## Screenshots
 
 ### Home Page
-> *[ Add Screenshot here ]*
+> */images/home-page.png*
 
 ### Discover Rooms
-> *[ Add Screenshot here ]*
+> */images/discover-rooms.png*
 
 ### Compatibility View
-> *[ Add Screenshot here ]*
+> */images/compatibility-view.png*
 
 ### Chat System
-> *[ Add Screenshot here ]*
+> */images/chat-system.png*
 
 ### Profile
-> *[ Add Screenshot here ]*
+> */images/profile.png*
 
 ---
 
-## 🛠️ Installation
+## Installation
 
 Follow these steps to set up Roomy locally:
 
@@ -172,7 +172,7 @@ Follow these steps to set up Roomy locally:
 
 ---
 
-## 🔑 Environment Variables
+## Environment Variables
 
 Create a `.env.local` file in the root directory and add the following variables:
 
@@ -195,7 +195,7 @@ Create a `.env.local` file in the root directory and add the following variables
 
 ---
 
-## 🧪 Running Tests
+## Running Tests
 
 Roomy is equipped with comprehensive testing.
 
@@ -215,19 +215,7 @@ npx cypress run
 
 ---
 
-## 🌐 Deployment
-
-Roomy is optimized for deployment on **Vercel**. 
-
-1. Push your code to a GitHub repository.
-2. Import the project into Vercel.
-3. Configure all **Environment Variables** in the Vercel project settings. Ensure `NEXT_PUBLIC_APP_URL` is set to your production domain.
-4. Vercel will automatically detect the Next.js framework and execute a production build (`npm run build`).
-5. Ensure your **MongoDB Atlas** Network Access allows connections from Vercel IPs (or allow all `0.0.0.0/0`).
-
----
-
-## 🔮 Future Improvements
+## Future Improvements
 
 * **AI-Assisted Roommate Recommendations:** Leverage LLMs to analyze user bios and predict personality matches.
 * **Advanced Search Filters:** Interactive map-based searching and commute-time calculators.
@@ -238,14 +226,13 @@ Roomy is optimized for deployment on **Vercel**.
 
 ---
 
-## 👨‍💻 Author
+## Author
 
 **Kamil Zaid**  
 *(Full Stack Engineer)*
 
 * **GitHub:** [@sheda3838](https://github.com/sheda3838)
-* **LinkedIn:** [Add LinkedIn Profile URL Here]
-* **Portfolio:** [Add Portfolio URL Here]
+* **LinkedIn:** [https://www.linkedin.com/in/kamilzaid/]
 
 ---
 <div align="center">
