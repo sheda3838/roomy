@@ -171,11 +171,7 @@ export default function OnboardingPage() {
         setErrorMsg(result.error);
         setIsSubmitting(false);
       } else {
-        // Wait for cookie update (max 1s) to prevent middleware race conditions
-        await Promise.race([
-          update({ isOnboardingComplete: true }).catch(console.error),
-          new Promise((resolve) => setTimeout(resolve, 1000))
-        ]);
+        await update({ isOnboardingComplete: true }).catch(console.error);
         
         // Force a hard navigation to bypass router cache and ensure middleware reads the new cookie
         window.location.href = "/dashboard";
